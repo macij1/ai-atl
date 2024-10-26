@@ -1,9 +1,13 @@
 import json
-import requests
+import time
 import arxiv
+import os
 
 def download_arxiv_sources_with_client(json_file_path):
     client = arxiv.Client()
+    
+    # Ensure the download directory exists
+    download_dir = './data/papers'
     
     # Load the JSON data
     with open(json_file_path, 'r') as file:
@@ -14,25 +18,19 @@ def download_arxiv_sources_with_client(json_file_path):
         arxiv_id = paper_info["id"]
 
         # Use arxiv.Client to retrieve paper metadata
-        paper = next(arxiv.Client().results(arxiv.Search(id_list=[arxiv_id])))
-        paper.download_source()
-        
-        if paper:
-            # Construct the download URL for the source
-            download_url = f'https://arxiv.org/e-print/{arxiv_id}'
+        try:
+            paper = next(client.results(arxiv.Search(id_list=[arxiv_id])), None)
             
-            # Download the .tar.gz file
-            response = requests.get(download_url)
-            
-            if response.status_code == 200:
-                filename = f"{arxiv_id.replace('/', '_')}.tar.gz"
-                with open(filename, 'wb') as f:
-                    f.write(response.content)
-                print(f"Downloaded {filename} successfully.")
+            if paper:
+                # Download with custom directory path
+                paper.download_source(dirpath=download_dir)
+                print(f"Downloaded {arxiv_id} to {download_dir}")
+                
             else:
-                print(f"Failed to download source for {arxiv_id}")
-        else:
-            print(f"No results found for arXiv ID {arxiv_id}")
+                print(f"No results found for arXiv ID {arxiv_id}")
+
+        except Exception as e:
+            print(f"Error downloading {arxiv_id}: {e}")
 
 # Usage
-download_arxiv_sources_with_client('ml_papers.json')
+download_arxiv_sources_with_client('./data/ml_papers.json')
