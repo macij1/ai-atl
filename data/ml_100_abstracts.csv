@@ -1,0 +1,1583 @@
+,Abstract
+0,"  The problem of statistical learning is to construct a predictor of a random
+variable $Y$ as a function of a related random variable $X$ on the basis of an
+i.i.d. training sample from the joint distribution of $(X,Y)$. Allowable
+predictors are drawn from some specified class, and the goal is to approach
+asymptotically the performance (expected loss) of the best predictor in the
+class. We consider the setting in which one has perfect observation of the
+$X$-part of the sample, while the $Y$-part has to be communicated at some
+finite bit rate. The encoding of the $Y$-values is allowed to depend on the
+$X$-values. Under suitable regularity conditions on the admissible predictors,
+the underlying family of probability distributions and the loss function, we
+give an information-theoretic characterization of achievable predictor
+performance in terms of conditional distortion-rate functions. The ideas are
+illustrated on the example of nonparametric regression in Gaussian noise.
+"
+1,"  In a sensor network, in practice, the communication among sensors is subject
+to:(1) errors or failures at random times; (3) costs; and(2) constraints since
+sensors and networks operate under scarce resources, such as power, data rate,
+or communication. The signal-to-noise ratio (SNR) is usually a main factor in
+determining the probability of error (or of communication failure) in a link.
+These probabilities are then a proxy for the SNR under which the links operate.
+The paper studies the problem of designing the topology, i.e., assigning the
+probabilities of reliable communication among sensors (or of link failures) to
+maximize the rate of convergence of average consensus, when the link
+communication costs are taken into account, and there is an overall
+communication budget constraint. To consider this problem, we address a number
+of preliminary issues: (1) model the network as a random topology; (2)
+establish necessary and sufficient conditions for mean square sense (mss) and
+almost sure (a.s.) convergence of average consensus when network links fail;
+and, in particular, (3) show that a necessary and sufficient condition for both
+mss and a.s. convergence is for the algebraic connectivity of the mean graph
+describing the network topology to be strictly positive. With these results, we
+formulate topology design, subject to random link failures and to a
+communication cost constraint, as a constrained convex optimization problem to
+which we apply semidefinite programming techniques. We show by an extensive
+numerical study that the optimal design improves significantly the convergence
+speed of the consensus algorithm and can achieve the asymptotic performance of
+a non-random network at a fraction of the communication cost.
+"
+2,"  We analyze the generalization performance of a student in a model composed of
+nonlinear perceptrons: a true teacher, ensemble teachers, and the student. We
+calculate the generalization error of the student analytically or numerically
+using statistical mechanics in the framework of on-line learning. We treat two
+well-known learning rules: Hebbian learning and perceptron learning. As a
+result, it is proven that the nonlinear model shows qualitatively different
+behaviors from the linear model. Moreover, it is clarified that Hebbian
+learning and perceptron learning show qualitatively different behaviors from
+each other. In Hebbian learning, we can analytically obtain the solutions. In
+this case, the generalization error monotonically decreases. The steady value
+of the generalization error is independent of the learning rate. The larger the
+number of teachers is and the more variety the ensemble teachers have, the
+smaller the generalization error is. In perceptron learning, we have to
+numerically obtain the solutions. In this case, the dynamical behaviors of the
+generalization error are non-monotonic. The smaller the learning rate is, the
+larger the number of teachers is; and the more variety the ensemble teachers
+have, the smaller the minimum value of the generalization error is.
+"
+3,"  In the process of training Support Vector Machines (SVMs) by decomposition
+methods, working set selection is an important technique, and some exciting
+schemes were employed into this field. To improve working set selection, we
+propose a new model for working set selection in sequential minimal
+optimization (SMO) decomposition methods. In this model, it selects B as
+working set without reselection. Some properties are given by simple proof, and
+experiments demonstrate that the proposed method is in general faster than
+existing methods.
+"
+4,"  Probabilistic graphical models (PGMs) have become a popular tool for
+computational analysis of biological data in a variety of domains. But, what
+exactly are they and how do they work? How can we use PGMs to discover patterns
+that are biologically relevant? And to what extent can PGMs help us formulate
+new hypotheses that are testable at the bench? This note sketches out some
+answers and illustrates the main ideas behind the statistical approach to
+biological pattern discovery.
+"
+5,"  In this article we develop quantum algorithms for learning and testing
+juntas, i.e. Boolean functions which depend only on an unknown set of k out of
+n input variables. Our aim is to develop efficient algorithms:
+  - whose sample complexity has no dependence on n, the dimension of the domain
+the Boolean functions are defined over;
+  - with no access to any classical or quantum membership (""black-box"")
+queries. Instead, our algorithms use only classical examples generated
+uniformly at random and fixed quantum superpositions of such classical
+examples;
+  - which require only a few quantum examples but possibly many classical
+random examples (which are considered quite ""cheap"" relative to quantum
+examples).
+  Our quantum algorithms are based on a subroutine FS which enables sampling
+according to the Fourier spectrum of f; the FS subroutine was used in earlier
+work of Bshouty and Jackson on quantum learning. Our results are as follows:
+  - We give an algorithm for testing k-juntas to accuracy $\epsilon$ that uses
+$O(k/\epsilon)$ quantum examples. This improves on the number of examples used
+by the best known classical algorithm.
+  - We establish the following lower bound: any FS-based k-junta testing
+algorithm requires $\Omega(\sqrt{k})$ queries.
+  - We give an algorithm for learning $k$-juntas to accuracy $\epsilon$ that
+uses $O(\epsilon^{-1} k\log k)$ quantum examples and $O(2^k \log(1/\epsilon))$
+random examples. We show that this learning algorithms is close to optimal by
+giving a related lower bound.
+"
+6,"  Data from spectrophotometers form vectors of a large number of exploitable
+variables. Building quantitative models using these variables most often
+requires using a smaller set of variables than the initial one. Indeed, a too
+large number of input variables to a model results in a too large number of
+parameters, leading to overfitting and poor generalization abilities. In this
+paper, we suggest the use of the mutual information measure to select variables
+from the initial set. The mutual information measures the information content
+in input variables with respect to the model output, without making any
+assumption on the model that will be used; it is thus suitable for nonlinear
+modelling. In addition, it leads to the selection of variables among the
+initial set, and not to linear or nonlinear combinations of them. Without
+decreasing the model performances compared to other variable projection
+methods, it allows therefore a greater interpretability of the results.
+"
+7,"  In many real world applications, data cannot be accurately represented by
+vectors. In those situations, one possible solution is to rely on dissimilarity
+measures that enable sensible comparison between observations. Kohonen's
+Self-Organizing Map (SOM) has been adapted to data described only through their
+dissimilarity matrix. This algorithm provides both non linear projection and
+clustering of non vector data. Unfortunately, the algorithm suffers from a high
+cost that makes it quite difficult to use with voluminous data sets. In this
+paper, we propose a new algorithm that provides an important reduction of the
+theoretical cost of the dissimilarity SOM without changing its outcome (the
+results are exactly the same as the ones obtained with the original algorithm).
+Moreover, we introduce implementation methods that result in very short running
+times. Improvements deduced from the theoretical cost model are validated on
+simulated and real world data (a word list clustering problem). We also
+demonstrate that the proposed implementation methods reduce by a factor up to 3
+the running time of the fast algorithm over a standard implementation.
+"
+8,"  The large number of spectral variables in most data sets encountered in
+spectral chemometrics often renders the prediction of a dependent variable
+uneasy. The number of variables hopefully can be reduced, by using either
+projection techniques or selection methods; the latter allow for the
+interpretation of the selected variables. Since the optimal approach of testing
+all possible subsets of variables with the prediction model is intractable, an
+incremental selection approach using a nonparametric statistics is a good
+option, as it avoids the computationally intensive use of the model itself. It
+has two drawbacks however: the number of groups of variables to test is still
+huge, and colinearities can make the results unstable. To overcome these
+limitations, this paper presents a method to select groups of spectral
+variables. It consists in a forward-backward procedure applied to the
+coefficients of a B-Spline representation of the spectra. The criterion used in
+the forward-backward procedure is the mutual information, allowing to find
+nonlinear dependencies between variables, on the contrary of the generally used
+correlation. The spline representation is used to get interpretability of the
+results, as groups of consecutive spectral variables will be selected. The
+experiments conducted on NIR spectra from fescue grass and diesel fuels show
+that the method provides clearly identified groups of selected variables,
+making interpretation easy, while keeping a low computational load. The
+prediction performances obtained using the selected coefficients are higher
+than those obtained by the same method applied directly to the original
+variables and similar to those obtained using traditional models, although
+using significantly less spectral variables.
+"
+9,"  Combining the mutual information criterion with a forward feature selection
+strategy offers a good trade-off between optimality of the selected feature
+subset and computation time. However, it requires to set the parameter(s) of
+the mutual information estimator and to determine when to halt the forward
+procedure. These two choices are difficult to make because, as the
+dimensionality of the subset increases, the estimation of the mutual
+information becomes less and less reliable. This paper proposes to use
+resampling methods, a K-fold cross-validation and the permutation test, to
+address both issues. The resampling methods bring information about the
+variance of the estimator, information which can then be used to automatically
+set the parameter and to calculate a threshold to stop the forward procedure.
+The procedure is illustrated on a synthetic dataset as well as on real-world
+examples.
+"
+10,"  In this paper, we propose a spreading activation approach for collaborative
+filtering (SA-CF). By using the opinion spreading process, the similarity
+between any users can be obtained. The algorithm has remarkably higher accuracy
+than the standard collaborative filtering (CF) using Pearson correlation.
+Furthermore, we introduce a free parameter $\beta$ to regulate the
+contributions of objects to user-user correlations. The numerical results
+indicate that decreasing the influence of popular objects can further improve
+the algorithmic accuracy and personality. We argue that a better algorithm
+should simultaneously require less computation and generate higher accuracy.
+Accordingly, we further propose an algorithm involving only the top-$N$ similar
+neighbors for each target user, which has both less computational complexity
+and higher algorithmic accuracy.
+"
+11,"  In this contribution, we propose a generic online (also sometimes called
+adaptive or recursive) version of the Expectation-Maximisation (EM) algorithm
+applicable to latent variable models of independent observations. Compared to
+the algorithm of Titterington (1984), this approach is more directly connected
+to the usual EM algorithm and does not rely on integration with respect to the
+complete data distribution. The resulting algorithm is usually simpler and is
+shown to achieve convergence to the stationary points of the Kullback-Leibler
+divergence between the marginal distribution of the observation and the model
+distribution at the optimal rate, i.e., that of the maximum likelihood
+estimator. In addition, the proposed approach is also suitable for conditional
+(or regression) models, as illustrated in the case of the mixture of linear
+regressions model.
+"
+12,"  On-line learning of a hierarchical learning model is studied by a method from
+statistical mechanics. In our model a student of a simple perceptron learns
+from not a true teacher directly, but ensemble teachers who learn from the true
+teacher with a perceptron learning rule. Since the true teacher and the
+ensemble teachers are expressed as non-monotonic perceptron and simple ones,
+respectively, the ensemble teachers go around the unlearnable true teacher with
+the distance between them fixed in an asymptotic steady state. The
+generalization performance of the student is shown to exceed that of the
+ensemble teachers in a transient state, as was shown in similar
+ensemble-teachers models. Further, it is found that moving the ensemble
+teachers even in the steady state, in contrast to the fixed ensemble teachers,
+is efficient for the performance of the student.
+"
+13,"  Several researchers have recently investigated the connection between
+reinforcement learning and classification. We are motivated by proposals of
+approximate policy iteration schemes without value functions which focus on
+policy representation using classifiers and address policy learning as a
+supervised learning problem. This paper proposes variants of an improved policy
+iteration scheme which addresses the core sampling problem in evaluating a
+policy through simulation as a multi-armed bandit machine. The resulting
+algorithm offers comparable performance to the previous algorithm achieved,
+however, with significantly less computational effort. An order of magnitude
+improvement is demonstrated experimentally in two standard reinforcement
+learning domains: inverted pendulum and mountain-car.
+"
+14,"  This article describes an approach to designing a distributed and modular
+neural classifier. This approach introduces a new hierarchical clustering that
+enables one to determine reliable regions in the representation space by
+exploiting supervised information. A multilayer perceptron is then associated
+with each of these detected clusters and charged with recognizing elements of
+the associated cluster while rejecting all others. The obtained global
+classifier is comprised of a set of cooperating neural networks and completed
+by a K-nearest neighbor classifier charged with treating elements rejected by
+all the neural networks. Experimental results for the handwritten digit
+recognition problem and comparison with neural and statistical nonmodular
+classifiers are given.
+"
+15,"  Statistical modeling of nuclear data provides a novel approach to nuclear
+systematics complementary to established theoretical and phenomenological
+approaches based on quantum theory. Continuing previous studies in which global
+statistical modeling is pursued within the general framework of machine
+learning theory, we implement advances in training algorithms designed to
+improved generalization, in application to the problem of reproducing and
+predicting the halflives of nuclear ground states that decay 100% by the beta^-
+mode. More specifically, fully-connected, multilayer feedforward artificial
+neural network models are developed using the Levenberg-Marquardt optimization
+algorithm together with Bayesian regularization and cross-validation. The
+predictive performance of models emerging from extensive computer experiments
+is compared with that of traditional microscopic and phenomenological models as
+well as with the performance of other learning systems, including earlier
+neural network models as well as the support vector machines recently applied
+to the same problem. In discussing the results, emphasis is placed on
+predictions for nuclei that are far from the stability line, and especially
+those involved in the r-process nucleosynthesis. It is found that the new
+statistical models can match or even surpass the predictive performance of
+conventional models for beta-decay systematics and accordingly should provide a
+valuable additional tool for exploring the expanding nuclear landscape.
+"
+16,"  Algorithm selection is typically based on models of algorithm performance,
+learned during a separate offline training sequence, which can be prohibitively
+expensive. In recent work, we adopted an online approach, in which a
+performance model is iteratively updated and used to guide selection on a
+sequence of problem instances. The resulting exploration-exploitation trade-off
+was represented as a bandit problem with expert advice, using an existing
+solver for this game, but this required the setting of an arbitrary bound on
+algorithm runtimes, thus invalidating the optimal regret of the solver. In this
+paper, we propose a simpler framework for representing algorithm selection as a
+bandit problem, with partial information, and an unknown bound on losses. We
+adapt an existing solver to this game, proving a bound on its expected regret,
+which holds also for the resulting algorithm selection technique. We present
+preliminary experiments with a set of SAT solvers on a mixed SAT-UNSAT
+benchmark.
+"
+17,"  In many fields where human understanding plays a crucial role, such as
+bioprocesses, the capacity of extracting knowledge from data is of critical
+importance. Within this framework, fuzzy learning methods, if properly used,
+can greatly help human experts. Amongst these methods, the aim of orthogonal
+transformations, which have been proven to be mathematically robust, is to
+build rules from a set of training data and to select the most important ones
+by linear regression or rank revealing techniques. The OLS algorithm is a good
+representative of those methods. However, it was originally designed so that it
+only cared about numerical performance. Thus, we propose some modifications of
+the original method to take interpretability into account. After recalling the
+original algorithm, this paper presents the changes made to the original
+method, then discusses some results obtained from benchmark problems. Finally,
+the algorithm is applied to a real-world fault detection depollution problem.
+"
+18,"  In this paper, we propose the MIML (Multi-Instance Multi-Label learning)
+framework where an example is described by multiple instances and associated
+with multiple class labels. Compared to traditional learning frameworks, the
+MIML framework is more convenient and natural for representing complicated
+objects which have multiple semantic meanings. To learn from MIML examples, we
+propose the MimlBoost and MimlSvm algorithms based on a simple degeneration
+strategy, and experiments show that solving problems involving complicated
+objects with multiple semantic meanings in the MIML framework can lead to good
+performance. Considering that the degeneration process may lose information, we
+propose the D-MimlSvm algorithm which tackles MIML problems directly in a
+regularization framework. Moreover, we show that even when we do not have
+access to the real objects and thus cannot capture more information from real
+objects by using the MIML representation, MIML is still useful. We propose the
+InsDif and SubCod algorithms. InsDif works by transforming single-instances
+into the MIML representation for learning, while SubCod works by transforming
+single-label examples into the MIML representation for learning. Experiments
+show that in some tasks they are able to achieve better performance than
+learning the single-instances or single-label examples directly.
+"
+19,"  In many physical, statistical, biological and other investigations it is
+desirable to approximate a system of points by objects of lower dimension
+and/or complexity. For this purpose, Karl Pearson invented principal component
+analysis in 1901 and found 'lines and planes of closest fit to system of
+points'. The famous k-means algorithm solves the approximation problem too, but
+by finite sets instead of lines and planes. This chapter gives a brief
+practical introduction into the methods of construction of general principal
+objects, i.e. objects embedded in the 'middle' of the multidimensional data
+set. As a basis, the unifying framework of mean squared distance approximation
+of finite datasets is selected. Principal graphs and manifolds are constructed
+as generalisations of principal components and k-means principal points. For
+this purpose, the family of expectation/maximisation algorithms with nearest
+generalisations is presented. Construction of principal graphs with controlled
+complexity is based on the graph grammar approach.
+"
+20,"  In this paper, we have established a unified framework of multistage
+parameter estimation. We demonstrate that a wide variety of statistical
+problems such as fixed-sample-size interval estimation, point estimation with
+error control, bounded-width confidence intervals, interval estimation
+following hypothesis testing, construction of confidence sequences, can be cast
+into the general framework of constructing sequential random intervals with
+prescribed coverage probabilities. We have developed exact methods for the
+construction of such sequential random intervals in the context of multistage
+sampling. In particular, we have established inclusion principle and coverage
+tuning techniques to control and adjust the coverage probabilities of
+sequential random intervals. We have obtained concrete sampling schemes which
+are unprecedentedly efficient in terms of sampling effort as compared to
+existing procedures.
+"
+21,"  The repeatability and efficiency of a corner detector determines how likely
+it is to be useful in a real-world application. The repeatability is importand
+because the same scene viewed from different positions should yield features
+which correspond to the same real-world 3D locations [Schmid et al 2000]. The
+efficiency is important because this determines whether the detector combined
+with further processing can operate at frame rate.
+  Three advances are described in this paper. First, we present a new heuristic
+for feature detection, and using machine learning we derive a feature detector
+from this which can fully process live PAL video using less than 5% of the
+available processing time. By comparison, most other detectors cannot even
+operate at frame rate (Harris detector 115%, SIFT 195%). Second, we generalize
+the detector, allowing it to be optimized for repeatability, with little loss
+of efficiency. Third, we carry out a rigorous comparison of corner detectors
+based on the above repeatability criterion applied to 3D scenes. We show that
+despite being principally constructed for speed, on these stringent tests, our
+heuristic detector significantly outperforms existing feature detectors.
+Finally, the comparison demonstrates that using machine learning produces
+significant improvements in repeatability, yielding a detector that is both
+very fast and very high quality.
+"
+22,"  The key approaches for machine learning, especially learning in unknown
+probabilistic environments are new representations and computation mechanisms.
+In this paper, a novel quantum reinforcement learning (QRL) method is proposed
+by combining quantum theory and reinforcement learning (RL). Inspired by the
+state superposition principle and quantum parallelism, a framework of value
+updating algorithm is introduced. The state (action) in traditional RL is
+identified as the eigen state (eigen action) in QRL. The state (action) set can
+be represented with a quantum superposition state and the eigen state (eigen
+action) can be obtained by randomly observing the simulated quantum state
+according to the collapse postulate of quantum measurement. The probability of
+the eigen action is determined by the probability amplitude, which is
+parallelly updated according to rewards. Some related characteristics of QRL
+such as convergence, optimality and balancing between exploration and
+exploitation are also analyzed, which shows that this approach makes a good
+tradeoff between exploration and exploitation using the probability amplitude
+and can speed up learning through the quantum parallelism. To evaluate the
+performance and practicability of QRL, several simulated experiments are given
+and the results demonstrate the effectiveness and superiority of QRL algorithm
+for some complex problems. The present work is also an effective exploration on
+the application of quantum computation to artificial intelligence.
+"
+23,"  This paper presents the current state of a work in progress, whose objective
+is to better understand the effects of factors that significantly influence the
+performance of Latent Semantic Analysis (LSA). A difficult task, which consists
+in answering (French) biology Multiple Choice Questions, is used to test the
+semantic properties of the truncated singular space and to study the relative
+influence of main parameters. A dedicated software has been designed to fine
+tune the LSA semantic space for the Multiple Choice Questions task. With
+optimal parameters, the performances of our simple model are quite surprisingly
+equal or superior to those of 7th and 8th grades students. This indicates that
+semantic spaces were quite good despite their low dimensions and the small
+sizes of training data sets. Besides, we present an original entropy global
+weighting of answers' terms of each question of the Multiple Choice Questions
+which was necessary to achieve the model's success.
+"
+24,"  Enormous successes have been made by quantum algorithms during the last
+decade. In this paper, we combine the quantum game with the problem of data
+clustering, and then develop a quantum-game-based clustering algorithm, in
+which data points in a dataset are considered as players who can make decisions
+and implement quantum strategies in quantum games. After each round of a
+quantum game, each player's expected payoff is calculated. Later, he uses a
+link-removing-and-rewiring (LRR) function to change his neighbors and adjust
+the strength of links connecting to them in order to maximize his payoff.
+Further, algorithms are discussed and analyzed in two cases of strategies, two
+payoff matrixes and two LRR functions. Consequently, the simulation results
+have demonstrated that data points in datasets are clustered reasonably and
+efficiently, and the clustering algorithms have fast rates of convergence.
+Moreover, the comparison with other algorithms also provides an indication of
+the effectiveness of the proposed approach.
+"
+25,"  We participated in three of the protein-protein interaction subtasks of the
+Second BioCreative Challenge: classification of abstracts relevant for
+protein-protein interaction (IAS), discovery of protein pairs (IPS) and text
+passages characterizing protein interaction (ISS) in full text documents. We
+approached the abstract classification task with a novel, lightweight linear
+model inspired by spam-detection techniques, as well as an uncertainty-based
+integration scheme. We also used a Support Vector Machine and the Singular
+Value Decomposition on the same features for comparison purposes. Our approach
+to the full text subtasks (protein pair and passage identification) includes a
+feature expansion method based on word-proximity networks. Our approach to the
+abstract classification task (IAS) was among the top submissions for this task
+in terms of the measures of performance used in the challenge evaluation
+(accuracy, F-score and AUC). We also report on a web-tool we produced using our
+approach: the Protein Interaction Abstract Relevance Evaluator (PIARE). Our
+approach to the full text tasks resulted in one of the highest recall rates as
+well as mean reciprocal rank of correct passages. Our approach to abstract
+classification shows that a simple linear model, using relatively few features,
+is capable of generalizing and uncovering the conceptual nature of
+protein-protein interaction from the bibliome. Since the novel approach is
+based on a very lightweight linear model, it can be easily ported and applied
+to similar problems. In full text problems, the expansion of word features with
+word-proximity networks is shown to be useful, though the need for some
+improvements is discussed.
+"
+26,"  A client-server architecture to simultaneously solve multiple learning tasks
+from distributed datasets is described. In such architecture, each client is
+associated with an individual learning task and the associated dataset of
+examples. The goal of the architecture is to perform information fusion from
+multiple datasets while preserving privacy of individual data. The role of the
+server is to collect data in real-time from the clients and codify the
+information in a common database. The information coded in this database can be
+used by all the clients to solve their individual learning task, so that each
+client can exploit the informative content of all the datasets without actually
+having access to private data of others. The proposed algorithmic framework,
+based on regularization theory and kernel methods, uses a suitable class of
+mixed effect kernels. The new method is illustrated through a simulated music
+recommendation system.
+"
+27,"  Many AI researchers and cognitive scientists have argued that analogy is the
+core of cognition. The most influential work on computational modeling of
+analogy-making is Structure Mapping Theory (SMT) and its implementation in the
+Structure Mapping Engine (SME). A limitation of SME is the requirement for
+complex hand-coded representations. We introduce the Latent Relation Mapping
+Engine (LRME), which combines ideas from SME and Latent Relational Analysis
+(LRA) in order to remove the requirement for hand-coded representations. LRME
+builds analogical mappings between lists of words, using a large corpus of raw
+text to automatically discover the semantic relations among the words. We
+evaluate LRME on a set of twenty analogical mapping problems, ten based on
+scientific analogies and ten based on common metaphors. LRME achieves
+human-level performance on the twenty problems. We compare LRME with a variety
+of alternative approaches and find that they are not able to reach the same
+level of performance.
+"
+28,"  This paper introduces a model based upon games on an evolving network, and
+develops three clustering algorithms according to it. In the clustering
+algorithms, data points for clustering are regarded as players who can make
+decisions in games. On the network describing relationships among data points,
+an edge-removing-and-rewiring (ERR) function is employed to explore in a
+neighborhood of a data point, which removes edges connecting to neighbors with
+small payoffs, and creates new edges to neighbors with larger payoffs. As such,
+the connections among data points vary over time. During the evolution of
+network, some strategies are spread in the network. As a consequence, clusters
+are formed automatically, in which data points with the same evolutionarily
+stable strategy are collected as a cluster, so the number of evolutionarily
+stable strategies indicates the number of clusters. Moreover, the experimental
+results have demonstrated that data points in datasets are clustered reasonably
+and efficiently, and the comparison with other algorithms also provides an
+indication of the effectiveness of the proposed algorithms.
+"
+29,"  We consider the problem of joint universal variable-rate lossy coding and
+identification for parametric classes of stationary $\beta$-mixing sources with
+general (Polish) alphabets. Compression performance is measured in terms of
+Lagrangians, while identification performance is measured by the variational
+distance between the true source and the estimated source. Provided that the
+sources are mixing at a sufficiently fast rate and satisfy certain smoothness
+and Vapnik-Chervonenkis learnability conditions, it is shown that, for bounded
+metric distortions, there exist universal schemes for joint lossy compression
+and identification whose Lagrangian redundancies converge to zero as $\sqrt{V_n
+\log n /n}$ as the block length $n$ tends to infinity, where $V_n$ is the
+Vapnik-Chervonenkis dimension of a certain class of decision regions defined by
+the $n$-dimensional marginal distributions of the sources; furthermore, for
+each $n$, the decoder can identify $n$-dimensional marginal of the active
+source up to a ball of radius $O(\sqrt{V_n\log n/n})$ in variational distance,
+eventually with probability one. The results are supplemented by several
+examples of parametric sources satisfying the regularity conditions.
+"
+30,"  We study boosting algorithms from a new perspective. We show that the
+Lagrange dual problems of AdaBoost, LogitBoost and soft-margin LPBoost with
+generalized hinge loss are all entropy maximization problems. By looking at the
+dual problems of these boosting algorithms, we show that the success of
+boosting algorithms can be understood in terms of maintaining a better margin
+distribution by maximizing margins and at the same time controlling the margin
+variance.We also theoretically prove that, approximately, AdaBoost maximizes
+the average margin, instead of the minimum margin. The duality formulation also
+enables us to develop column generation based optimization algorithms, which
+are totally corrective. We show that they exhibit almost identical
+classification results to that of standard stage-wise additive boosting
+algorithms but with much faster convergence rates. Therefore fewer weak
+classifiers are needed to build the ensemble using our proposed optimization
+technique.
+"
+31,"  Scenarios for the emergence or bootstrap of a lexicon involve the repeated
+interaction between at least two agents who must reach a consensus on how to
+name N objects using H words. Here we consider minimal models of two types of
+learning algorithms: cross-situational learning, in which the individuals
+determine the meaning of a word by looking for something in common across all
+observed uses of that word, and supervised operant conditioning learning, in
+which there is strong feedback between individuals about the intended meaning
+of the words. Despite the stark differences between these learning schemes, we
+show that they yield the same communication accuracy in the realistic limits of
+large N and H, which coincides with the result of the classical occupancy
+problem of randomly assigning N objects to H words.
+"
+32,"  Gaussian belief propagation (GaBP) is an iterative message-passing algorithm
+for inference in Gaussian graphical models. It is known that when GaBP
+converges it converges to the correct MAP estimate of the Gaussian random
+vector and simple sufficient conditions for its convergence have been
+established. In this paper we develop a double-loop algorithm for forcing
+convergence of GaBP. Our method computes the correct MAP estimate even in cases
+where standard GaBP would not have converged. We further extend this
+construction to compute least-squares solutions of over-constrained linear
+systems. We believe that our construction has numerous applications, since the
+GaBP algorithm is linked to solution of linear systems of equations, which is a
+fundamental problem in computer science and engineering. As a case study, we
+discuss the linear detection problem. We show that using our new construction,
+we are able to force convergence of Montanari's linear detection algorithm, in
+cases where it would originally fail. As a consequence, we are able to increase
+significantly the number of users that can transmit concurrently.
+"
+33,"  A $p$-adic modification of the split-LBG classification method is presented
+in which first clusterings and then cluster centers are computed which locally
+minimise an energy function. The outcome for a fixed dataset is independent of
+the prime number $p$ with finitely many exceptions. The methods are applied to
+the construction of $p$-adic classifiers in the context of learning.
+"
+34,"  In the context of inference with expectation constraints, we propose an
+approach based on the ""loopy belief propagation"" algorithm LBP, as a surrogate
+to an exact Markov Random Field MRF modelling. A prior information composed of
+correlations among a large set of N variables, is encoded into a graphical
+model; this encoding is optimized with respect to an approximate decoding
+procedure LBP, which is used to infer hidden variables from an observed subset.
+We focus on the situation where the underlying data have many different
+statistical components, representing a variety of independent patterns.
+Considering a single parameter family of models we show how LBP may be used to
+encode and decode efficiently such information, without solving the NP hard
+inverse problem yielding the optimal MRF. Contrary to usual practice, we work
+in the non-convex Bethe free energy minimization framework, and manage to
+associate a belief propagation fixed point to each component of the underlying
+probabilistic mixture. The mean field limit is considered and yields an exact
+connection with the Hopfield model at finite temperature and steady state, when
+the number of mixture components is proportional to the number of variables. In
+addition, we provide an enhanced learning procedure, based on a straightforward
+multi-parameter extension of the model in conjunction with an effective
+continuous optimization procedure. This is performed using the stochastic
+search heuristic CMAES and yields a significant improvement with respect to the
+single parameter basic model.
+"
+35,"  Given a time series of multicomponent measurements x(t), the usual objective
+of nonlinear blind source separation (BSS) is to find a ""source"" time series
+s(t), comprised of statistically independent combinations of the measured
+components. In this paper, the source time series is required to have a density
+function in (s,ds/dt)-space that is equal to the product of density functions
+of individual components. This formulation of the BSS problem has a solution
+that is unique, up to permutations and component-wise transformations.
+Separability is shown to impose constraints on certain locally invariant
+(scalar) functions of x, which are derived from local higher-order correlations
+of the data's velocity dx/dt. The data are separable if and only if they
+satisfy these constraints, and, if the constraints are satisfied, the sources
+can be explicitly constructed from the data. The method is illustrated by using
+it to separate two speech-like sounds recorded with a single microphone.
+"
+36,"  Inferring the sequence of states from observations is one of the most
+fundamental problems in Hidden Markov Models. In statistical physics language,
+this problem is equivalent to computing the marginals of a one-dimensional
+model with a random external field. While this task can be accomplished through
+transfer matrix methods, it becomes quickly intractable when the underlying
+state space is large.
+  This paper develops several low-complexity approximate algorithms to address
+this inference problem when the state space becomes large. The new algorithms
+are based on various mean-field approximations of the transfer matrix. Their
+performances are studied in detail on a simple realistic model for DNA
+pyrosequencing.
+"
+37,"  The problem of multi-agent learning and adaptation has attracted a great deal
+of attention in recent years. It has been suggested that the dynamics of multi
+agent learning can be studied using replicator equations from population
+biology. Most existing studies so far have been limited to discrete strategy
+spaces with a small number of available actions. In many cases, however, the
+choices available to agents are better characterized by continuous spectra.
+This paper suggests a generalization of the replicator framework that allows to
+study the adaptive dynamics of Q-learning agents with continuous strategy
+spaces. Instead of probability vectors, agents strategies are now characterized
+by probability measures over continuous variables. As a result, the ordinary
+differential equations for the discrete case are replaced by a system of
+coupled integral--differential replicator equations that describe the mutual
+evolution of individual agent strategies. We derive a set of functional
+equations describing the steady state of the replicator dynamics, examine their
+solutions for several two-player games, and confirm our analytical results
+using simulations.
+"
+38,"  Growing neuropsychological and neurophysiological evidence suggests that the
+visual cortex uses parts-based representations to encode, store and retrieve
+relevant objects. In such a scheme, objects are represented as a set of
+spatially distributed local features, or parts, arranged in stereotypical
+fashion. To encode the local appearance and to represent the relations between
+the constituent parts, there has to be an appropriate memory structure formed
+by previous experience with visual objects. Here, we propose a model how a
+hierarchical memory structure supporting efficient storage and rapid recall of
+parts-based representations can be established by an experience-driven process
+of self-organization. The process is based on the collaboration of slow
+bidirectional synaptic plasticity and homeostatic unit activity regulation,
+both running at the top of fast activity dynamics with winner-take-all
+character modulated by an oscillatory rhythm. These neural mechanisms lay down
+the basis for cooperation and competition between the distributed units and
+their synaptic connections. Choosing human face recognition as a test task, we
+show that, under the condition of open-ended, unsupervised incremental
+learning, the system is able to form memory traces for individual faces in a
+parts-based fashion. On a lower memory layer the synaptic structure is
+developed to represent local facial features and their interrelations, while
+the identities of different persons are captured explicitly on a higher layer.
+An additional property of the resulting representations is the sparseness of
+both the activity during the recall and the synaptic patterns comprising the
+memory traces.
+"
+39,"  Catalogs of periodic variable stars contain large numbers of periodic
+light-curves (photometric time series data from the astrophysics domain).
+Separating anomalous objects from well-known classes is an important step
+towards the discovery of new classes of astronomical objects. Most anomaly
+detection methods for time series data assume either a single continuous time
+series or a set of time series whose periods are aligned. Light-curve data
+precludes the use of these methods as the periods of any given pair of
+light-curves may be out of sync. One may use an existing anomaly detection
+method if, prior to similarity calculation, one performs the costly act of
+aligning two light-curves, an operation that scales poorly to massive data
+sets. This paper presents PCAD, an unsupervised anomaly detection method for
+large sets of unsynchronized periodic time-series data, that outputs a ranked
+list of both global and local anomalies. It calculates its anomaly score for
+each light-curve in relation to a set of centroids produced by a modified
+k-means clustering algorithm. Our method is able to scale to large data sets
+through the use of sampling. We validate our method on both light-curve data
+and other time series data sets. We demonstrate its effectiveness at finding
+known anomalies, and discuss the effect of sample size and number of centroids
+on our results. We compare our method to naive solutions and existing time
+series anomaly detection methods for unphased data, and show that PCAD's
+reported anomalies are comparable to or better than all other methods. Finally,
+astrophysicists on our team have verified that PCAD finds true anomalies that
+might be indicative of novel astrophysical phenomena.
+"
+40,"  We use co-evolutionary genetic algorithms to model the players' learning
+process in several Cournot models, and evaluate them in terms of their
+convergence to the Nash Equilibrium. The ""social-learning"" versions of the two
+co-evolutionary algorithms we introduce, establish Nash Equilibrium in those
+models, in contrast to the ""individual learning"" versions which, as we see
+here, do not imply the convergence of the players' strategies to the Nash
+outcome. When players use ""canonical co-evolutionary genetic algorithms"" as
+learning algorithms, the process of the game is an ergodic Markov Chain, and
+therefore we analyze simulation results using both the relevant methodology and
+more general statistical tests, to find that in the ""social"" case, states
+leading to NE play are highly frequent at the stationary distribution of the
+chain, in contrast to the ""individual learning"" case, when NE is not reached at
+all in our simulations; to find that the expected Hamming distance of the
+states at the limiting distribution from the ""NE state"" is significantly
+smaller in the ""social"" than in the ""individual learning case""; to estimate the
+expected time that the ""social"" algorithms need to get to the ""NE state"" and
+verify their robustness and finally to show that a large fraction of the games
+played are indeed at the Nash Equilibrium.
+"
+41,"  Many learning machines that have hierarchical structure or hidden variables
+are now being used in information science, artificial intelligence, and
+bioinformatics. However, several learning machines used in such fields are not
+regular but singular statistical models, hence their generalization performance
+is still left unknown. To overcome these problems, in the previous papers, we
+proved new equations in statistical learning, by which we can estimate the
+Bayes generalization loss from the Bayes training loss and the functional
+variance, on the condition that the true distribution is a singularity
+contained in a learning machine. In this paper, we prove that the same
+equations hold even if a true distribution is not contained in a parametric
+model. Also we prove that, the proposed equations in a regular case are
+asymptotically equivalent to the Takeuchi information criterion. Therefore, the
+proposed equations are always applicable without any condition on the unknown
+true distribution.
+"
+42,"  Clusters of genes that have evolved by repeated segmental duplication present
+difficult challenges throughout genomic analysis, from sequence assembly to
+functional analysis. Improved understanding of these clusters is of utmost
+importance, since they have been shown to be the source of evolutionary
+innovation, and have been linked to multiple diseases, including HIV and a
+variety of cancers. Previously, Zhang et al. (2008) developed an algorithm for
+reconstructing parsimonious evolutionary histories of such gene clusters, using
+only human genomic sequence data. In this paper, we propose a probabilistic
+model for the evolution of gene clusters on a phylogeny, and an MCMC algorithm
+for reconstruction of duplication histories from genomic sequences in multiple
+species. Several projects are underway to obtain high quality BAC-based
+assemblies of duplicated clusters in multiple species, and we anticipate that
+our method will be useful in analyzing these valuable new data sets.
+"
+43,"  The paper proposes a new message passing algorithm for cycle-free factor
+graphs. The proposed ""entropy message passing"" (EMP) algorithm may be viewed as
+sum-product message passing over the entropy semiring, which has previously
+appeared in automata theory. The primary use of EMP is to compute the entropy
+of a model. However, EMP can also be used to compute expressions that appear in
+expectation maximization and in gradient descent algorithms.
+"
+44,"  In recent years, the spectral analysis of appropriately defined kernel
+matrices has emerged as a principled way to extract the low-dimensional
+structure often prevalent in high-dimensional data. Here we provide an
+introduction to spectral methods for linear and nonlinear dimension reduction,
+emphasizing ways to overcome the computational limitations currently faced by
+practitioners with massive datasets. In particular, a data subsampling or
+landmark selection process is often employed to construct a kernel based on
+partial information, followed by an approximate spectral analysis termed the
+Nystrom extension. We provide a quantitative framework to analyse this
+procedure, and use it to demonstrate algorithmic performance bounds on a range
+of practical approaches designed to optimize the landmark selection process. We
+compare the practical implications of these bounds by way of real-world
+examples drawn from the field of computer vision, whereby low-dimensional
+manifold structure is shown to emerge from high-dimensional video data streams.
+"
+45,"  In our previous work, we proposed a systematic cross-layer framework for
+dynamic multimedia systems, which allows each layer to make autonomous and
+foresighted decisions that maximize the system's long-term performance, while
+meeting the application's real-time delay constraints. The proposed solution
+solved the cross-layer optimization offline, under the assumption that the
+multimedia system's probabilistic dynamics were known a priori. In practice,
+however, these dynamics are unknown a priori and therefore must be learned
+online. In this paper, we address this problem by allowing the multimedia
+system layers to learn, through repeated interactions with each other, to
+autonomously optimize the system's long-term performance at run-time. We
+propose two reinforcement learning algorithms for optimizing the system under
+different design constraints: the first algorithm solves the cross-layer
+optimization in a centralized manner, and the second solves it in a
+decentralized manner. We analyze both algorithms in terms of their required
+computation, memory, and inter-layer communication overheads. After noting that
+the proposed reinforcement learning algorithms learn too slowly, we introduce a
+complementary accelerated learning algorithm that exploits partial knowledge
+about the system's dynamics in order to dramatically improve the system's
+performance. In our experiments, we demonstrate that decentralized learning can
+perform as well as centralized learning, while enabling the layers to act
+autonomously. Additionally, we show that existing application-independent
+reinforcement learning algorithms, and existing myopic learning algorithms
+deployed in multimedia systems, perform significantly worse than our proposed
+application-aware and foresighted learning methods.
+"
+46,"  This paper suggests the use of intelligent network-aware processing agents in
+wireless local area network drivers to generate metrics for bandwidth
+estimation based on real-time channel statistics to enable wireless multimedia
+application adaptation. Various configurations in the wireless digital home are
+studied and the experimental results with performance variations are presented.
+"
+47,"  The paper describes a neural approach for modelling and control of a
+turbocharged Diesel engine. A neural model, whose structure is mainly based on
+some physical equations describing the engine behaviour, is built for the
+rotation speed and the exhaust gas opacity. The model is composed of three
+interconnected neural submodels, each of them constituting a nonlinear
+multi-input single-output error model. The structural identification and the
+parameter estimation from data gathered on a real engine are described. The
+neural direct model is then used to determine a neural controller of the
+engine, in a specialized training scheme minimising a multivariable criterion.
+Simulations show the effect of the pollution constraint weighting on a
+trajectory tracking of the engine speed. Neural networks, which are flexible
+and parsimonious nonlinear black-box models, with universal approximation
+capabilities, can accurately describe or control complex nonlinear systems,
+with little a priori theoretical knowledge. The presented work extends optimal
+neuro-control to the multivariable case and shows the flexibility of neural
+optimisers. Considering the preliminary results, it appears that neural
+networks can be used as embedded models for engine control, to satisfy the more
+and more restricting pollutant emission legislation. Particularly, they are
+able to model nonlinear dynamics and outperform during transients the control
+schemes based on static mappings.
+"
+48,"  The selection of features that are relevant for a prediction or
+classification problem is an important problem in many domains involving
+high-dimensional data. Selecting features helps fighting the curse of
+dimensionality, improving the performances of prediction or classification
+methods, and interpreting the application. In a nonlinear context, the mutual
+information is widely used as relevance criterion for features and sets of
+features. Nevertheless, it suffers from at least three major limitations:
+mutual information estimators depend on smoothing parameters, there is no
+theoretically justified stopping criterion in the feature selection greedy
+procedure, and the estimation itself suffers from the curse of dimensionality.
+This chapter shows how to deal with these problems. The two first ones are
+addressed by using resampling techniques that provide a statistical basis to
+select the estimator parameters and to stop the search procedure. The third one
+is addressed by modifying the mutual information criterion into a measure of
+how features are complementary (and not only informative) for the problem at
+hand.
+"
+49,"  Median clustering extends popular neural data analysis methods such as the
+self-organizing map or neural gas to general data structures given by a
+dissimilarity matrix only. This offers flexible and robust global data
+inspection methods which are particularly suited for a variety of data as
+occurs in biomedical domains. In this chapter, we give an overview about median
+clustering and its properties and extensions, with a particular focus on
+efficient implementations adapted to large scale data analysis.
+"
+50,"  Conditional Random Fields (CRFs) constitute a popular and efficient approach
+for supervised sequence labelling. CRFs can cope with large description spaces
+and can integrate some form of structural dependency between labels. In this
+contribution, we address the issue of efficient feature selection for CRFs
+based on imposing sparsity through an L1 penalty. We first show how sparsity of
+the parameter set can be exploited to significantly speed up training and
+labelling. We then introduce coordinate descent parameter update schemes for
+CRFs with L1 regularization. We finally provide some empirical comparisons of
+the proposed approach with state-of-the-art CRF training strategies. In
+particular, it is shown that the proposed approach is able to take profit of
+the sparsity to speed up processing and hence potentially handle larger
+dimensional models.
+"
+51,"  For the universal hypothesis testing problem, where the goal is to decide
+between the known null hypothesis distribution and some other unknown
+distribution, Hoeffding proposed a universal test in the nineteen sixties.
+Hoeffding's universal test statistic can be written in terms of
+Kullback-Leibler (K-L) divergence between the empirical distribution of the
+observations and the null hypothesis distribution. In this paper a modification
+of Hoeffding's test is considered based on a relaxation of the K-L divergence
+test statistic, referred to as the mismatched divergence. The resulting
+mismatched test is shown to be a generalized likelihood-ratio test (GLRT) for
+the case where the alternate distribution lies in a parametric family of the
+distributions characterized by a finite dimensional parameter, i.e., it is a
+solution to the corresponding composite hypothesis testing problem. For certain
+choices of the alternate distribution, it is shown that both the Hoeffding test
+and the mismatched test have the same asymptotic performance in terms of error
+exponents. A consequence of this result is that the GLRT is optimal in
+differentiating a particular distribution from others in an exponential family.
+It is also shown that the mismatched test has a significant advantage over the
+Hoeffding test in terms of finite sample size performance. This advantage is
+due to the difference in the asymptotic variances of the two test statistics
+under the null hypothesis. In particular, the variance of the K-L divergence
+grows linearly with the alphabet size, making the test impractical for
+applications involving large alphabet distributions. The variance of the
+mismatched divergence on the other hand grows linearly with the dimension of
+the parameter space, and can hence be controlled through a prudent choice of
+the function class defining the mismatched divergence.
+"
+52,"  We describe the Median K-Flats (MKF) algorithm, a simple online method for
+hybrid linear modeling, i.e., for approximating data by a mixture of flats.
+This algorithm simultaneously partitions the data into clusters while finding
+their corresponding best approximating l1 d-flats, so that the cumulative l1
+error is minimized. The current implementation restricts d-flats to be
+d-dimensional linear subspaces. It requires a negligible amount of storage, and
+its complexity, when modeling data consisting of N points in D-dimensional
+Euclidean space with K d-dimensional linear subspaces, is of order O(n K d D+n
+d^2 D), where n is the number of iterations required for convergence
+(empirically on the order of 10^4). Since it is an online algorithm, data can
+be supplied to it incrementally and it can incrementally produce the
+corresponding output. The performance of the algorithm is carefully evaluated
+using synthetic and real data.
+"
+53,"  We give the first non-trivial upper bounds on the average sensitivity and
+noise sensitivity of polynomial threshold functions. More specifically, for a
+Boolean function f on n variables equal to the sign of a real, multivariate
+polynomial of total degree d we prove
+  1) The average sensitivity of f is at most O(n^{1-1/(4d+6)}) (we also give a
+combinatorial proof of the bound O(n^{1-1/2^d}).
+  2) The noise sensitivity of f with noise rate \delta is at most
+O(\delta^{1/(4d+6)}).
+  Previously, only bounds for the linear case were known. Along the way we show
+new structural theorems about random restrictions of polynomial threshold
+functions obtained via hypercontractivity. These structural results may be of
+independent interest as they provide a generic template for transforming
+problems related to polynomial threshold functions defined on the Boolean
+hypercube to polynomial threshold functions defined in Gaussian space.
+"
+54,"  In Data Mining, the usefulness of association rules is strongly limited by
+the huge amount of delivered rules. In this paper we propose a new approach to
+prune and filter discovered rules. Using Domain Ontologies, we strengthen the
+integration of user knowledge in the post-processing task. Furthermore, an
+interactive and iterative framework is designed to assist the user along the
+analyzing task. On the one hand, we represent user domain knowledge using a
+Domain Ontology over database. On the other hand, a novel technique is
+suggested to prune and to filter discovered rules. The proposed framework was
+applied successfully over the client database provided by Nantes Habitat.
+"
+55,"  Recently a new clustering algorithm called 'affinity propagation' (AP) has
+been proposed, which efficiently clustered sparsely related data by passing
+messages between data points. However, we want to cluster large scale data
+where the similarities are not sparse in many cases. This paper presents two
+variants of AP for grouping large scale data with a dense similarity matrix.
+The local approach is partition affinity propagation (PAP) and the global
+method is landmark affinity propagation (LAP). PAP passes messages in the
+subsets of data first and then merges them as the number of initial step of
+iterations; it can effectively reduce the number of iterations of clustering.
+LAP passes messages between the landmark data points first and then clusters
+non-landmark data points; it is a large global approximation method to speed up
+clustering. Experiments are conducted on many datasets, such as random data
+points, manifold subspaces, images of faces and Chinese calligraphy, and the
+results demonstrate that the two approaches are feasible and practicable.
+"
+56,"  In this paper we adapt online estimation strategies to perform model-based
+clustering on large networks. Our work focuses on two algorithms, the first
+based on the SAEM algorithm, and the second on variational methods. These two
+strategies are compared with existing approaches on simulated and real data. We
+use the method to decipher the connexion structure of the political websphere
+during the US political campaign in 2008. We show that our online EM-based
+algorithms offer a good trade-off between precision and speed, when estimating
+parameters for mixture distributions in the context of random graphs.
+"
+57,"  We formulate and study a decentralized multi-armed bandit (MAB) problem.
+There are M distributed players competing for N independent arms. Each arm,
+when played, offers i.i.d. reward according to a distribution with an unknown
+parameter. At each time, each player chooses one arm to play without exchanging
+observations or any information with other players. Players choosing the same
+arm collide, and, depending on the collision model, either no one receives
+reward or the colliding players share the reward in an arbitrary way. We show
+that the minimum system regret of the decentralized MAB grows with time at the
+same logarithmic order as in the centralized counterpart where players act
+collectively as a single entity by exchanging observations and making decisions
+jointly. A decentralized policy is constructed to achieve this optimal order
+while ensuring fairness among players and without assuming any pre-agreement or
+information exchange among players. Based on a Time Division Fair Sharing
+(TDFS) of the M best arms, the proposed policy is constructed and its order
+optimality is proven under a general reward model. Furthermore, the basic
+structure of the TDFS policy can be used with any order-optimal single-player
+policy to achieve order optimality in the decentralized setting. We also
+establish a lower bound on the system regret growth rate for a general class of
+decentralized polices, to which the proposed policy belongs. This problem finds
+potential applications in cognitive radio networks, multi-channel communication
+systems, multi-agent systems, web search and advertising, and social networks.
+"
+58,"  We consider the problem of reconstructing a low-rank matrix from a small
+subset of its entries. In this paper, we describe the implementation of an
+efficient algorithm called OptSpace, based on singular value decomposition
+followed by local manifold optimization, for solving the low-rank matrix
+completion problem. It has been shown that if the number of revealed entries is
+large enough, the output of singular value decomposition gives a good estimate
+for the original matrix, so that local optimization reconstructs the correct
+matrix with high probability. We present numerical results which show that this
+algorithm can reconstruct the low rank matrix exactly from a very small subset
+of its entries. We further study the robustness of the algorithm with respect
+to noise, and its performance on actual collaborative filtering datasets.
+"
+59,"  (ABRIDGED) In previous work, two platforms have been developed for testing
+computer-vision algorithms for robotic planetary exploration (McGuire et al.
+2004b,2005; Bartolo et al. 2007). The wearable-computer platform has been
+tested at geological and astrobiological field sites in Spain (Rivas
+Vaciamadrid and Riba de Santiuste), and the phone-camera has been tested at a
+geological field site in Malta. In this work, we (i) apply a Hopfield
+neural-network algorithm for novelty detection based upon color, (ii) integrate
+a field-capable digital microscope on the wearable computer platform, (iii)
+test this novelty detection with the digital microscope at Rivas Vaciamadrid,
+(iv) develop a Bluetooth communication mode for the phone-camera platform, in
+order to allow access to a mobile processing computer at the field sites, and
+(v) test the novelty detection on the Bluetooth-enabled phone-camera connected
+to a netbook computer at the Mars Desert Research Station in Utah. This systems
+engineering and field testing have together allowed us to develop a real-time
+computer-vision system that is capable, for example, of identifying lichens as
+novel within a series of images acquired in semi-arid desert environments. We
+acquired sequences of images of geologic outcrops in Utah and Spain consisting
+of various rock types and colors to test this algorithm. The algorithm robustly
+recognized previously-observed units by their color, while requiring only a
+single image or a few images to learn colors as familiar, demonstrating its
+fast learning capability.
+"
+60,"  Last year, in 2008, I gave a talk titled {\it Quantum Calisthenics}. This
+year I am going to tell you about how the work I described then has spun off
+into a most unlikely direction. What I am going to talk about is how one maps
+the problem of finding clusters in a given data set into a problem in quantum
+mechanics. I will then use the tricks I described to let quantum evolution lets
+the clusters come together on their own.
+"
+61,"  We consider computation of permanent of a positive $(N\times N)$ non-negative
+matrix, $P=(P_i^j|i,j=1,\cdots,N)$, or equivalently the problem of weighted
+counting of the perfect matchings over the complete bipartite graph $K_{N,N}$.
+The problem is known to be of likely exponential complexity. Stated as the
+partition function $Z$ of a graphical model, the problem allows exact Loop
+Calculus representation [Chertkov, Chernyak '06] in terms of an interior
+minimum of the Bethe Free Energy functional over non-integer doubly stochastic
+matrix of marginal beliefs, $\beta=(\beta_i^j|i,j=1,\cdots,N)$, also
+correspondent to a fixed point of the iterative message-passing algorithm of
+the Belief Propagation (BP) type. Our main result is an explicit expression of
+the exact partition function (permanent) in terms of the matrix of BP
+marginals, $\beta$, as $Z=\mbox{Perm}(P)=Z_{BP}
+\mbox{Perm}(\beta_i^j(1-\beta_i^j))/\prod_{i,j}(1-\beta_i^j)$, where $Z_{BP}$
+is the BP expression for the permanent stated explicitly in terms if $\beta$.
+We give two derivations of the formula, a direct one based on the Bethe Free
+Energy and an alternative one combining the Ihara graph-$\zeta$ function and
+the Loop Calculus approaches. Assuming that the matrix $\beta$ of the Belief
+Propagation marginals is calculated, we provide two lower bounds and one
+upper-bound to estimate the multiplicative term. Two complementary lower bounds
+are based on the Gurvits-van der Waerden theorem and on a relation between the
+modified permanent and determinant respectively.
+"
+62,"  This paper describes a methodology for detecting anomalies from sequentially
+observed and potentially noisy data. The proposed approach consists of two main
+elements: (1) {\em filtering}, or assigning a belief or likelihood to each
+successive measurement based upon our ability to predict it from previous noisy
+observations, and (2) {\em hedging}, or flagging potential anomalies by
+comparing the current belief against a time-varying and data-adaptive
+threshold. The threshold is adjusted based on the available feedback from an
+end user. Our algorithms, which combine universal prediction with recent work
+on online convex programming, do not require computing posterior distributions
+given all current observations and involve simple primal-dual parameter
+updates. At the heart of the proposed approach lie exponential-family models
+which can be used in a wide variety of contexts and applications, and which
+yield methods that achieve sublinear per-round regret against both static and
+slowly varying product distributions with marginals drawn from the same
+exponential family. Moreover, the regret against static distributions coincides
+with the minimax value of the corresponding online strongly convex game. We
+also prove bounds on the number of mistakes made during the hedging step
+relative to the best offline choice of the threshold with access to all
+estimated beliefs and feedback signals. We validate the theory on synthetic
+data drawn from a time-varying distribution over binary vectors of high
+dimensionality, as well as on the Enron email dataset.
+"
+63,"  We present in this paper a study on the ability and the benefits of using a
+keystroke dynamics authentication method for collaborative systems.
+Authentication is a challenging issue in order to guarantee the security of use
+of collaborative systems during the access control step. Many solutions exist
+in the state of the art such as the use of one time passwords or smart-cards.
+We focus in this paper on biometric based solutions that do not necessitate any
+additional sensor. Keystroke dynamics is an interesting solution as it uses
+only the keyboard and is invisible for users. Many methods have been published
+in this field. We make a comparative study of many of them considering the
+operational constraints of use for collaborative systems.
+"
+64,"  In conventional supervised pattern recognition tasks, model selection is
+typically accomplished by minimizing the classification error rate on a set of
+so-called development data, subject to ground-truth labeling by human experts
+or some other means. In the context of speech processing systems and other
+large-scale practical applications, however, such labeled development data are
+typically costly and difficult to obtain. This article proposes an alternative
+semi-supervised framework for likelihood-based model selection that leverages
+unlabeled data by using trained classifiers representing each model to
+automatically generate putative labels. The errors that result from this
+automatic labeling are shown to be amenable to results from robust statistics,
+which in turn provide for minimax-optimal censored likelihood ratio tests that
+recover the nonparametric sign test as a limiting case. This approach is then
+validated experimentally using a state-of-the-art automatic speech recognition
+system to select between candidate word pronunciations using unlabeled speech
+data that only potentially contain instances of the words under test. Results
+provide supporting evidence for the utility of this approach, and suggest that
+it may also find use in other applications of machine learning.
+"
+65,"  Despite the conventional wisdom that proactive security is superior to
+reactive security, we show that reactive security can be competitive with
+proactive security as long as the reactive defender learns from past attacks
+instead of myopically overreacting to the last attack. Our game-theoretic model
+follows common practice in the security literature by making worst-case
+assumptions about the attacker: we grant the attacker complete knowledge of the
+defender's strategy and do not require the attacker to act rationally. In this
+model, we bound the competitive ratio between a reactive defense algorithm
+(which is inspired by online learning theory) and the best fixed proactive
+defense. Additionally, we show that, unlike proactive defenses, this reactive
+strategy is robust to a lack of information about the attacker's incentives and
+knowledge.
+"
+66,"  Many applications require optimizing an unknown, noisy function that is
+expensive to evaluate. We formalize this task as a multi-armed bandit problem,
+where the payoff function is either sampled from a Gaussian process (GP) or has
+low RKHS norm. We resolve the important open problem of deriving regret bounds
+for this setting, which imply novel convergence rates for GP optimization. We
+analyze GP-UCB, an intuitive upper-confidence based algorithm, and bound its
+cumulative regret in terms of maximal information gain, establishing a novel
+connection between GP optimization and experimental design. Moreover, by
+bounding the latter in terms of operator spectra, we obtain explicit sublinear
+regret bounds for many commonly used covariance functions. In some important
+cases, our bounds have surprisingly weak dependence on the dimensionality. In
+our experiments on real sensor data, GP-UCB compares favorably with other
+heuristical GP optimization approaches.
+"
+67,"  Let X be randomly chosen from {-1,1}^n, and let Y be randomly chosen from the
+standard spherical Gaussian on R^n. For any (possibly unbounded) polytope P
+formed by the intersection of k halfspaces, we prove that
+  |Pr [X belongs to P] - Pr [Y belongs to P]| < log^{8/5}k * Delta, where Delta
+is a parameter that is small for polytopes formed by the intersection of
+""regular"" halfspaces (i.e., halfspaces with low influence). The novelty of our
+invariance principle is the polylogarithmic dependence on k. Previously, only
+bounds that were at least linear in k were known. We give two important
+applications of our main result: (1) A polylogarithmic in k bound on the
+Boolean noise sensitivity of intersections of k ""regular"" halfspaces (previous
+work gave bounds linear in k). (2) A pseudorandom generator (PRG) with seed
+length O((log n)*poly(log k,1/delta)) that delta-fools all polytopes with k
+faces with respect to the Gaussian distribution. We also obtain PRGs with
+similar parameters that fool polytopes formed by intersection of regular
+halfspaces over the hypercube. Using our PRG constructions, we obtain the first
+deterministic quasi-polynomial time algorithms for approximately counting the
+number of solutions to a broad class of integer programs, including dense
+covering problems and contingency tables.
+"
+68,"  Analogical reasoning depends fundamentally on the ability to learn and
+generalize about relations between objects. We develop an approach to
+relational learning which, given a set of pairs of objects
+$\mathbf{S}=\{A^{(1)}:B^{(1)},A^{(2)}:B^{(2)},\ldots,A^{(N)}:B ^{(N)}\}$,
+measures how well other pairs A:B fit in with the set $\mathbf{S}$. Our work
+addresses the following question: is the relation between objects A and B
+analogous to those relations found in $\mathbf{S}$? Such questions are
+particularly relevant in information retrieval, where an investigator might
+want to search for analogous pairs of objects that match the query set of
+interest. There are many ways in which objects can be related, making the task
+of measuring analogies very challenging. Our approach combines a similarity
+measure on function spaces with Bayesian analysis to produce a ranking. It
+requires data containing features of the objects of interest and a link matrix
+specifying which relationships exist; no further attributes of such
+relationships are necessary. We illustrate the potential of our method on text
+analysis and information networks. An application on discovering functional
+interactions between pairs of proteins is discussed in detail, where we show
+that our approach can work in practice even if a small set of protein pairs is
+provided.
+"
+69,"  Bayes statistics and statistical physics have the common mathematical
+structure, where the log likelihood function corresponds to the random
+Hamiltonian. Recently, it was discovered that the asymptotic learning curves in
+Bayes estimation are subject to a universal law, even if the log likelihood
+function can not be approximated by any quadratic form. However, it is left
+unknown what mathematical property ensures such a universal law. In this paper,
+we define a renormalizable condition of the statistical estimation problem, and
+show that, under such a condition, the asymptotic learning curves are ensured
+to be subject to the universal law, even if the true distribution is
+unrealizable and singular for a statistical model. Also we study a
+nonrenormalizable case, in which the learning curves have the different
+asymptotic behaviors from the universal law.
+"
+70,"  This paper concerns the construction of tests for universal hypothesis
+testing problems, in which the alternate hypothesis is poorly modeled and the
+observation space is large. The mismatched universal test is a feature-based
+technique for this purpose. In prior work it is shown that its
+finite-observation performance can be much better than the (optimal) Hoeffding
+test, and good performance depends crucially on the choice of features. The
+contributions of this paper include: 1) We obtain bounds on the number of
+\epsilon distinguishable distributions in an exponential family. 2) This
+motivates a new framework for feature extraction, cast as a rank-constrained
+optimization problem. 3) We obtain a gradient-based algorithm to solve the
+rank-constrained optimization problem and prove its local convergence.
+"
+71,"  Approximate message passing algorithms proved to be extremely effective in
+reconstructing sparse signals from a small number of incoherent linear
+measurements. Extensive numerical experiments further showed that their
+dynamics is accurately tracked by a simple one-dimensional iteration termed
+state evolution. In this paper we provide the first rigorous foundation to
+state evolution. We prove that indeed it holds asymptotically in the large
+system limit for sensing matrices with independent and identically distributed
+gaussian entries.
+  While our focus is on message passing algorithms for compressed sensing, the
+analysis extends beyond this setting, to a general class of algorithms on dense
+graphs. In this context, state evolution plays the role that density evolution
+has for sparse graphs.
+  The proof technique is fundamentally different from the standard approach to
+density evolution, in that it copes with large number of short loops in the
+underlying factor graph. It relies instead on a conditioning technique recently
+developed by Erwin Bolthausen in the context of spin glass theory.
+"
+72,"  This paper presents a framework aimed at monitoring the behavior of aircraft
+in a given airspace. Nominal trajectories are determined and learned using data
+driven methods. Standard procedures are used by air traffic controllers (ATC)
+to guide aircraft, ensure the safety of the airspace, and to maximize the
+runway occupancy. Even though standard procedures are used by ATC, the control
+of the aircraft remains with the pilots, leading to a large variability in the
+flight patterns observed. Two methods to identify typical operations and their
+variability from recorded radar tracks are presented. This knowledge base is
+then used to monitor the conformance of current operations against operations
+previously identified as standard. A tool called AirTrajectoryMiner is
+presented, aiming at monitoring the instantaneous health of the airspace, in
+real time. The airspace is ""healthy"" when all aircraft are flying according to
+the nominal procedures. A measure of complexity is introduced, measuring the
+conformance of current flight to nominal flight patterns. When an aircraft does
+not conform, the complexity increases as more attention from ATC is required to
+ensure a safe separation between aircraft.
+"
+73,"  We consider a group of Bayesian agents who try to estimate a state of the
+world $\theta$ through interaction on a social network. Each agent $v$
+initially receives a private measurement of $\theta$: a number $S_v$ picked
+from a Gaussian distribution with mean $\theta$ and standard deviation one.
+Then, in each discrete time iteration, each reveals its estimate of $\theta$ to
+its neighbors, and, observing its neighbors' actions, updates its belief using
+Bayes' Law.
+  This process aggregates information efficiently, in the sense that all the
+agents converge to the belief that they would have, had they access to all the
+private measurements. We show that this process is computationally efficient,
+so that each agent's calculation can be easily carried out. We also show that
+on any graph the process converges after at most $2N \cdot D$ steps, where $N$
+is the number of agents and $D$ is the diameter of the network. Finally, we
+show that on trees and on distance transitive-graphs the process converges
+after $D$ steps, and that it preserves privacy, so that agents learn very
+little about the private signal of most other agents, despite the efficient
+aggregation of information. Our results extend those in an unpublished
+manuscript of the first and last authors.
+"
+74,"  File type identification and file type clustering may be difficult tasks that
+have an increasingly importance in the field of computer and network security.
+Classical methods of file type detection including considering file extensions
+and magic bytes can be easily spoofed. Content-based file type detection is a
+newer way that is taken into account recently. In this paper, a new
+content-based method for the purpose of file type detection and file type
+clustering is proposed that is based on the PCA and neural networks. The
+proposed method has a good accuracy and is fast enough.
+"
+75,"  Personalized web services strive to adapt their services (advertisements,
+news articles, etc) to individual users by making use of both content and user
+information. Despite a few recent advances, this problem remains challenging
+for at least two reasons. First, web service is featured with dynamically
+changing pools of content, rendering traditional collaborative filtering
+methods inapplicable. Second, the scale of most web services of practical
+interest calls for solutions that are both fast in learning and computation.
+  In this work, we model personalized recommendation of news articles as a
+contextual bandit problem, a principled approach in which a learning algorithm
+sequentially selects articles to serve users based on contextual information
+about the users and articles, while simultaneously adapting its
+article-selection strategy based on user-click feedback to maximize total user
+clicks.
+  The contributions of this work are three-fold. First, we propose a new,
+general contextual bandit algorithm that is computationally efficient and well
+motivated from learning theory. Second, we argue that any bandit algorithm can
+be reliably evaluated offline using previously recorded random traffic.
+Finally, using this offline evaluation method, we successfully applied our new
+algorithm to a Yahoo! Front Page Today Module dataset containing over 33
+million events. Results showed a 12.5% click lift compared to a standard
+context-free bandit algorithm, and the advantage becomes even greater when data
+gets more scarce.
+"
+76,"  Several variants of a stochastic local search process for constructing the
+synaptic weights of an Ising perceptron are studied. In this process, binary
+patterns are sequentially presented to the Ising perceptron and are then
+learned as the synaptic weight configuration is modified through a chain of
+single- or double-weight flips within the compatible weight configuration space
+of the earlier learned patterns. This process is able to reach a storage
+capacity of $\alpha \approx 0.63$ for pattern length N = 101 and $\alpha
+\approx 0.41$ for N = 1001. If in addition a relearning process is exploited,
+the learning performance is further improved to a storage capacity of $\alpha
+\approx 0.80$ for N = 101 and $\alpha \approx 0.42$ for N=1001. We found that,
+for a given learning task, the solutions constructed by the random walk
+learning process are separated by a typical Hamming distance, which decreases
+with the constraint density $\alpha$ of the learning task; at a fixed value of
+$\alpha$, the width of the Hamming distance distributions decreases with $N$.
+"
+77,"  Computers understand very little of the meaning of human language. This
+profoundly limits our ability to give instructions to computers, the ability of
+computers to explain their actions to us, and the ability of computers to
+analyse and process text. Vector space models (VSMs) of semantics are beginning
+to address these limits. This paper surveys the use of VSMs for semantic
+processing of text. We organize the literature on VSMs according to the
+structure of the matrix in a VSM. There are currently three broad classes of
+VSMs, based on term-document, word-context, and pair-pattern matrices, yielding
+three classes of applications. We survey a broad range of applications in these
+three categories and we take a detailed look at a specific open source project
+in each category. Our goal in this survey is to show the breadth of
+applications of VSMs for semantics, to provide a new perspective on VSMs for
+those who are already familiar with the area, and to provide pointers into the
+literature for those who are less familiar with the field.
+"
+78,"  We show that for many classes of symmetric two-player games, the simple
+decision rule ""imitate-the-best"" can hardly be beaten by any other decision
+rule. We provide necessary and sufficient conditions for imitation to be
+unbeatable and show that it can only be beaten by much in games that are of the
+rock-scissors-paper variety. Thus, in many interesting examples, like 2x2
+games, Cournot duopoly, price competition, rent seeking, public goods games,
+common pool resource games, minimum effort coordination games, arms race,
+search, bargaining, etc., imitation cannot be beaten by much even by a very
+clever opponent.
+"
+79,"  Contextual bandit algorithms have become popular for online recommendation
+systems such as Digg, Yahoo! Buzz, and news recommendation in general.
+\emph{Offline} evaluation of the effectiveness of new algorithms in these
+applications is critical for protecting online user experiences but very
+challenging due to their ""partial-label"" nature. Common practice is to create a
+simulator which simulates the online environment for the problem at hand and
+then run an algorithm against this simulator. However, creating simulator
+itself is often difficult and modeling bias is usually unavoidably introduced.
+In this paper, we introduce a \emph{replay} methodology for contextual bandit
+algorithm evaluation. Different from simulator-based approaches, our method is
+completely data-driven and very easy to adapt to different applications. More
+importantly, our method can provide provably unbiased evaluations. Our
+empirical results on a large-scale news article recommendation dataset
+collected from Yahoo! Front Page conform well with our theoretical results.
+Furthermore, comparisons between our offline replay and online bucket
+evaluation of several contextual bandit algorithms show accuracy and
+effectiveness of our offline evaluation method.
+"
+80,"  We propose in this paper an exploratory analysis algorithm for functional
+data. The method partitions a set of functions into $K$ clusters and represents
+each cluster by a simple prototype (e.g., piecewise constant). The total number
+of segments in the prototypes, $P$, is chosen by the user and optimally
+distributed among the clusters via two dynamic programming algorithms. The
+practical relevance of the method is shown on two real world datasets.
+"
+81,"  For a class of quantized open chaotic systems satisfying a natural dynamical
+assumption, we show that the study of the resolvent, and hence of scattering
+and resonances, can be reduced to the study of a family of open quantum maps,
+that is of finite dimensional operators obtained by quantizing the Poincar\'e
+map associated with the flow near the set of trapped trajectories.
+"
+82,"  Biological data objects often have both of the following features: (i) they
+are functions rather than single numbers or vectors, and (ii) they are
+correlated due to phylogenetic relationships. In this paper we give a flexible
+statistical model for such data, by combining assumptions from phylogenetics
+with Gaussian processes. We describe its use as a nonparametric Bayesian prior
+distribution, both for prediction (placing posterior distributions on ancestral
+functions) and model selection (comparing rates of evolution across a
+phylogeny, or identifying the most likely phylogenies consistent with the
+observed data). Our work is integrative, extending the popular phylogenetic
+Brownian Motion and Ornstein-Uhlenbeck models to functional data and Bayesian
+inference, and extending Gaussian Process regression to phylogenies. We provide
+a brief illustration of the application of our method.
+"
+83,"  We consider model-based reinforcement learning in finite Markov De- cision
+Processes (MDPs), focussing on so-called optimistic strategies. In MDPs,
+optimism can be implemented by carrying out extended value it- erations under a
+constraint of consistency with the estimated model tran- sition probabilities.
+The UCRL2 algorithm by Auer, Jaksch and Ortner (2009), which follows this
+strategy, has recently been shown to guarantee near-optimal regret bounds. In
+this paper, we strongly argue in favor of using the Kullback-Leibler (KL)
+divergence for this purpose. By studying the linear maximization problem under
+KL constraints, we provide an ef- ficient algorithm, termed KL-UCRL, for
+solving KL-optimistic extended value iteration. Using recent deviation bounds
+on the KL divergence, we prove that KL-UCRL provides the same guarantees as
+UCRL2 in terms of regret. However, numerical experiments on classical
+benchmarks show a significantly improved behavior, particularly when the MDP
+has reduced connectivity. To support this observation, we provide elements of
+com- parison between the two algorithms based on geometric considerations.
+"
+84,"  In this paper, we consider the distributive queue-aware power and subband
+allocation design for a delay-optimal OFDMA uplink system with one base
+station, $K$ users and $N_F$ independent subbands. Each mobile has an uplink
+queue with heterogeneous packet arrivals and delay requirements. We model the
+problem as an infinite horizon average reward Markov Decision Problem (MDP)
+where the control actions are functions of the instantaneous Channel State
+Information (CSI) as well as the joint Queue State Information (QSI). To
+address the distributive requirement and the issue of exponential memory
+requirement and computational complexity, we approximate the subband allocation
+Q-factor by the sum of the per-user subband allocation Q-factor and derive a
+distributive online stochastic learning algorithm to estimate the per-user
+Q-factor and the Lagrange multipliers (LM) simultaneously and determine the
+control actions using an auction mechanism. We show that under the proposed
+auction mechanism, the distributive online learning converges almost surely
+(with probability 1). For illustration, we apply the proposed distributive
+stochastic learning framework to an application example with exponential packet
+size distribution. We show that the delay-optimal power control has the {\em
+multi-level water-filling} structure where the CSI determines the instantaneous
+power allocation and the QSI determines the water-level. The proposed algorithm
+has linear signaling overhead and computational complexity $\mathcal O(KN)$,
+which is desirable from an implementation perspective.
+"
+85,"  This paper presents a method for automated healing as part of off-line
+automated troubleshooting. The method combines statistical learning with
+constraint optimization. The automated healing aims at locally optimizing radio
+resource management (RRM) or system parameters of cells with poor performance
+in an iterative manner. The statistical learning processes the data using
+Logistic Regression (LR) to extract closed form (functional) relations between
+Key Performance Indicators (KPIs) and Radio Resource Management (RRM)
+parameters. These functional relations are then processed by an optimization
+engine which proposes new parameter values. The advantage of the proposed
+formulation is the small number of iterations required by the automated healing
+method to converge, making it suitable for off-line implementation. The
+proposed method is applied to heal an Inter-Cell Interference Coordination
+(ICIC) process in a 3G Long Term Evolution (LTE) network which is based on
+soft-frequency reuse scheme. Numerical simulations illustrate the benefits of
+the proposed approach.
+"
+86,"  We study the problem of estimating high-dimensional regression models
+regularized by a structured sparsity-inducing penalty that encodes prior
+structural information on either the input or output variables. We consider two
+widely adopted types of penalties of this kind as motivating examples: (1) the
+general overlapping-group-lasso penalty, generalized from the group-lasso
+penalty; and (2) the graph-guided-fused-lasso penalty, generalized from the
+fused-lasso penalty. For both types of penalties, due to their nonseparability
+and nonsmoothness, developing an efficient optimization method remains a
+challenging problem. In this paper we propose a general optimization approach,
+the smoothing proximal gradient (SPG) method, which can solve structured sparse
+regression problems with any smooth convex loss under a wide spectrum of
+structured sparsity-inducing penalties. Our approach combines a smoothing
+technique with an effective proximal gradient method. It achieves a convergence
+rate significantly faster than the standard first-order methods, subgradient
+methods, and is much more scalable than the most widely used interior-point
+methods. The efficiency and scalability of our method are demonstrated on both
+simulation experiments and real genetic data sets.
+"
+87,"  This paper proposes some extensions to the work on kernels dedicated to
+string or time series global alignment based on the aggregation of scores
+obtained by local alignments. The extensions we propose allow to construct,
+from classical recursive definition of elastic distances, recursive edit
+distance (or time-warp) kernels that are positive definite if some sufficient
+conditions are satisfied. The sufficient conditions we end-up with are original
+and weaker than those proposed in earlier works, although a recursive
+regularizing term is required to get the proof of the positive definiteness as
+a direct consequence of the Haussler's convolution theorem. The classification
+experiment we conducted on three classical time warp distances (two of which
+being metrics), using Support Vector Machine classifier, leads to conclude
+that, when the pairwise distance matrix obtained from the training data is
+\textit{far} from definiteness, the positive definite recursive elastic kernels
+outperform in general the distance substituting kernels for the classical
+elastic distances we have tested.
+"
+88,"  Exchangeable random variables form an important and well-studied
+generalization of i.i.d. variables, however simple examples show that no
+nontrivial concept or function classes are PAC learnable under general
+exchangeable data inputs $X_1,X_2,\ldots$. Inspired by the work of Berti and
+Rigo on a Glivenko--Cantelli theorem for exchangeable inputs, we propose a new
+paradigm, adequate for learning from exchangeable data: predictive PAC
+learnability. A learning rule $\mathcal L$ for a function class $\mathscr F$ is
+predictive PAC if for every $\e,\delta>0$ and each function $f\in {\mathscr
+F}$, whenever $\abs{\sigma}\geq s(\delta,\e)$, we have with confidence
+$1-\delta$ that the expected difference between $f(X_{n+1})$ and the image of
+$f\vert\sigma$ under $\mathcal L$ does not exceed $\e$ conditionally on
+$X_1,X_2,\ldots,X_n$. Thus, instead of learning the function $f$ as such, we
+are learning to a given accuracy $\e$ the predictive behaviour of $f$ at the
+future points $X_i(\omega)$, $i>n$ of the sample path. Using de Finetti's
+theorem, we show that if a universally separable function class $\mathscr F$ is
+distribution-free PAC learnable under i.i.d. inputs, then it is
+distribution-free predictive PAC learnable under exchangeable inputs, with a
+slightly worse sample complexity.
+"
+89,"  Recently, it has been proved in Babadi et al. that in noisy compressed
+sensing, a joint typical estimator can asymptotically achieve the Cramer-Rao
+lower bound of the problem.To prove this result, this paper used a lemma,which
+is provided in Akcakaya et al,that comprises the main building block of the
+proof. This lemma is based on the assumption of Gaussianity of the measurement
+matrix and its randomness in the domain of noise. In this correspondence, we
+generalize the results obtained in Babadi et al by dropping the Gaussianity
+assumption on the measurement matrix. In fact, by considering the measurement
+matrix as a deterministic matrix in our analysis, we find a theorem similar to
+the main theorem of Babadi et al for a family of randomly generated (but
+deterministic in the noise domain) measurement matrices that satisfy a
+generalized condition known as The Concentration of Measures Inequality. By
+this, we finally show that under our generalized assumptions, the Cramer-Rao
+bound of the estimation is achievable by using the typical estimator introduced
+in Babadi et al.
+"
+90,"  Over the last decade, kernel methods for nonlinear processing have
+successfully been used in the machine learning community. The primary
+mathematical tool employed in these methods is the notion of the Reproducing
+Kernel Hilbert Space. However, so far, the emphasis has been on batch
+techniques. It is only recently, that online techniques have been considered in
+the context of adaptive signal processing tasks. Moreover, these efforts have
+only been focussed on real valued data sequences. To the best of our knowledge,
+no adaptive kernel-based strategy has been developed, so far, for complex
+valued signals. Furthermore, although the real reproducing kernels are used in
+an increasing number of machine learning problems, complex kernels have not,
+yet, been used, in spite of their potential interest in applications that deal
+with complex signals, with Communications being a typical example. In this
+paper, we present a general framework to attack the problem of adaptive
+filtering of complex signals, using either real reproducing kernels, taking
+advantage of a technique called \textit{complexification} of real RKHSs, or
+complex reproducing kernels, highlighting the use of the complex gaussian
+kernel. In order to derive gradients of operators that need to be defined on
+the associated complex RKHSs, we employ the powerful tool of Wirtinger's
+Calculus, which has recently attracted attention in the signal processing
+community. To this end, in this paper, the notion of Wirtinger's calculus is
+extended, for the first time, to include complex RKHSs and use it to derive
+several realizations of the Complex Kernel Least-Mean-Square (CKLMS) algorithm.
+Experiments verify that the CKLMS offers significant performance improvements
+over several linear and nonlinear algorithms, when dealing with nonlinearities.
+"
+91,"  We study two-player security games which can be viewed as sequences of
+nonzero-sum matrix games played by an Attacker and a Defender. The evolution of
+the game is based on a stochastic fictitious play process, where players do not
+have access to each other's payoff matrix. Each has to observe the other's
+actions up to present and plays the action generated based on the best response
+to these observations. In a regular fictitious play process, each player makes
+a maximum likelihood estimate of her opponent's mixed strategy, which results
+in a time-varying update based on the previous estimate and current action. In
+this paper, we explore an alternative scheme for frequency update, whose mean
+dynamic is instead time-invariant. We examine convergence properties of the
+mean dynamic of the fictitious play process with such an update scheme, and
+establish local stability of the equilibrium point when both players are
+restricted to two actions. We also propose an adaptive algorithm based on this
+time-invariant frequency update.
+"
+92,"  The past few years have seen a surge of interest in the field of
+probabilistic logic learning and statistical relational learning. In this
+endeavor, many probabilistic logics have been developed. ProbLog is a recent
+probabilistic extension of Prolog motivated by the mining of large biological
+networks. In ProbLog, facts can be labeled with probabilities. These facts are
+treated as mutually independent random variables that indicate whether these
+facts belong to a randomly sampled program. Different kinds of queries can be
+posed to ProbLog programs. We introduce algorithms that allow the efficient
+execution of these queries, discuss their implementation on top of the
+YAP-Prolog system, and evaluate their performance in the context of large
+networks of biological entities.
+"
+93,"  We show that the learning sample complexity of a sigmoidal neural network
+constructed by Sontag (1992) required to achieve a given misclassification
+error under a fixed purely atomic distribution can grow arbitrarily fast: for
+any prescribed rate of growth there is an input distribution having this rate
+as the sample complexity, and the bound is asymptotically tight. The rate can
+be superexponential, a non-recursive function, etc. We further observe that
+Sontag's ANN is not Glivenko-Cantelli under any input distribution having a
+non-atomic part.
+"
+94,"  It is difficult to find the optimal sparse solution of a manifold learning
+based dimensionality reduction algorithm. The lasso or the elastic net
+penalized manifold learning based dimensionality reduction is not directly a
+lasso penalized least square problem and thus the least angle regression (LARS)
+(Efron et al. \cite{LARS}), one of the most popular algorithms in sparse
+learning, cannot be applied. Therefore, most current approaches take indirect
+ways or have strict settings, which can be inconvenient for applications. In
+this paper, we proposed the manifold elastic net or MEN for short. MEN
+incorporates the merits of both the manifold learning based dimensionality
+reduction and the sparse learning based dimensionality reduction. By using a
+series of equivalent transformations, we show MEN is equivalent to the lasso
+penalized least square problem and thus LARS is adopted to obtain the optimal
+sparse solution of MEN. In particular, MEN has the following advantages for
+subsequent classification: 1) the local geometry of samples is well preserved
+for low dimensional data representation, 2) both the margin maximization and
+the classification error minimization are considered for sparse projection
+calculation, 3) the projection matrix of MEN improves the parsimony in
+computation, 4) the elastic net penalty reduces the over-fitting problem, and
+5) the projection matrix of MEN can be interpreted psychologically and
+physiologically. Experimental evidence on face recognition over various popular
+datasets suggests that MEN is superior to top level dimensionality reduction
+algorithms.
+"
+95,"  PRISM is an extension of Prolog with probabilistic predicates and built-in
+support for expectation-maximization learning. Constraint Handling Rules (CHR)
+is a high-level programming language based on multi-headed multiset rewrite
+rules.
+  In this paper, we introduce a new probabilistic logic formalism, called
+CHRiSM, based on a combination of CHR and PRISM. It can be used for high-level
+rapid prototyping of complex statistical models by means of ""chance rules"". The
+underlying PRISM system can then be used for several probabilistic inference
+tasks, including probability computation and parameter learning. We define the
+CHRiSM language in terms of syntax and operational semantics, and illustrate it
+with examples. We define the notion of ambiguous programs and define a
+distribution semantics for unambiguous programs. Next, we describe an
+implementation of CHRiSM, based on CHR(PRISM). We discuss the relation between
+CHRiSM and other probabilistic logic programming languages, in particular PCHR.
+Finally we identify potential application domains.
+"
+96,"  Recently, applying the novel data mining techniques for evaluating enterprise
+financial distress has received much research alternation. Support Vector
+Machine (SVM) and back propagation neural (BPN) network has been applied
+successfully in many areas with excellent generalization results, such as rule
+extraction, classification and evaluation. In this paper, a model based on SVM
+with Gaussian RBF kernel is proposed here for enterprise financial distress
+evaluation. BPN network is considered one of the simplest and are most general
+methods used for supervised training of multilayered neural network. The
+comparative results show that through the difference between the performance
+measures is marginal; SVM gives higher precision and lower error rates.
+"
+97,"  The typical behavior of optimal solutions to portfolio optimization problems
+with absolute deviation and expected shortfall models using replica analysis
+was pioneeringly estimated by S. Ciliberti and M. M\'ezard [Eur. Phys. B. 57,
+175 (2007)]; however, they have not yet developed an approximate derivation
+method for finding the optimal portfolio with respect to a given return set. In
+this study, an approximation algorithm based on belief propagation for the
+portfolio optimization problem is presented using the Bethe free energy
+formalism, and the consistency of the numerical experimental results of the
+proposed algorithm with those of replica analysis is confirmed. Furthermore,
+the conjecture of H. Konno and H. Yamazaki, that the optimal solutions with the
+absolute deviation model and with the mean-variance model have the same typical
+behavior, is verified using replica analysis and the belief propagation
+algorithm.
+"
+98,"  In this paper we analyze judgement aggregation problems in which a group of
+agents independently votes on a set of complex propositions that has some
+interdependency constraint between them(e.g., transitivity when describing
+preferences). We consider the issue of judgement aggregation from the
+perspective of approximation. That is, we generalize the previous results by
+studying approximate judgement aggregation. We relax the main two constraints
+assumed in the current literature, Consistency and Independence and consider
+mechanisms that only approximately satisfy these constraints, that is, satisfy
+them up to a small portion of the inputs. The main question we raise is whether
+the relaxation of these notions significantly alters the class of satisfying
+aggregation mechanisms. The recent works for preference aggregation of Kalai,
+Mossel, and Keller fit into this framework. The main result of this paper is
+that, as in the case of preference aggregation, in the case of a subclass of a
+natural class of aggregation problems termed `truth-functional agendas', the
+set of satisfying aggregation mechanisms does not extend non-trivially when
+relaxing the constraints. Our proof techniques involve Boolean Fourier
+transform and analysis of voter influences for voting protocols. The question
+we raise for Approximate Aggregation can be stated in terms of Property
+Testing. For instance, as a corollary from our result we get a generalization
+of the classic result for property testing of linearity of Boolean functions.
+  An updated version (RePEc:huj:dispap:dp574R) is available at
+http://www.ratio.huji.ac.il/dp_files/dp574R.pdf
+"
+99,"  The scientific method relies on the iterated processes of inference and
+inquiry. The inference phase consists of selecting the most probable models
+based on the available data; whereas the inquiry phase consists of using what
+is known about the models to select the most relevant experiment. Optimizing
+inquiry involves searching the parameterized space of experiments to select the
+experiment that promises, on average, to be maximally informative. In the case
+where it is important to learn about each of the model parameters, the
+relevance of an experiment is quantified by Shannon entropy of the distribution
+of experimental outcomes predicted by a probable set of models. If the set of
+potential experiments is described by many parameters, we must search this
+high-dimensional entropy space. Brute force search methods will be slow and
+computationally expensive. We present an entropy-based search algorithm, called
+nested entropy sampling, to select the most informative experiment for
+efficient experimental design. This algorithm is inspired by Skilling's nested
+sampling algorithm used in inference and borrows the concept of a rising
+threshold while a set of experiment samples are maintained. We demonstrate that
+this algorithm not only selects highly relevant experiments, but also is more
+efficient than brute force search. Such entropic search techniques promise to
+greatly benefit autonomous experimental design.
+"
