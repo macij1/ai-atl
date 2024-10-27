@@ -21,9 +21,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Load and embed the SVG content
-with open('./data/mlh-badge.svg', 'r') as svg_file:  # Update to the correct path
-    svg_content = svg_file.read()
 
 # Sidebar with GitHub link
 with st.sidebar:
