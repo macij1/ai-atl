@@ -418,8 +418,9 @@ async def get_related_papers(query, bois: list[str]) -> Union[list[Paper], list[
     embedding = await _get_embeding(query)
     citations = await _fetch_all_citations()
     bois, used_citations = _bfs(bois, citations)
-    print("in BFS bois:",bois, used_citations)
-    return await _fetch_similarity_from_list(embedding, bois), used_citations
+    papers = await _fetch_similarity_from_list(embedding, bois)
+    papers.sort(key=lambda p: p.similarity)
+    return papers , used_citations
 
 async def main():
     await test_connection()
