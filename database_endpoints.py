@@ -68,7 +68,7 @@ async def test_connection():
         # close asyncpg connection
         await conn.close()
 
-async def _fetch_similarity(embeding, nbr_articles=2, DESC=True) -> list[Paper]:
+async def _fetch_similarity(embeding, nbr_articles=3, DESC=True) -> list[Paper]:
     """
     Fetch similar articles from the database based on a given embedding vector.
 
@@ -114,9 +114,9 @@ async def _fetch_similarity(embeding, nbr_articles=2, DESC=True) -> list[Paper]:
         await register_vector(conn)
         # Find similar products to the query using cosine similarity search
         # over all vector embeddings. This new feature is provided by `pgvector`.
-        results = await conn.fetch(
+        results1 = await conn.fetch(
             f"""
-            SELECT doi, title, 1 - (embedding <=> $1) AS similarity, abstract, doi, 1 - (title_embedding <=> $1) AS title_similarity, id
+            SELECT id, doi, title, 1 - (embedding <=> $1) AS similarity, abstract, 1 - (title_embedding <=> $1) AS title_similarity, 
             FROM papers
             ORDER BY similarity {"DESC" if DESC else ""}
             LIMIT $2
@@ -125,23 +125,42 @@ async def _fetch_similarity(embeding, nbr_articles=2, DESC=True) -> list[Paper]:
             nbr_articles
         )
 
-        if len(results) == 0:
+        results2 = await conn.fetch(
+            f"""
+
+            SELECT id, doi, title, 1 - (embedding <=> $1) AS similarity, abstract, 
+                1 - (title_embedding <=> $1) AS title_similarity
+            FROM papers
+            WHERE doi NOT IN (
+                SELECT doi
+                FROM papers
+                ORDER BY title_similarity {"DESC" if DESC else ""}
+                LIMIT $2
+            )
+            ORDER BY similarity {"DESC" if DESC else ""}
+            LIMIT $2;
+
+            """,
+            embeding,
+            nbr_articles
+        )
+
+        if len(results1) + len(results2) == 0:
             raise Exception("Did not find any results. Adjust the query parameters.")
         matches = []
-        for r in results:
+        for r in results1 + results2:
             # Collect the description for all the matched similar toy products.
-            matches.append(Paper(*r)
-            )
+            matches.append(Paper(*r))
 
         await conn.close()
         return matches
 
-async def get_dois(query: str, nbr_of_dois:int=5) -> list[str]:
+async def get_papers(query: str, nbr_of_dois:int=3) -> list[Paper]:
     """
-    Retrieve DOIs of relevant papers based on the provided query.
+    Retrieve Papers of relevancy based on the provided query.
 
-    This function takes a search query as input and returns a list of Digital Object Identifiers (DOIs)
-    for papers that are relevant to the query. The function is designed to interface with a database or
+    This function takes a search query as input and returns a list of papers
+    that are relevant to the query. The function is designed to interface with a database or
     an external API that contains academic paper metadata.
 
     Args:
@@ -150,18 +169,12 @@ async def get_dois(query: str, nbr_of_dois:int=5) -> list[str]:
                      search mechanism (e.g., keyword-based search, boolean operators, etc.).
 
     Returns:
-        list[str]: A list of DOIs corresponding to the relevant papers found. Each DOI is a string
-                    that uniquely identifies a paper in the digital environment.
+        list[Paper]: A list of instances of paper corresponding to the relevant papers found.
 
     Raises:
         ValueError: If the query is empty or invalid.
         ConnectionError: If there is an issue connecting to the database or API.
         Exception: For any other errors encountered during the retrieval process.
-
-    Example:
-        >>> dois = get_dois("machine learning applications in healthcare")
-        >>> print(dois)
-        ['10.1234/abcd1234', '10.5678/efgh5678', ...]
 
     Notes:
         - Ensure that the function has access to the necessary resources (e.g., database connection,
