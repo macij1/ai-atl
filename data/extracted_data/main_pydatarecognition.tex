@@ -1,0 +1,493 @@
+%------------------------------------------------------------------------------
+% Template file for the submission of papers to IUCr journals in LaTeX2e
+% using the iucr document class
+% Copyright 1999-2013 International Union of Crystallography
+% Version 1.6 (28 March 2013)
+%------------------------------------------------------------------------------
+
+%\documentclass[a, pdf]{iucr}              % DO NOT DELETE THIS LINE
+\documentclass[preprint]{iucr}
+
+% Minimum packages to compile
+
+\usepackage{color,xcolor}
+\usepackage{xspace}
+\RequirePackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{mathtools, amsmath, amsthm, amssymb, amsfonts,bm}
+\usepackage[12pt]{moresize}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{chemformula}
+
+%Tim package}
+\usepackage{threeparttable}
+%\usepackage{geometry}
+%\usepackage{bf}
+\usepackage{mathtools,xparse,amsmath}
+
+% Fig path
+
+\graphicspath{{./figures/}}
+
+% Commenting
+\newcommand{\sjb}[1]{\textcolor{blue}{[sjb:#1]}}
+\newcommand{\bo}[1]{\textcolor{red}{[bo:#1]}}
+\newcommand{\sw}[1]{\textcolor{green}{[sw:#1]}}
+\newcommand{\mk}[1]{\textcolor{violet}{[mk:#1]}}
+\definecolor{tagcolor}{HTML}{21a889}
+\newcommand{\ctag}[1]{\textcolor{tagcolor}{[ctag:#1]}}
+
+% Colored symbols
+
+\definecolor{dgreen}{HTML}{008000}
+\newcommand{\done}{\textcolor{dgreen}{{\large{$\checkmark$}}}}
+\newcommand{\doing}{\textcolor{blue}{{\large{$\blacklozenge$}}}}
+\newcommand{\fincheck}{\textcolor{orange}{{\large{$\blacktriangleleft$}}}}
+\newcommand{\fixme}{\textcolor{red}{{\large{$\blacktriangleright$}}}}
+
+% Simon utils
+% For unindented numbered lists use \be
+\newcommand{\be}{\begin{enumerate}[wide, labelwidth=!, labelindent=0pt,
+        label=\textbf{\textcolor{blue}{\arabic*}.}]}
+    % For indented numbered lists use \bei
+    \newcommand{\bei}{\begin{enumerate}}
+        \newcommand{\ee}{\end{enumerate}}
+    \newcounter{saveenumi}
+    \newcommand{\seti}{\setcounter{saveenumi}{\value{enumi}}}
+    \newcommand{\conti}{\setcounter{enumi}{\value{saveenumi}}}
+
+% Optional Utils
+\newcommand{\ocol}{\onecolumngrid}
+\newcommand{\tcol}{\twocolumngrid}
+\newcommand{\est}{$\sim$}
+
+
+%Group Commands and Shortcuts
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\ii}{\mathrm{i}}
+\newcommand{\eg}{e.g.~}
+\newcommand{\eq}[1]{Eq.~\ref{eq:#1}}
+\newcommand{\eqs}[1]{Eqs.~\ref{eq:#1}}
+\newcommand{\fig}[1]{Fig.~\ref{fig:#1}}
+\newcommand{\figs}[1]{Figs.~\ref{fig:#1}}
+\newcommand{\sect}[1]{Section~\ref{sec:#1}}
+\newcommand{\apen}[1]{Appendix~\ref{sec:#1}}
+\newcommand{\tabl}[1]{Table~\ref{table:#1}}
+\newcommand{\bra}[1]{\left<#1\right|}
+\newcommand{\ket}[1]{\left|#1\right>}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\etal}{{\it et al.~}}
+\newcommand{\adhoc}{{\it ad hoc}\xspace}
+\newcommand{\nb}[1]{{\bf NOTE[#1]}}
+\newcommand{\nba}[1]{}
+\newcommand{\mAA}{{\text \AA}\xspace}
+
+
+% Anchors for double subscripts. Command means "no space"
+\newcommand{\ns}{\hspace{0 pt}}
+% Much-used math
+\newcommand{\qmax}{\ensuremath{Q_{\mathrm{max}}}\xspace}
+\newcommand{\qmin}{\ensuremath{Q_{\mathrm{min}}}\xspace}
+\newcommand{\rmin}{\ensuremath{r_{\mathrm{min}}}\xspace}
+\newcommand{\rmax}{\ensuremath{r_{\mathrm{max}}}\xspace}
+\newcommand{\rlim}{\ensuremath{r_{\mathrm{lim}}}\xspace}
+\newcommand{\mmax}{\ensuremath{m_{\mathrm{max}}}\xspace}
+\newcommand{\delr}{\ensuremath{dr}\xspace}
+\newcommand{\delrn}{\ensuremath{dr_N}\xspace}
+\newcommand{\delq}{\ensuremath{dQ}\xspace}
+\newcommand{\qualp}{\ensuremath{\mathcal{Q}_p}\xspace}
+% Program names
+\newcommand{\pdfgui}{\textsc{PDFgui}\xspace}
+\newcommand{\pdfgetxthree}{\textsc{PDFgetX3}\xspace}
+\newcommand{\pdfgetn}{\textsc{PDFgetN}\xspace}
+\newcommand{\diffpy}{\textsc{diffpy-cmi}\xspace}
+\newcommand{\pydr}{\textsc{pyDataRecognition}\xspace}
+% Customized variable
+\newcommand{\sklearn}{\textsc{scikit-learn}\xspace}
+\newcommand{\tensorflow}{\textsc{Tensorflow}\xspace}
+\newcommand{\keras}{\textsc{Keras}\xspace}
+\newcommand{\expChem}{{Li$_{18}$Ta$_6$O$_{24}$}\xspace}
+\newcommand{\expChemSG}{{$P2/c$}\xspace}
+\newcommand{\bestAccu}{\ensuremath{53.6\%}\xspace}
+\newcommand{\bestRankedAccu}{\ensuremath{88.3\%}\xspace}
+\newcommand{\rankNum}{\ensuremath{6}\xspace}
+\newcommand{\CVnum}{\ensuremath{5}\xspace}
+\newcommand{\bestAlpha}{\ensuremath{10^{-4}}\xspace}
+\newcommand{\bestLambda}{\ensuremath{0.75}\xspace}
+\newcommand{\Acub}{\ensuremath{\mathrm{\AA}^{3}}\xspace}
+\newcommand{\LRtopOne}{\ensuremath{44.5}\xspace}
+\newcommand{\CNNtopOne}{\ensuremath{70.0}\xspace}
+\newcommand{\LRtopN}{\ensuremath{77.4}\xspace}
+\newcommand{\CNNtopN}{\ensuremath{91.9}\xspace}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\newcommand{\dbNum}{\ensuremath{101, 802}\xspace}
+
+
+% Temporary fix for iucr caption bug for floats
+\makeatletter
+\newcommand{\floatcaption}{%
+    \ifx \@captype \@undefined \@latex@error {\noexpand \caption outside float}\@ehd \expandafter \@gobble \else \refstepcounter \@captype \expandafter \@firstofone \fi {\@dblarg {\@caption \@captype }}%
+}%
+\makeatother
+
+% onlinecite
+\newcommand{\onlinecite}[1]{\hspace{-1 ex} \nocite{#1}\citenum{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-------------------------------------------------------------------------
+% Information about journal to which submitted
+%-------------------------------------------------------------------------
+\journalcode{A}              % Indicate the journal to which submitted
+%   A - Acta Crystallographica Section A
+%   B - Acta Crystallographica Section B
+%   C - Acta Crystallographica Section C
+%   D - Acta Crystallographica Section D
+%   E - Acta Crystallographica Section E
+%   F - Acta Crystallographica Section F
+%   J - Journal of Applied Crystallography
+%   M - IUCrJ
+%   S - Journal of Synchrotron Radiation
+
+\begin{document}                  % DO NOT DELETE THIS LINE
+
+    %-------------------------------------------------------------------------
+    % The introductory (header) part of the paper
+    %-------------------------------------------------------------------------
+
+    % The title of the paper. Use \shorttitle to indicate an abbreviated title
+    % for use in running heads (you will need to uncomment it).
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\title{Towards a machine-readable literature: finding relevant papers based on an uploaded powder diffraction pattern}
+\shorttitle{pydatarecognition}
+
+\author[a,\dagger]{Berrak}{Özer}%{bo2220@columbia.edu}{IUCr33727}
+\author[b,\dagger]{Martin~A.}{Karlsen}%{maak@sdu.dk}{IUCr33726}
+\author[a]{Zachary}{Thatcher}%{zachary.thatcher@columbia.edu}
+\author[a]{Ling}{Lan}%{ll3350@columbia.edu}
+\author[d]{Brian}{McMahon}%{bm@iucr.org}{IUCr2895}
+\author[d]{Peter~R.}{Strickland}%{ps@iucr.org}{IUCr3019}
+\author[d]{Simon~P.}{Westrip}%{simonwestrip@btinternet.com}
+\author[d]{Koh~S.}{Sang}%{koh@iucr.org}
+\author[e]{David~G.}{Billing}%{dave.billing@wits.ac.za}{IUCr8148}
+\author[f]{Dorthe~B.}{Ravnsbæk}%{dorthe@chem.au.dk}
+\cauthor[a,c]{Simon~J.~L.}{Billinge}{sb2896@columbia.edu}%{IUCr6492}
+
+\aff[a]{Department of Applied Physics and Applied Mathematics, Columbia University, \city{New York}, NY, 10027, \country{USA}}
+\aff[b]{Department of Physics, Chemistry and Pharmacy, University of Southern Denmark, DK-5230 Odense M, \country{Denmark}}
+\aff[c]{Condensed Matter Physics and Materials Science Department, Brookhaven National Laboratory, \city{Upton}, NY, 11973, \country{USA}}
+\aff[d]{International Union of Crystallography, \city{Chester}, CH1 2HU, \country{UK}}
+\aff[e]{School of Chemistry, University of the Witwatersrand, Private Bag 3, PO WITS, 2050 \country{South Africa}}
+\aff[f]{Department of Chemistry, Aarhus University, DK-8000 Aarhus C, \country{Denmark}}
+\aff[\dagger]{B. Özer and M. A. Karlsen contributed equally to this work}
+%
+\maketitle
+%
+\begin{center}
+    \includegraphics[width=0.85\columnwidth]{figs/pydr_illustration_colors.pdf}
+    \label{fig:pydr_illustration}
+\end{center}
+%
+\newpage
+%
+\begin{abstract}
+
+We investigate a prototype application for machine-readable literature. The program is called \pydr and serves as an example of a data-driven literature search, where the literature search query is an experimental data-set provided by the user. The user uploads a powder pattern together with the radiation wavelength. The program compares the user data to a database of existing powder patterns associated with published papers and produces a rank ordered according to their similarity score. The program returns the digital object identifier (doi) and full reference of top ranked papers together with a stack plot of the user data alongside the top five database entries. The paper describes the approach and explores successes and challenges.
+
+\end{abstract}
+%
+\section{Introduction}
+
+The activity of communicating science, including paper writing, always includes a search of the literature to discover and acknowledge prior work \cite{garfieldWhenCite1996}.  Since the advent of the internet, this process has largely moved from manual,  library based, searches to online searches using search engines \cite{butlerSoupedupSearchEngines2000}.
+Literature search engines such as Google Scholar \cite{vannoordenGoogleScholarPioneer2014} normally work by accepting text and metadata search queries, such as author names, keywords, journal name, year, and so on.  On the contrary, here we explore the concept of a data-seeded literature search where we use a measured data set as the search query to retrieve data-relevant papers from the literature.  We chose to use  X-ray powder diffraction data for our test case.
+
+X-ray powder diffraction is an important technique in materials science, where structural characterization is at the very center of the workflow as it is inherently linked to material properties. The goal of the technique is to understand the arrangement of atoms in the material based on measurements of X-ray (or neutron or electron) diffraction.  When the sample is a powder, the resulting diffractogram is a one-dimensional (1D) pattern of peaks called a powder diffraction pattern \cite{gilmoreInternationalTablesCrystallography2019a,dinnebierPowderDiffractionTheory2008c}.
+%,billi;b;pdtap08}
+This serves as a 1D fingerprint of the structure of the material.
+
+The challenge for our purposes is that there are no large open databases of experimental powder data.  The crystallography community recognized early the need for structured data related to chemical structure and developed the crystallographic information framework (CIF) \cite{hall;aca91}.  This was extended 
+to allow for the capture of experimental data from powder experiments as part of the powder CIF development \cite{hallInternationalTablesCrystallography2006}. CIF dictionaries provide machine-readable definitions of data items that can appear in a CIF structured database such as a CIF file. Such CIF files (or 'CIFs') form the basis for multiple chemical (ICDD \cite{gates-rectorPowderDiffractionFile2019}, ICSD \cite{zagoracRecentDevelopmentsInorganic2019}, CSD \cite{groomCambridgeStructuralDatabase2016}, COD \cite{grazulisCrystallographyOpenDatabase2009d}), macromolecular (wwPDB \cite{bermanProteinDataBank2000}), and materials science (Materials Project \cite{jainCommentaryMaterialsProject2013d}) structural databases. 
+%\sw{combine these database references into one list?}\sjb{we can do that but I am not sure the benefit as we lose the distinction of which database contains which kind of information.}
+However, of submitted CIFs that contain data resulting from a powder diffraction study, few include the associated diffractogram data (indeed, one desired outcome of this work would be to increase the incentives for authors to include the underlying diffractogram data).  The journals of the International Union of Crystallography (IUCr) archive all CIFs uploaded by authors with subsequently published papers. From this database we were able to extract a relatively small subset of CIFs that do contain powder patterns, along with metadata that allow the related paper to be found. This subset (787 CIFs) is the database we use for testing our prototype.
+
+
+As a simple illustration of the kind of benefits that may derive from having a machine-readable capability for the contents of literature papers, we develop here a prototype application that would help experimentalists carry out a literature search early in the process of their study.  The specific use case that we want to demonstrate is described below, but the vision is a software  application that takes a measured powder pattern as input and returns a list of relevant papers in the existing literature, preferably without the user having to upload a significant amount of, or ideally any, additional information about the experiment. This is reminiscent of modern facial recognition capabilities but it is experimental data recognition and so we call the Python language based prototype application \pydr.
+
+
+\section{Machine-readable vs. human-readable literature}
+
+For the past $\sim 350$   years, the main goal of the scientific literature has been to condense scientific understanding into documents that are intelligible to humans.  It has been enormously successful by any measure.  However, the literature is growing rapidly and it is becoming difficult for humans to keep up with the number of new publications.  Also, it becomes hard to assimilate so much information and find correlations and insights between related studies.  When given structured data, machines are very good at finding correlations and clustering by similarity as exemplified by facial recognition algorithms \cite{anwarulComprehensiveReviewFace2020}.  There is an activity of using machine learning to have machines read papers that were written for humans to understand, a process called natural language processing (NLP) \cite{chowdharyNaturalLanguageProcessing2020}.  However, this process, whilst valuable for extracting information from the historic canon, is not the best way for machines to assimilate information from data.  We can expect much greater efficiencies in machine processing of the scientific information if we can take steps to make scientific papers readable by machines directly.
+
+For this process to succeed, we need data in papers to be in accessible and structured data formats and saved with sufficient metadata to give important contextual information. The human being has a very highly developed capability for pattern recognition.  When we write a human-readable paper, we take our data and make an image, for example, by plotting the result as a line-plot.  It is much easier for the human reader to see similarities and derive insights from the data plotted as an image, but this is hard for the machine.  A literature that is written to be read by both humans and by machines would also have the data that was used to form the image saved in a machine-readable way, with important metadata such as what is being plotted, the quantity and units of both the $x$- and $y$-arrays, the sample that was measured to produce the plot, the people who did the work, and so on.  This is rarely done currently but is needed to realize the benefits of machine learned science.  
+
+\section{Prototype literature search application}
+In order to explore the kind of benefits that might be derived by having a machine-readable literature we explore a very simple use-case that makes use of a (small) database of structured, tagged, experimental data and does something useful with it.  The simple use-case we explore is to use a measured dataset as the input in a literature search.
+
+\subsection{Use case}
+\label{sec:uc}
+
+The use-case is described in the following way.  A structure scientist has a powder diffraction pattern from a particular sample collected on their powder diffractometer. They upload the data to the search application, together with a limited amount of relevant experimental information. The application then will search a database of stored powder diffraction data associated with published papers. It will then return a list of relevant papers based on the similarity between the data uploaded by the user and the powder patterns appearing in the papers. In the simple first iteration of the concept the relevance will just be a ranking based on the similarity between the powder patterns in these papers and the powder diffraction data uploaded by the user.
+
+The advantage of this use-case is that the International Union of Crystallography (IUCr) has a database of experimental powder patterns in a machine-readable powder-CIF format \cite{hallInternationalTablesCrystallography2006} that have been deposited by authors at the same time as they submitted the paper to the relevant IUCr journal.   These are the experimental data that generally appeared as images in figures in the linked papers.  The existence of this structured database of experimental powder patterns linked to published papers is therefore a valuable resource for prototyping the approach. 
+
+We note that there are several databases that facilitate computational literature searches including CrossRef \cite{crossrefRESTAPI2020}, Scopus \cite{mongeonJournalCoverageWeb2016,burnhamScopusDatabaseReview2006}, Web of Science \cite{mongeonJournalCoverageWeb2016,mikkiGoogleScholarCompared2009}, arXiv \cite{ginspargArXiv202011}, Google Scholar \cite{mikkiGoogleScholarCompared2009, samadzadehComparisonFourSearch2013}, Google Image Search \cite{fergusLearningObjectCategories2005} and so on.  The purpose of this work is to show how properly tagged data held in a structured database can be included in literature search workflows, helping scientists to do better science more quickly.
+
+
+\subsection{Software implementation}
+
+The use case presented above has been implemented into a Python package. The package is using home-written functions based on well-established third-party libraries like NumPy \cite{harrisArrayProgrammingNumPy2020}, Matplotlib \cite{hunterMatplotlib2DGraphics2007a}, SciPy \cite{virtanenSciPyFundamentalAlgorithms2020b}, scikit-beam \cite{scikit-beamScikitbeam2022} to complete the use case.
+
+To run the program, the user must provide the diffraction data for which the query should run. Currently, the data should be provided as a two-column  text file, possibly with a header, of intensity vs. an independent variable. The independent variable may be in the form of diffraction angle, $2\theta$ in degrees, $d$-spacing, in Ångströms, or the momentum transfer, $Q$, in inverse Ångströms, $\mathrm{\AA^{-1}}$. If the independent variable is $2\theta$,  the X-ray or neutron wavelength in Ångströms also needs to be provided.  All comparisons between data within the program are done with a $Q$ independent variable.  It will be straightforward to support different file formats in a production version of the code later.
+
+The program then uses a distance metric to determine the similarity of the uploaded pattern to every pattern in the database.   In the current implementation we are using the Pearson correlation \cite{ pearsonVIINoteRegression1895}, $r_{xy}$,
+\begin{equation}
+    r_{xy} = \dfrac{\sum\limits_{i=1}^{n}(x_{i}-\overline{x})(y_{i}-\overline{y})}{\sqrt{\sum\limits_{i=1}^{n} (x_{i}-\overline{x})^{2}\sum\limits_{i=1}^{n}(y_{i}-\overline{y})^{2}}},
+\end{equation}
+where $x$ and $y$ are one-dimensional arrays of equal size and $\overline{x}$ and $\overline{y}$ are their means, respectively. The value of the correlation coefficient can vary between $+1$ and $-1$. A  value of $+1$ means the two data sets are identical (perfect positive correlation), 0 implies no correlation between the data sets. Numbers less than zero imply negative correlation. It is calculated using the \texttt{pearsonr()} method within the scipy.stats package \cite{virtanenSciPyFundamentalAlgorithms2020b}. Since our goal is to find similar data, we seek diffraction patterns with $r_{xy}$ close to one.
+
+For a comparison of two data sets using the Pearson correlation, the two intensity arrays need to be on the same $Q$-grid. In general, powder patterns are measured over different ranges of $Q$ and on different arbitrary $Q$ grids.  To address this issue, we automatically determine the $Q$ space overlap region of the user and database data sets
+and linearly interpolate the data onto a common regular $Q$ grid in this interval. 
+Currently, a step size of $\Delta Q=10^{-3}\,\mathrm{\AA^{-1}}$ is used.  The user-supplied and target intensity arrays are then linearly interpolated onto this grid and the Pearson correlation is computed.  
+Currently, the comparison is done over the full overlapping range as long as there is at least a 20~nm$^{-1}$ overlap.  If the overlap is smaller than this the database entry is not considered.  As a result of this heuristic, similarities are compared between pairs of data computed over different ranges of overlap. The Pearson measure is normalized by the number of points that are computed making comparisons between overlap regions of different length possible. This seems to give reasonable results but could be revisited in the future. 
+
+The process of finding the overlapping range in $Q$ space, calculating a regular $Q$ grid, doing linear interpolation, and conducting Pearson correlation analysis between the user data and the data from a CIF is done for every CIF in the \pydr database. 
+This is possible because of the small size of the database but will not scale to large databases of data and more efficient approaches will be investigated in the future.
+
+The program then determines a rank ordered list based on similarity, and extracts from the database entry metadata the digital object identifier (DOI) \cite{paskinUniqueIdentifiers1999} of the paper that is associated with the the ranked data set.  The full reference of the associated paper is determined by making an API call to CrossRef \cite{crossrefRESTAPI2020} using the DOI.   The rank ordered list is then returned  to the user containing the rank, the Pearson-$r$ value, the DOI, and the full paper reference.  This information is also saved to a text file.
+
+The five most similar \pydr database entries are plotted together with the user data to enable the user to visually inspect similarities between the data sets. 
+Examples on output rank-ordered lists are given in Tables~\ref{table:rank_sandys1}-\ref{table:rank_sandys3} and plots in \figs{rank_plot_sandys1}-\ref{fig:rank_plot_sandys3} in Section~\ref{sec:results}.
+
+\section{Outcomes}
+\label{sec:outcomes}
+\subsection{Results}
+\label{sec:results}
+%\item \done
+
+At the moment of writing, $\sim515$ valid CIFs, out of 785 total in the \pydr database, are included in the analysis. They originate from $\sim215$ papers. The actual number of CIFs included in the analysis depends on the $Q$-range of the user data, as a minimum shared $Q$-range of 20~nm$^{-1}$ between the user and database patterns is required for the CIF to be included in the analysis.
+
+Here, we explore the performance of the prototype \pydr with a number of query examples. The first example serves to test that the algorithm finds, with top rank, a dataset that actually exists in the database. The second example is a better test of the real use case. We provide real data but choose a very common structural form (perovskite) with the expectation that there will be representatives of this structure from more than one sample and composition, even given the  limited size of the current database of 785 CIFs. In the third example, we provide a neutron data set as user data to explore how the program behaves when provided neutron data as input whilst the data in the database come predominantly from X-ray data.
+
+\textbf{Query example 1}
+
+For the first example, the user data are taken from a CIF from the paper by \cite{stahliHydrogensubstitutedVtricalciumPhosphate2016}. The paper is on hydrogen-substituted $\beta$-tricalcium phosphate synthesized in organic media, i.e. a Mg-free whitlockite, represented by the
+formula \ch{Ca_{21-x}(HPO4)_{2x}(PO4)_{14-2x}}, where $x = 0.80 \pm 0.04$. The data are from an X-ray experiment. 
+As the user data are taken from a database entry, the expected outcome of the query is to have a perfect match, i.e. a score of one, $r_{xy}=1$. From \tabl{rank_sandys1}, 
+it can be seen that the test went well, and a perfect match is found for a CIF appearing in the paper by \cite{stahliHydrogensubstitutedVtricalciumPhosphate2016}. 
+%
+\begin{table}
+\caption{Ranks, scores, DOIs, and references for the top five \pydr database entries shown in Fig.~\ref{fig:rank_plot_sandys1}. The `user data' are identical to the rank 1 entry in the table.}
+\begin{center}
+\begin{threeparttable}
+\begin{tabular}{c c c c}
+    % \toprule
+    \textbf{Rank} & \textbf{Score} & \textbf{DOI} & \textbf{Reference} \\ \hline
+      1 &   1.0000  &   https://doi.org/10.1107/S2052520616015675   & \cite{stahliHydrogensubstitutedVtricalciumPhosphate2016
+} \\ \hline
+      2 &   0.7379  &   https://doi.org/10.1107/S1600536810014327   & \cite{zatovskyRietveldRefinementWhitlockiterelated2010
+} \\ \hline
+      3 &   0.4631  &   https://doi.org/10.1107/S1600536813007848   & \cite{strutynskaRietveldRefinementAgCa102013
+} \\ \hline
+      4 &   0.4552  &   https://doi.org/10.1107/S2052520618004092   & \cite{bellCrystalStructuresK22018
+} \\ \hline
+      5 &   0.4261  &   https://doi.org/10.1107/S2052520614001140   & \cite{zvirgzdinsStructureDeterminationThree2014
+} \\ \hline
+\end{tabular}
+\end{threeparttable}
+\end{center}
+\label{table:rank_sandys1}
+\end{table}
+%
+In \fig{rank_plot_sandys1}(a) and (b), visual inspection confirms that the plots of the user data and the rank~1 database entry are identical. 
+%
+\begin{figure}
+    \includegraphics[width=0.8\columnwidth]{figs/rank_plot_papers_sandys1.pdf}
+    \label{fig:rank_plot_sandys1}
+    \caption{Intensity, $I$, in arbitrary units as a function of momentum transfer, $Q$, in inverse nanometers, $\mathrm{nm}^{-1}$, for the user data (topmost) and the top five \pydr database entries in descending order.
+    The full range of the user data are shown, whereas only the comparison region is shown for each database entry.
+    The rank scores, DOIs, and references can be found in Table \ref{table:rank_sandys1}.}
+\end{figure}
+%
+It is encouraging that the program returns the paper from which the user data were derived as the top ranked result. 
+
+Moving down in \tabl{rank_sandys1}, the rank~2 entry \cite{zatovskyRietveldRefinementWhitlockiterelated2010}, which studies Rietveld refinement of whitlockite-related \ch{K_{0.8}Ca_{9.8}Fe_{0.2}(PO4)7}, scores 0.7379. The score indicates an intermediate level of similarity to the user data.  Visual inspection of the plot in \fig{rank_plot_sandys1}(c) confirms the similarity and the structural relation between the user data and the rank~2 entry that are both whitlockite-related. Multiple Bragg positions are shared between the two data sets, as reflected in the intermediate score, but at the same time dissimilarities are also present, such as differences in relative intensities and peak splitting, e.g. right above 10~nm$^{-1}$, as should be expected from different chemical compositions. The data-driven nature of the \pydr query enables the user to discover other papers with possible relevance to their uploaded data. 
+
+The rank~3 dataset has a much lower agreement factor (0.4631), than the rank~2 (0.7379) which might suggest that it is structurally unrelated.  However, visual comparison of the diffraction curves (\fig{rank_plot_sandys1}(c) and (d)) suggests that there are many similarities between these datasets.  In fact, The rank~3 dataset \cite{strutynskaRietveldRefinementAgCa102013} is from a Rietveld refinement study of  a sample isostructural to the mineral whitlockite, \ch{AgCa10(PO4)7}, which is closely related to the user dataset and would certainly be of interest to the user. In this case the Pearson measure seems not ideal as a similarity metric for the current use-case.
+
+To explore the origin of the large drop in similarity score between the isostructural rank~2 and~3 samples in \fig{rank_plot_sandys1_zoom} we have plotted the user data together with the rank~2 and~3 database entries on an expanded $Q$-scale from~20 to 25~nm$^{-1}$ with vertical lines indicating the peak positions of the user data. 
+% 
+\begin{figure}
+    \includegraphics[width=0.8\columnwidth]{figs/rank_plot_papers_sandys1_q=20-25.pdf}
+    \label{fig:rank_plot_sandys1_zoom}
+    \caption{Intensity, $I$, in arbitrary units as a function of momentum transfer, $Q$, in inverse nanometers, $\mathrm{nm}^{-1}$, for the user data (topmost) and the rank~2 and 3 \pydr database entries.
+    The data are plotted for the $Q$-range from 20 to 25~nm$^{-1}$.
+    The vertical lines indicate the Bragg positions of the user data.}
+\end{figure}
+% 
+We see that there is a small offset in peak position for the rank~2 database entry relative to that of the user data, whereas the offset is more pronounced for the rank~3 database entry. This $Q$-offset is likely to explain the low Pearson score of the rank~3 entry. The difference in scores for the rank~2 and~3 database entries gives a hint at how sensitive the current Pearson similarity metric is towards an offset, whether it is an experimental artefact or has a structural origin such as different lattice parameters of otherwise similar structures.
+This is undesirable behavior in our similarity metric that we explore further below. 
+
+The rank~4 and~5 entries in \tabl{rank_sandys1} and \fig{rank_plot_sandys1}(e-f) in the current example appear visually very dissimilar to the user data and are unlikely to be of any interest to the user. However, it is observed that the Pearson scores are quite similar to that of the rank~3 entry that is isostructural.  This is further evidence of a weakness in the use of the Pearson metric in the current application as it cannot distinguish an isostructural but shifted pattern from a completely dissimilar pattern.  The code was designed for it to be easy to implement different similarity metrics in principle, and finding the best similarity metrics will be an ongoing process.
+
+\textbf{Query example 2}
+
+For the second example, the input data are synchrotron X-ray data of the perovskite \ch{BaTiO3}. Since the structural family of perovskites is common, it is hoped that even the current small database will return one or more papers with data from perovskite or perovskite-related structures. The results from the query are found in \tabl{rank_batio3} and \fig{rank_plot_batio3}. 
+%
+\begin{table}
+\caption{Ranks, scores, DOIs, and references for the top five \pydr database entries shown in \fig{rank_plot_batio3}.}
+\begin{center}
+\begin{threeparttable}
+\begin{tabular}{c c c c}
+    % \toprule
+    \textbf{Rank} & \textbf{Score} & \textbf{DOI} & \textbf{Reference} \\ \hline
+      1 &   0.5723  &  https://doi.org/10.1107/S0021889813013253   & \cite{iturbe-zabaloSymmetrymodeAnalysisPhase2013}  \\ \hline
+      2 &   0.3906  &  https://doi.org/10.1107/S0108768198017984  & \cite{sciauStructuresPhasesParaelectrique1999}  \\ \hline
+      3 &   0.3390  &  https://doi.org/10.1107/S1600576715000941   & \cite{orayechModecrystallographyAnalysisCrystal2015}  \\ \hline
+      4 &   0.2881  &  https://doi.org/10.1107/S0108768111039759   & \cite{kasunicStructureLaTi2Al9O19Reanalysis2011}  \\ \hline
+      5 &   0.2485  &  https://doi.org/10.1107/S0108768109011057   & \cite{zhangStructuresK005Na02009}  \\ \hline
+\end{tabular}
+\end{threeparttable}
+\end{center}
+\label{table:rank_batio3}
+\end{table}
+%
+\begin{figure}
+    \includegraphics[width=0.8\columnwidth]{figs/rank_plot_papers_batio3.pdf}
+    \label{fig:rank_plot_batio3}
+    \caption{Intensity, $I$, in arbitrary units, arb.u., as a function of momentum transfer, $Q$, in inverse nanometers, $\mathrm{nm}^{-1}$, for the user data (topmost) and the top five \pydr database entries in descending order.
+    The full range of the user data is shown, whereas only the region used for comparison is shown for each database entry.
+    The rank scores, DOIs, and references can be found in Table \ref{table:rank_batio3}.}
+\end{figure}
+%
+From the scores reported in \tabl{rank_batio3}, it is evident that no highly similar database entries are encountered as all scores $r_{xy}<0.6$.  However, a visual inspection of the top ranked powder pattern in \fig{rank_plot_batio3}(b), does show some similarity in peak frequency and positions, so the rank~1 entry may be related to the user data despite the modest score of 0.5723 reported in \tabl{rank_batio3}. Looking into the paper  \cite{iturbe-zabaloSymmetrymodeAnalysisPhase2013}, the topic is symmetry-mode analysis of the phase transitions in \ch{SrLaZnRuO6} and \ch{SrLaMgRuO6} ordered double perovskites, i.e. a paper on perovskite-derived structures, which is encouraging, considering that the user data were for the perovskite \ch{BaTiO3}, so from all of the $>500$ entries in the database, \pydr has returned a paper describing related data in the top rank position, albeit with a low similarity score. 
+
+Returning to the remaining results reported in \tabl{rank_batio3}, it is seen that all scores are $<0.4$, indicating low Pearson similarity to the user data. For the rank~2 and~4 entries, the low scores seem to reflect structural dissimilarity as the diffraction patterns are visually very different. The rank~2 entry \cite{sciauStructuresPhasesParaelectrique1999} is considering the structures of the paraelectric and ferroelectric phases of \ch{Pb2KNb5O15} with orthorhombic symmetry that does appear to be perovskite-related. \fig{rank_plot_batio3}(c) shows that the database entry possess a much larger peak density compared to the user data, as also reflected in the rather low score of 0.3906.
+
+The paper of the rank~4 entry \cite{kasunicStructureLaTi2Al9O19Reanalysis2011} is on the structure of \ch{LaTi2Al9O19}, a non-perovskite compound isostructural to \ch{SrTi3Al8O19}, and so the low score of 0.2881 again reflects a structural dissimilarity.
+However, the low Pearson score for the rank~3 and rank~5 results seem surprising, as in these cases the data have a  visual resemblance to the user data in \fig{rank_plot_batio3}(a), (d) and (f), especially in the rank~3 case. The paper of the rank~3 entry \cite{orayechModecrystallographyAnalysisCrystal2015}, is considering mode-crystallography analysis of the crystal structures and the low- and high-temperature phase transitions in the \ch{Na_{$0.5$}K_{$0.5$}NbO3} cubic perovskite. This paper clearly describes a closely related structure and we would hope that the \pydr algorithm would find it with a high ranking yet it does not.  In the case of the rank~5 entry \cite{zhangStructuresK005Na02009} it does also describe perovskite structures (\ch{K_{$0.05$}Na_{$0.95$}NbO3} and \ch{K_{$0.30$}Na_{0.70}NbO3}).
+
+As was the case for the first query example, the low scores of the otherwise visually similar rank~3 and~5 entries may be explained by a small offset in the lattice parameters. For both entries, the offset is towards higher $Q$-values, compared to the user data, which is the likely cause of the poor Pearson score. In addition, there are also clear differences in relative peak intensities compared to the user data and some peak broadening, e.g., at 32~nm$^{-1}$, which will also affect the Pearson score.
+
+The rank~3 and~5 entries represent additional false negative results.  These results did show up in the top-5 list despite their low Pearson scores, which is encouraging, but it is likely that other related papers are being missed with low Pearson scores because of the poor performance of Pearson for the job in hand.
+
+
+\textbf{Query example 3}
+
+The third and last query example reported here is regarding user data for which neutrons were used as the probe, contrary to the two former query examples that originated from X-ray probes. \pydr accepts powder patterns from any source, X-ray, neutron, or electrons, and currently the user is not asked to provide the type of probe on input, just as the type of probe is not regarded when running the query. Regardless, in principle we would still like the program to return papers describing similar structures. The results are shown in \tabl{rank_sandys3} and \fig{rank_plot_sandys3}. 
+%
+\begin{table}
+\caption{Ranks, scores, DOIs, and references for the top five \pydr database entries shown in \fig{rank_plot_sandys3}.}
+\begin{center}
+\begin{threeparttable}
+\begin{tabular}{c c c c}
+    % \toprule
+    \textbf{Rank} & \textbf{Score} & \textbf{DOI} & \textbf{Reference} \\ \hline
+      1 &   0.8808  &  https://doi.org/10.1107/S1600576715000941   & \cite{orayechModecrystallographyAnalysisCrystal2015}  \\ \hline
+      2 &   0.7785  &  https://doi.org/10.1107/S0021889813013253   & \cite{iturbe-zabaloSymmetrymodeAnalysisPhase2013}  \\ \hline
+      3 &   0.6855  &  https://doi.org/10.1107/S0108768109011057   & \cite{zhangStructuresK005Na02009}  \\ \hline
+      4 &   0.2859  &  https://doi.org/10.1107/S0108768112017478   & \cite{bereciartuaStructureRefinementSuperspace2012c}  \\ \hline
+      5 &   0.2532  &  https://doi.org/10.1107/S0108768103019013   & \cite{palaciosPhasesCH34N2003}  \\ \hline
+\end{tabular}
+\end{threeparttable}
+\end{center}
+\label{table:rank_sandys3}
+\end{table}
+%
+\begin{figure}
+    \includegraphics[width=0.8\columnwidth]{figs/rank_plot_papers_sandys3.pdf}
+    \label{fig:rank_plot_sandys3}
+    \caption{Intensity, $I$, in arbitrary units, arb.u., as a function of momentum transfer, $Q$, in inverse nanometers, $\mathrm{nm}^{-1}$, for the user data (topmost) and the top five \pydr database entries in descending order.
+    The full range of the user data are shown, whereas only the region used for comparison is shown for each database entry.
+    The rank scores, DOIs, and references can be found in \tabl{rank_sandys3}.}
+\end{figure}
+The user data set is measured for a cubic perovskite sample, \ch{(K_{0.48}Na_{0.48}Li_{0.04})Nb_{0.98}Mn_{0.02}O3} \cite{h.e.mgbemereElectricFieldInducedPhaseTransition2017}, like the second query example above. From \tabl{rank_sandys3}, a relatively high score of 0.8808 is obtained for the rank~1 database entry \cite{orayechModecrystallographyAnalysisCrystal2015}. 
+The paper for this entry is on \ch{Na_{$0.5$}K_{$0.5$}NbO3} perovskite and reports neutron data, explaining the high degree of similarity.
+The rank~2 \cite{iturbe-zabaloSymmetrymodeAnalysisPhase2013} and~3 \cite{zhangStructuresK005Na02009} database entries  have slightly lower Pearson coefficients (0.7785 and 0.6855, respectively) and the visual similarity between the two is evident, though the rank~3 dataset is observed to have lower visual similarity to the user dataset. Mostly peaks are in the same place but relative intensities are quite different and peaks are split. The rank~2 database entry was for neutron diffraction data of the double perovskites, \ch{SrLaZnRuO6} and \ch{SrLaMgRuO6}, encountered before, and indeed weak additional superlattice peaks from the ordering are evident in the pattern.  The rank~3 database entry  describes neutron data precisely from perovskite K/Na niobate materials, like the user data, albeit with different K:Na ratios, \ch{K_{$0.05$}Na_{$0.95$}NbO3} and \ch{K_{$0.30$}Na_{$0.70$}NbO3} as well as the absence of Mn. In this case, peak splitting indicates a symmetry lowering in the database data, but it was correctly detected as closely related by the Pearson similarity in this case.
+The rank~3 paper \cite{zhangStructuresK005Na02009} was also encountered as the rank~5 entry in \tabl{rank_batio3} of the second query example. However, the data plotted in \fig{rank_plot_batio3}(f) stems from a CIF considering \ch{K_{$0.30$}Na_{$0.70$}NbO3} at 200~K, whereas the data plotted in \fig{rank_plot_sandys3}(d) stems from a CIF considering the material at 180~K and the temperature difference may explain the slight visual differences when comparing the two database entries to one another.
+
+Finally, the very low scores of the rank~4 and~5 entries in \tabl{rank_sandys3} are reflected by the observed dissimilarity to the user data in \fig{rank_plot_sandys3}(e) and (f) and in this case is due to a structural dissimilarity. The rank~4 entry \cite{bereciartuaStructureRefinementSuperspace2012c} describes the system
+\ch{Bi_{$2(n+2)$}Mo_{$n$}O_{$6(n+1)$}} ($n=3$, 4, 5, 6) and the rank~5 entry \cite{palaciosPhasesCH34N2003} \ch{[(CH3)4N](ClO4)} at low temperature, neither of which are perovskite related structures.
+
+Overall, the approach is working, with \pydr successfully suggesting to the user, from a database of 785 datasets (of which $\sim 600$ are usable) the same three perovskite structures in comparison to user inputs from perovskite structures, working for both X-ray data from \ch{BaTiO3} and neutron data from a perovskite Na/K niobate.   However, the test revealed certain difficulties that the Pearson correlation coefficient was having at correctly identifying and ranking nearby structures, especially when there was a small shift in the peaks due to different lattice parameters.
+
+\subsection{Challenges and opportunities}
+\label{sec:challengesandopportunities}
+
+The completed use case demonstrates a proof of concept and reveals the great potential of a machine-readable literature.  There is still some way to go before it becomes a practical tool but the prototype highlights some of the challenges as well as the opportunities.
+
+Currently the biggest limitation we encounter is the small database size. Of all the CIFs in the IUCr database (currently numbering around 100,000) only $\sim 1000$  contained experimental powder patterns. In part this is because many studies did not involve the use of powder diffraction data, but also there is limited adoption by authors of the ability to store the actual powder data.  Although, through the CIF mechanism, the IUCr is a leader in capturing the powder diffraction data of authors in a structured way, the uptake of the community is still limited.  This is currently a focus of the Commission on Powder Diffraction of the IUCr, where new tools for validating deposited CIFs for contained powder data, and tools for visualizing deposited data are being developed.  This \pydr prototype application adds additional incentive to authors as it will clearly make their work more discoverable in the future, and it is only a first step of what can be done if structured data are stored along with the papers describing them.
+
+The current similarity metric, the Pearson correlation coefficient, is a good first step as a similarity measure that can easily be implemented in this prototype application. However, \sect{outcomes} illustrates that the job currently done by the Pearson correlation does not completely meet the requirements of the \pydr program, as it is observed that the Pearson correlation seems quite sensitive to $Q$ offset. This results in rather low ranking of otherwise visually similar patterns, which is undesirable from a user's point of view.
+For experimental data, experimental artefacts from the instrument and the sample are expected, including e.g. $Q$ offset. For \pydr, it is desirable to have a similarity metric that tolerates the presence of experimental artefacts and still ranks otherwise similar patterns high to each other.
+Apart from $Q$ offset, potential experimental artefacts to be tolerated include e.g. peak broadening from the instrument as well as sample, small peak splittings indicating slight losses in symmetry, and to some degree, variations in relative intensities of peaks as expected when comparing neutron to X-ray data, or from isostructural but different composition samples that may still be relevant to the user.
+A better similarity metric for the current job required by \pydr would tolerate these aberrations and ideally return results by relevance, much like a Google search does, given the right search query.  We will explore different metrics, including ones specifically proposed for powder data 
+\cite{degelderGeneralizedExpressionSimilarity2001}, but this is a big area of research \cite{vombrockeStandingShouldersGiants2015} and extending the metric is beyond the scope of the current article.
+
+The prototype also highlights another challenge, which is maintaining the quality of the deposited data and the attached metadata.
+Despite the small database size, a significant number of the deposited CIFs containing measured data were unusable.
+Out of 787 CIFs, 785 could be parsed using the CIF parser \texttt{CifFile.ReadCif()} from the pyCIFRW Python module \cite{hesterValidatingCIFParser2006}.
+Of those parsed, multiple CIF keys had to be browsed for $2\theta$, intensity, and wavelength values, the main reason being that CIF handles both measured, processed, and calculated data. The pdCIF dictionary makes it easier for developers to find the right keys, at least if the use of the keys follows the pdCIF guidelines. \cite{tobyPowderDictionaryPdCIF2006} However, from the current work, this does not seem to be the case in many instances, the result being that more CIF keys have to be browsed than if the CIF contributors strictly followed the pdCIF guidelines from IUCr. It may be beneficial to demand CIF contributors to obey the pdCIF guidelines, as this will reduce the number of keys to be browsed in the light of any machine readable literature effort.
+
+For 59 of the 785 CIFs, the wavelength was missing, preventing a conversion to a physics-based independent variable such as $Q$. Furthermore, for 164 CIFs, the $2\theta$-values were either not stated explicitly or could not be calculated using a CIF supplied minimum, maximum, and step-size in $2\theta$.
+Whilst it might be possible to modify the algorithm to guess at a resolution for the inconsistent min-max-step calculation, for example, by ignoring the author supplied bin-size but computing it from the minimum and maximum $2\theta$ values and the number of entries in the intensity array, this is not preferred behavior as it is modifying the user data in possibly ambiguous ways, and so in these cases the CIFs were discarded.
+Inconsistent size of the min-max-step calculated $2\theta$ array relative to that of the intensity array was encountered for 92 out of all the 164 CIFs. A min-max-step calculated $2\theta$ array consistent with the size of the intensity array was obtained for 120 out of the 785 CIFs processed. None of the CIFs in the current database had $x$-axis data stored in $Q$ or $d$ quantity, though this would be supported if encountered.
+
+
+These challenges highlight the need for better validation of CIF inputs of experimental data, as well as more intuitive and easy-to-use tools for experimenters to upload their experimental data and provide the needed metadata.
+
+\subsection{Next steps}
+
+
+The work described here is an early prototype for data-driven literature search to illustrate the potential for the machine-readable literature concept. It has served to illustrate the concept and to explore what some of the challenges will be to bring this to fruition.  An obvious next step would be to increase the size of the database. We are working with members of the Commission on Powder Diffraction at the IUCr to find ways to increase the amount and readability of powder diffraction data being deposited with submitted papers. In the mean-time one approach to increasing the size of the database is to simulate powder patterns from all structures (including those solved from single-crystal data) in the IUCr CIF database. Comparisons could then be made between uploaded data and simulated, as well as experimental, patterns. 
+
+Another issue is finding similarity between diffraction patterns that were measured from the same material but measured under different experimental conditions of instrument resolution and so on.  It will be interesting to explore using different deconvolution methods and different representations for the data to see which are most effective.
+
+For the current database consisting of 785 CIFs, on a laptop (HP Elitebook 850 G5, Intel(R) Core(TM) i5-7300 CPU @ 2.6 GHz, 2712 MHz, 2 cores, 4 logic processors, 8 GB RAM), it takes the program $\sim30$~s to complete a query.  This is acceptable, but will not scale well with larger datasets.
+
+We currently use a  \textit{brute force} approach for finding similarity which will not scale well requiring more sophisticated and faster database browsing approaches to be found.
+Prior information from the user can help, for example, a list of chemical elements that the user knows should be present in the sample, would cut down the search space.  However, we will also explore increasing the efficiency or the search, for example, through the
+use of graph-based search algorithms that can pre-store the similarity between every entry in the database. \cite{johnsonBillionScaleSimilaritySearch2021}. Algorithms for finding nearest neighbor connections may then be explored to rapidly find the best solutions without having to traverse the entire graph.
+
+\section{Conclusions}
+
+As a first step towards a more machine-readable literature that will ease literature search and make science more readily available, we have demonstrated a prototype application, \pydr. The program takes a measured powder pattern, together with other relevant metadata, as input and returns information on literature papers that may be relevant to the powder pattern uploaded by the user.
+
+This represents the initial steps towards a more machine-readable literature.  However, it already revealed a number of challenges that need to be overcome moving forward. The CIF format is well-defined but is not strictly adhered to or validated, at least when it comes to experimental data in powder-cif.  This results in non-usable information in the CIF file database such as non-numeric values where numeric values are expected. Tools are needed to facilitate the deposition of properly validated data-containing CIF entries in the IUCr database.  This work is in progress. Regardless, the simple use-case of finding relevant papers given a diffraction pattern already gives a glimpse of many other more advanced capabilities that are possible by going down this route of a machine-readable literature.
+
+\section{Acknowledgements}
+
+We would like to thank Dr. Sandra Skjærvø for sharing unpublished \ch{BaTiO3} data.
+
+\section{Funding information}
+
+Work in the Billinge group was funded in part by the U.S. National Science Foundation through grant DMREF-1922234. M. A. Karlsen and D. B. Ravnsbæk acknowledge the support from the Carlsberg Foundation (grant. no. CF17-0823). 
+%
+\newpage
+%
+\bibliographystyle{iucr}
+\bibliography{billinge-group-bib,bg-pdf-standards,bo_pydatarecognition}
+
+
+
+%%%%%%%%%%%%SI block%%%%%%%%%%%%%%%%%%
+%\clearpage
+%\section{Supporting Information}
+
+% This code ensures the supplementary captions have the right form
+\setcounter{figure}{0}
+\setcounter{equation}{0}
+\setcounter{table}{0}
+\makeatletter
+\renewcommand{\fnum@figure}{Fig.~S\thefigure}
+\renewcommand{\theequation}{S\arabic{equation}}
+\renewcommand{\thetable}{S\arabic{table}}
+\makeatother
+
+%\appendix
+%\section{SI}
+
+\end{document}

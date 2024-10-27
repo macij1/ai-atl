@@ -1,0 +1,14 @@
+\section{Design principles}
+
+PyTorch's success stems from weaving previous ideas into a design that balances speed and ease of use. There are four main principles behind our choices:
+
+\textbf{Be Pythonic} \quad
+Data scientists are familiar with the Python language, its programming model, and its tools. PyTorch should be a first-class member of that ecosystem. It follows the commonly established design goals of keeping interfaces simple and consistent, ideally with one idiomatic way of doing things. It also integrates naturally with standard plotting, debugging, and data processing tools.
+
+\textbf{Put researchers first} \quad PyTorch strives to make writing models, data loaders, and optimizers as easy and productive as possible. The complexity inherent to machine learning should be handled internally by the PyTorch library and hidden behind intuitive APIs free of  side-effects and unexpected performance cliffs.
+
+\textbf{Provide pragmatic performance} \quad
+To be useful, PyTorch needs to deliver compelling performance, although not at the expense of simplicity and ease of use. Trading 10\% of speed for a significantly simpler to use model is acceptable; 100\% is not. Therefore, its \emph{implementation} accepts added complexity in order to deliver that performance. Additionally, providing tools that allow researchers to manually control the execution of their code will empower them to find their own performance improvements independent of those that the library provides automatically.
+
+\textbf{Worse is better}~\cite{worse_is_better} \quad
+Given a fixed amount of engineering resources, and all else being equal, the time saved by keeping the internal implementation of PyTorch simple can be used to implement additional features, adapt to new situations, and keep up with the fast pace of progress in the field of AI. Therefore it is better to have a simple but slightly incomplete solution than a comprehensive but complex and hard to maintain design.

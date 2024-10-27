@@ -1,0 +1,386 @@
+\section*{OLD VERSION}
+
+\section*{Old Introduction}
+
+%NER is task of finding names such as organizations, locations, etc. in unstructured text. Models on the basis of neural networks obtain state-of-the-art performance without resorting to hand-crafted features~\cite{neural_ner}. 
+
+%Common benchmarks for developing new approaches are CoNLL-2003~\cite{conll2003} and Ontonotes~\cite{ontonotes} datasets. They both include include enough data to train neural architectures in usual supervised learning setting with pre-trained word embeddings~\cite{glove}. 
+
+Lastly many of widely used datasets such as CIFAR10~\cite{cifar10}, ImageNet~\cite{imagenet} received semi-supervised versions that aim advancing methods for few-shot learning. These methods are intended to bring deep learning closer to applications because usually labeled data is a scarce resource~\cite{review_nlp}. 
+
+Arguably for NLP task semi-supervised setting is paid less attention, although it is just as important as for image classification. For example, recognized named entities are important features in other NLP tasks such as dialogue management~\cite{dialogues_ner}. Therefore data-efficient learning which allow recognizing domain-specific entities is important. Present paper discusses semi-supervised task definition for NER and proposes few techniques for its solving adapted from image recognition.
+
+One prominent approach to task of learning from few examples is metric learning~\cite{metric-learning}: recent examples are Matching Networks~\cite{matching} and Prototypical Networks~\cite{prototypical} for image classification. Other approaches do exist: meta-learning~\cite{few_shot_meta}, memory-augmented neural networks~\cite{few_shot_memory}, using side information of improving classification~\cite{fusing}.
+
+Focus of the present paper is metric-learning methods which we apply to NER framed as few-shot learning task. 
+
+Our contribution is that we
+\begin{enumerate}
+	\item[$\bullet$] We formulated few-shot NER as Semi-supervised learning task
+	\item[$\bullet$] We adapted existing method that was used for CV to the few-shot NER-task and compared it with the existed models.
+\end{enumerate}
+
+
+\section{Models}
+
+We implemented three variants of prototypical network models for NER task and compared their performance with that of two baseline models --- bidirectional RNN with CRF, and transfer model. 
+
+In our experiments we train separate models for each class, so that all models we report can distinguish between a target class $C$ and ``O''. This was done in order to evaluate the performance of individual classes in isolation. This setting mimics the scenario when we acquire a small number of examples of a new class and need to incorporate it to a pre-trained NER model. %In the majority of NER datasets the distribution of classes is uneven, and frequent classes vastly dominate the prediction, so that infrequent labels are assigned very rarely (or never) in the test set. We mitigate this problem by training and testing individual models for each class. Here we keep the frequency of a class in the data, but make sure that a model learns to predict this particular class, and it is not shaded by some other more frequent class. \fixme{Well, I'm afraid it's bullshit}
+
+\fixme{Moreover, as we show later, our models have quite small number of conflicts (cases when one word is assigned more than one class). This means that in real-world scenarios our models can be used simultaneously to label a text with all classes.}
+
+%We describe all models below.
+
+%As it was discussed above, prototypical networks require two datasets for training --- support set and query set. In NER task they are sentences labelled with a (rare) target class and sentences labelled with other (frequent) classes. Therefore, in our setting support and query set can also be interpreted as in-domain and out-of-domain data. For our RNN baseline we use only support set, other models use both sets.
+
+%\fixme{Is that right?}
+
+\subsection{Data preparation}
+\label{section:data_preparation}
+
+Since each of our models predicts only one class, we need to alter the data to fit into this scenario. We separate all the available data into two parts and alter their labellings in different ways. We label the first half of the data only with instances of the target class $C$, other words receive the label ``O''. Note that since the sentences of this subset are not guaranteed to contain entities of class $C$, some sentences can be ``empty'' (i.e. containing only ``O'' labels). This data is our in-domain set. We use it in two ways:
+
+\begin{enumerate}
+	\item We sample training data from it. To train a model for a particular class $C$ we need $N$ instances of this class. In order to get them we sample sentences from the in-domain set until we acquire $N$ sentences with at least one entity of class $C$. Therefore, the size of our sample depends on frequency of $C$ in the data. For example, if $C$ occurs on average in one of three sentences, the expected size of the sample is $3*N$. We refer to this data as \textbf{in-domain training}.
+    \item We reserve a part of the in-domain set for testing. Note that we test all models on the same set of sentences, although their labelling differs depending on the target class $C$. We refer to this data as \textbf{test}.
+\end{enumerate}
+
+Conversely, the second half of the data is labelled with all classes \textit{except} $C$. It is used as training data in some of our models. We further refer to it as \textbf{out-of-domain training}.
+
+\subsection{RNN Baseline (Base)}
+Our baseline NER model was taken from AllenNLP open-source library~\cite{allen}. The model processes sentences in the following way:
+%Briefly, it is a sequential mapping contains a few functions:
+%\begin{enumerate}
+%\item Mapping from words to embeddings using Glove, Elmo pre-computed embeddings + additional trainable char-based LSTM-encoder.
+%\item bi-directional LSTM that analyze embeddings in context of other embeddings and compute the output for every word.
+%\item A feed-forward layer that maps the output of LSTM to logits corresponds to every tag.
+%\item CRF that uses output of the previous layer and trainable joint probabilities of nearby tags to compute final probabilities for every tag for every word in a sentence.
+%\end{enumerate}
+
+\begin{enumerate}
+	\item words are mapped to pre-trained embeddings (any embeddings, such as GloVe \cite{}, ELMo \cite{}, etc. can be used)
+    \item additional word embedding are produced using a character-level trainable Recurrent Neural Network (RNN) with LSTM cells,
+    \item embeddings produced at stages (1) and (2) are concatenated and used as the input to a bi-directional RNN with LSTM cells. This network processes the whole sentence and creates context-dependent representations of every word
+    \item a feed-forward layer converts hidden states of the RNN from stage (3) to logits that correspond to every label,
+    \item the logits are used as input to a Conditional Random Field (CRF) \cite{} model that outputs the probability distribution of tags for every word in a sentence.
+\end{enumerate}
+
+The model is trained by minimising negative log-likelihood of true tag sequences. We train the model using  only \textbf{in-domain training} set. It has to be noted that this baseline is quite strong even in our limited resource setting. However, we found that in our few-shot case CRF does not improve the performance of the model. %\fixme{This should be moved to some other place -- description of results perhaps?}
+
+% despite the small number of training examples even this model is able to provide reasonable predictions.% compared with previous state-of-the-art results(?).
+
+
+\subsection{Baseline prototypical network (BaseProto)}
+
+The architecture of the prototypical network that we use for NER task is very similar to the one of our baseline model. The main change concerns the feed-forward layer. While in the baseline model it transforms RNN hidden states to logits corresponding to labels, in our prototypical network it maps these hidden states to the $M$-dimensional space. The output of the feed-forward layer is then used to construct prototypes from the support set. These prototypes are used to classify examples from the query set as described in section \ref{section:model_theory}.
+
+We train this model on \textbf{in-domain training} data. We divide it into two parts: $N/2$ sentences containing examples of class $C$ are used as support set, and another $N/2$ sentences with instances of $C$ and a half of ``empty'' sentences serve as query set. We use only a half of ``empty'' sentences in order to keep the original proportion of instances of class $C$ in the query set.
+
+%Prototypical network has almost identical architecture as Basic model. We change the feed-forward layer follows LSTM to have another size of output. Instead of number of tags it is now M - chosen dimensionality of embeddings space. A procedure of mapping from embeddings to probabilities of each tag is described above in Section 3 and on Figure 1.
+
+%We also removed CRF because of a reason that will be described later(?). \fixme{Probably it's better to describe it here.}
+
+\subsection{Regularised prototypical network (Protonet)}
+\label{section:protonet}
+ 
+The architecture and training procedure of this model are the same as those of BaseProto model. The only difference is the data we use for training. At each training step we select the training data using one of two scenarios:
+
+\begin{enumerate}
+	\item training data is taken from the \textbf{in-domain training} set analogously to BaseProto model,
+    \item training data is sampled from the \textbf{out-of-domain training} set. The sampling procedure is the same as the one used for in-domain data: we (i) randomly choose the target class $C'$ and (ii) sample sentences until we encounter $N$ sentences with at least one instance of $C'$. Note that these sentences should be labelled only with labels of classes $C'$ or ``O''.
+\end{enumerate}
+
+At each step we choose the scenario (1) with probability $p$, or scenario (2) with probability $(1-p)$.
+
+Therefore, throughout training the network is trained to predict our target class (scenario (1)), but occasionally it sees instances of some other classes and constructs prototypes for them (scenario (2)). We suggest that this model can be more efficient than BaseProto, because at training time it is exposed to objects of different classes, and the procedure that maps objects to prototype space becomes more robust. This is also a way to leverage out-of-domain training data.
+
+%With the probabilty p we sample batch and make training step using the same procedure as in 5.2. Otherwise we sample a batch from big training dataset using following procedure:
+%\begin{enumerate}
+%  \item Choose randomly one class from 17 training classes.
+%  \item Draw a batch of sentences that contain this class and annotate only this class. Other tokens should be annotated as 'O'.
+%  \item Draw a batch of any sentences from training dataset and annotate them the same way (we also can draw empty sentences). As you can see, we save the true proportion in this batch.
+%  \item Use the first batch as support set and the second batch as query set.
+%\end{enumerate}
+%The probabilty p was choosen as 0.5, it seems that it doesn't affect the result sufficiently.
+%We call this "Protonet".
+
+\subsection{Transfer learning baseline (WarmBase)}
+
+We implemented a common transfer learning model --- use of knowledge about out-of-domain data to label in-domain samples. The training of this model is two-part:
+
+\begin{enumerate}
+	\item We train our baseline model (``Base'') using \textbf{out-of-domain training} set.
+    \item We save all weights of the model except CRF and label prediction layer, and train this model again using \textbf{in-domain training} set.
+\end{enumerate}
+
+%Firstly, we train our baseline model using usual training set, but we change labels of test class by ('O'). 
+%Then we save all the weights except CRF and tag prediction layer and train our BM from Section 4.1 using that initialization of weights.
+%The results of this method a provided in the table.
+%We call this "WarmBase".
+
+
+\subsection{Transfer learning + prototypical network (WarmProto)}
+
+In addition to that, we combined prototypical network with pre-training on out-of-domain data. We first train a Base model on the \textbf{out-of-domain training} set. Then, we train a Protonet model as described in section \ref{section:protonet}, but initialise its weights with weights of this pre-trained Base model.
+
+\section{Experimental setup}
+
+\subsection{Dataset}
+
+We conduct all our experiments on the Ontonotes dataset~\cite{ontonotes}. It contains 18 classes (+ $O$ class). The classes are not evenly distributed --- the training set contains over $30.000$ instances of some common classes and less than 100 for some rare classes. The distribution of classes is shown in Figure \ref{fig:ontonotes_stat}. The size of the training set is $150.374$ sentences, the size of the validation set is $19.206$ sentences.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\linewidth]{ontonotes_stat.png}
+	\caption{Ontonotes dataset --- statistics of classes frequency in the training data.}
+	\label{fig:ontonotes_stat}
+\end{figure}
+
+As the majority of NER datasets, Ontonotes adopts \textbf{BIO} (\textbf{B}eginning, \textbf{I}nside, and \textbf{O}utside) labelling. It provides an extension to class labels, namely, all class labels except ``O'' are prepended with the symbol ``B'' if the corresponding word is the first (or the only) word in an entity, or with the symbol ``I'' otherwise.
+
+\subsection{Data preparation: simulated few-shot experiments}
+
+We use training data of the Ontonotes corpus as \textbf{out-of-domain training} set (dataset labelled with all classes except the target class $C$). In practice, we simply remove labels of the class $C$ from the training data (i.e. replace them with ``O''). The validation set of Ontonotes is used as in-domain data --- we replace all labels except $C$ with the label ``O''. We sample \textbf{in-domain training} set from this transformed validation data as described in \ref{section:data_preparation}. However, the size of sample produced by this sampling procedure can vary significantly, in particular, for rare classes. This can make the results unstable.
+
+In order to reduce the variation we alter the sampling procedure in the following way. We define a function $pr(C)$ that computes the proportion of sentences containing the target class $C$ in the validation set ($pr(C) \in [0, 1]$). Then we sample $N$ sentences containing instances of class $C$ and $\frac{N \times (1-pr(C))}{pr(C)}$ sentences without class $C$. Thus, we keep the proportion instances of class $C$ in our \textbf{in-domain training} dataset.
+
+Therefore, we use up to 200 sentences from the Ontonotes validation set for training, and the rest $19.000$ sentences are reserved for testing. 
+
+\subsection{Design of experiments}
+
+\fixme{this is not finished}
+
+We conducted separate experiments for each of 18 Ontonotes classes. For each class we conducted 4 experiments with different random seeds. We report averaged results for each class.
+
+We designed separate experiments for selection of hyper-parameters and the optimal number of training epochs. For that we selected three well-represented classes --- ``GPE'' (geopolitical entity), ``Date'', and ``Org'' (organisation) --- to conduct \textit{validation} experiments on them. We selected training sets as described above, and used the test set (consisting of $19.000$ sentences) to tune hyper-parameters and to stop the training. For other classes we did not perform hyper-parameter tuning. Instead, we used the values acquired in the validation experiments with the three validation classes. In these experiments we used the test set only for computing the performance of trained models.
+
+The motivation of such setup is the following. In many few-shot scenarios researchers report experiments where they train on a small training set, and tune the model on a very large validation set. We argue that this scenario is unrealistic, because if we had a large number of labelled examples in a real-world problem, it would be more efficient to use them for training, and not for validation. On the other hand, a more realistic scenario is to have very limited number of labelled sentences. In that case we could still reserve a part of them for validation. However, we argue that this is also inefficient. If we have 20 examples and decide to train on 10 of them and validate on another 10, this validation will be inaccurate, because 10 examples are not enough to evaluate the performance of a model reliably. Therefore, our evaluation will be very noisy and is likely to result in suboptimal values of hyper-parameters. On the other hand, additional 10 examples can boost the quality of a model. Figure 
+
+\begin{figure*}
+\includegraphics[scale=0.5]{figure_exp.png} 
+\caption{F1-performance of algorithms after every training epoch.}
+\label{fig:}
+\end{figure*}
+
+Figure
+
+In all our experiments we set $N$ to 20. This number of examples 
+
+In ``Protonet'' model we set $p$ to 0.5. Therefore, the model is trained on the instances of the target class $C$ half of the steps, and another half of the times it is shown instances of some other randomly chosen class.
+
+
+\section{Trash}
+%This is an example of a sentence labelled with NER labels:
+
+%\fixme{add an example}
+
+%\subsection{Formulation of the problem} 
+%Here we formulate how the Few-shot NER task looks like. During the task construction, we imagine how Few-shot NER task would look like in real-world case.
+
+%\subsection{Data partition}
+
+
+--------------This is just some meaningless text which is needed to keep latex working -----------------------------------
+
+Our method is targeted at resource-limited setting where some of classes are under-represented in labelled data. We have labelled data for some (but not all) classes and a large number of unlabelled sentences. In order to acquire examples of rare classes we need to label sentences manually. Manual labelling is laborious and time-consuming, so we would like to reduce the number of manually labelled examples that we need for training. In our experiments we mimic this setting by sampling a small number of examples of a particular class from the dataset.
+
+%We sample our support and query sets as follows.
+
+%Let us focus on a (rare) class $C$ that we want to predict. We sample sentences from the unlabelled set and annotate them only with ``O'', ``B-C'', and ``I-C'' labels, in other words, we label only instances of the class $C$. In our simulated experiment we simply sample a sentence from a dataset and replace all labels except ``B-C'' and ``I-C'' with ``O''. We keep sampling sentences until we acquire $N$ sentences with at least one entity of class $C$. Therefore, the size of our sample depends on frequency of $C$ in the data. For example, if $C$ occurs on average in one of three sentences, the expected size of the sample is $3*N$. In our experiments we use $N=20$. This sample is our \textbf{support set}.
+
+%Suppose we have only small amount of resources that we can spend to annotate sentences with that class. Suppose we have a set of unlabeled sentences where we can find entities of the class C. We sample sentences from this set and annotate them one by one as 'O', 'B-C' or 'I-C' until we find some number of sentences N, that contain at least one entity of class C. So if C is a rare class, our dataset will be bigger. For example, if one entity of class C appears in one of 3 sentences, the expected size of the dataset is 3*N. In this paper we use N=20. We will call this bag \#1
+
+%\fixme{If it is resource-poor setting, why are we able to label a (supposedly large) bag \#2 with all labels? Or do we only have little number of entities for $C$, and other classes are well-represented?}
+
+%We annotate the rest
+
+%The rest of the training data acts as \textbf{query set}. We label this class with all 
+%The labelled data acts as \textbf{query set}. It does not have any examples of the class $C$, but has many examples of other classes. Query set is much larger than support set. In our simulated setting we take the rest of the labelled data (i.e. sentences which were not added to the support set) and replace all ``B-C'' and ``I-C'' labels with ``O'' to mimic the resource-poor setting.
+
+%Suppose we also have another set of sentences that are annotated as entities of other classes or 'O'. In case of Ontonotes, they can be annotated as some of 17 classes or 'O' (there are 18 classes in Ontonotes). Note that sentences from this set don't coincide with the sentences from the first set and this set is much bigger than small dataset we described above. In case of Ontonotes, this dataset contains more then $10^5$ sentences. This is the \textbf{query set}.
+
+%We use the rest of the data as \textbf{test}.
+%In addition to that, we should reserve a part of the labelled data for testing. In the \textbf{test set} we keep all the labels. 
+
+
+%When we train a model using this datasets above, we should test it. For this purpose we use the rest of the sentences from the first set (bag \#3). Thus, we don't see this sentences (even unlabeled) before the test stage. You can see an illustration on Figure 2.
+
+%\begin{figure}
+%\includegraphics[width=1.0\linewidth]{Dataset.png} 
+%\caption{Dataset Scheme. \fixme{We probably don't need this at all.}}
+%\end{figure}
+%So, we can construct a few-shot NER task for given dataset and chosen class that we want to recognize. For this purpose, we use procedure described below.
+
+%\subsection{Construction pipeline} 
+
+\subsection{Dataset}
+
+We conduct all experiments on the Ontonotes dataset~\cite{ontonotes}. It contains 18 classes (apart from ``O'' class): ...
+
+The size of the corpus is... \fixme{add info about the corpus, train/test partition, maybe table with number of instances for each class}
+
+%All experiments were conducted with Ontonotes dataset~\cite{ontonotes}.  BIO annotation was used~\cite{bio}.
+%For experiments in this paper we constructed 18*4 = 72 tasks.
+%Thus, we made 4 tasks for every class from Ontonotes. Each of this tasks was generated using different random seeds.
+
+We prepared the dataset in the following way:
+\begin{enumerate}
+  %\item Take 2 sets of sentences from Ontonotes called "train.txt" and "valid.txt".
+  \item In the training set we replaced all labels of class $C$ with ``O''. This is our query set.
+  \item In the validation set we replaced all labels \textit{except} those of class $C$ with ``O''.% This is our support set.
+  \item We sampled sentences from the validation set until finding $N$ sentences with at least one instance of class $C$. This is our support set.
+  \item We used the rest of validation set for testing.
+  %\item When we sample sentences that contains class C, for research purpose we performed a hack to force our final F1-scores to have lower variance, because these experiments are computationally very expensive. We computed the proportion of sentences that contains at least one instance of class C in "valid.txt" in advance.
+  %From "valid.txt" we sample small subset of size 20 where each sentence contains at least one instance of class C. Then from "valid.txt" we also add number of sentences without the class C this subset. The number of empty sentences we add depends on the proportion of test class in whole validation set. We make the proportion of empty sentences equal to that proportion in a whole "valid.txt".
+  %\item The rest of the Use the rest of sentences from "valid.txt" to measure F1-performance. 
+\end{enumerate}
+
+If stage (3) is produced as described above, the result of the experiment is very unstable, because we sample a different number of sentences each time. In order to alleviate this problem we alter the sampling procedure. We compute the proportion of sentences with instances of class $C$ in advance, and then sample 
+
+\section{Experiments}
+
+\subsection{Baseline}
+
+In this experiment we just apply model from section 5.1 to few-shot NER task. Since it is usual supervised learning, we use only bag \#1, because we can't extract knowledge from bag \#2. We call this experiment "Base".
+
+\subsection{Baseline prototypical network}
+Here we use model from section 5.2.
+Using the same dataset as in BM (only bag \#1) we change the training procedure as written below. 
+
+At each training step we divide our whole dataset into 2 parts: the first one is used to compute prototypes (support set), so our network is trained using objects from the second part (query set). 
+%   The first part only contains only a half of non-empty sentences and the second one contains the rest of the sentences \textit{including empty ones}. 
+
+Let us say we have a bag \#1 for class C so and we labeled 20 sentences each containing example of the class.
+We use randomly sampled 10 of them as support set. We sample query set from a union of other 10 sentences and a subset of empty sentences. \textit{Important note}: we choose the size of empty subset to save the true proportion in a query set. According to task construction, empty subset should be 2 times smaller than original set of empty sentences from bag \#1. This remains both in real-world case and in our research case when we computed the proportion in advance.
+
+This training procedure was designed to ensure that our neural architecture that we used for calculation of embeddings is on-par with BM. Thus we can use all the over data to further improve embeddings and enforce such data-driven regularization.
+
+We call this model "BaseProto".
+
+\subsection{Regularized prototypical network}
+
+With the probabilty p we sample batch and make training step using the same procedure as in 5.2. Otherwise we sample a batch from big training dataset using following procedure:
+\begin{enumerate}
+  \item Choose randomly one class from 17 training classes.
+  \item Draw a batch of sentences that contain this class and annotate only this class. Other tokens should be annotated as 'O'.
+  \item Draw a batch of any sentences from training dataset and annotate them the same way (we also can draw empty sentences). As you can see, we save the true proportion in this batch.
+  \item Use the first batch as support set and the second batch as query set.
+\end{enumerate}
+The probabilty p was choosen as 0.5, it seems that it doesn't affect the result sufficiently.
+We call this "Protonet".
+
+\subsection{Transfer learning baseline}
+
+We also provide the results for common transfer learning procedure, that is divided into 2 parts. 
+Firstly, we train our baseline model using usual training set, but we change labels of test class by ('O'). 
+Then we save all the weights except CRF and tag prediction layer and train our BM from Section 4.1 using that initialization of weights.
+The results of this method a provided in the table.
+We call this "WarmBase".
+
+\subsection{Transfer learning + prototypical network}
+
+We found that if we initialize our algorithm from Section 4.3 using weights received after warming procedure we made in the section 4.4, we obtain much better results.
+We call this model "WarmProto".
+
+\section{Results}
+\subsection{Validation} 
+To measure the quality of our models correctly, we carefully constructed a validation procedure to make it similar to real-world case. As it was mentioned above, we prepared 72 few-shot tasks - 4 tasks correspond to 1 class from Ontonotes dataset. These tasks are separated into 2 groups: 12 validation and 60 test tasks. 12 validations tasks are the tasks that were generated from classes 'GPE', 'DATE' and 'ORG'. This means the following: we tune model, hyperparameters and so on based on F1-performance in 12 validation tasks. We make an assumption that we don't see test datasets of 60 test tasks until final F1-measuring that will appear in our table (excluding the fact that we compute the proportion of classes in train dataset based on test data). 
+
+\subsection{Training procedure} 
+Usually people use 3 datasets within one task: train, validation and test. The model is trained based on train set, it's validated based on validation part to stop training and tune hyperparameters and tested using test part.
+As it was mentioned by ~\cite{realeval}, some authors use unrealisticly big validation dataset to test model in few-shot task. For example, it doesn't make sense to train a model using 20 sentences and validate it using 200 sentences, because if 220 sentences are available for us before the final prediction, we can separate them into train and validation in another proportion (for example 120/100), and it will dramatically rise the performance of the model. 
+
+Suppose we have only small number of sentences available before the final prediction. Since we have 3 validation tasks and we can use its big test datasets, we can tune hyperparameters and model based on this 3 validation tasks. The only thing that is left is a number of epochs we train out model. Here are 2 options: somehow choose it based on 3 validation tasks or separate our small dataset into 2 parts and make early stopping based on one of it's part. 
+We constructed the following experiment: we train our algorithms WarmProto, WarmBase, Protonet using whole train dataset and validate it every epoch. We also train all this algorithms using a half of train dataset and validate it every epoch. There are the results of the experiment on Figure 3. 
+
+As we can see, it doesn't make sense to use validation dataset, because our models don't overfit over during training. So we decided to choose the number of epoch based on 3 validation tasks. Here is a simple procedure: for every epoch from 1 to n for every validation task we compute mean F1 on its test dataset. Then we choose the epoch for which this F1 is the biggest. Of course we do that procedure for every algorithm separately.
+
+
+\subsection{Final results}
+For given 5 models final results are provided in the table 1. As you can see, even the simplest model "Base" produces adequate results. If we train using the same data using the prototypical network, we get comparable results, that are seen in the column "BaseProto". 
+If we regularize prototypical network using procedure described in 6.3, we get the results called "Protonet", that are definitely better than the previous 2 models. When we add 2 models that use transfer learning, it significanly rise the performance of the model.
+*add more after the last 6 classes*
+
+\begin{table*}[t!]
+\begin{center}
+\begin{tabular}{|l|ccccccc|}
+\hline \bf Class name & \bf Base & \bf BaseProto  & \bf WarmProtoZero & \bf Protonet & \bf WarmProto  & \bf WarmBase & \bf WarmProto-CRF\\
+\hline
+ \multicolumn{8}{|c|}{\textbf{Validation Classes}} \\
+\hline
+GPE & 69.75 $\pm$ 9.04 & 69.8 $\pm$ 4.16 & 60.1 $\pm$ 5.56 & 78.4 $\pm$ 1.19 & \textbf{82.02} $\pm$ \textbf{0.42} & 75.8 $\pm$ 6.2 & \underline{80.05} $\pm$ \underline{5.4} \\
+DATE & 54.42 $\pm$ 3.64 & 50.75 $\pm$ 5.38 & 11.23 $\pm$ 4.57 & 56.55 $\pm$ 4.2 & \underline{64.68} $\pm$ \underline{3.65} & 56.32 $\pm$ 2.32 & \textbf{65.42} $\pm$ \textbf{2.82} \\
+ORG & 42.7 $\pm$ 5.54 & 39.1 $\pm$ 7.5 & 17.18 $\pm$ 3.77 & 56.35 $\pm$ 2.86 & \underline{65.22} $\pm$ \underline{2.83} & 63.45 $\pm$ 1.79 & \textbf{69.2} $\pm$ \textbf{1.2} \\
+\hline
+ \multicolumn{8}{|c|}{\textbf{Test Classes}} \\
+\hline
+EVENT & 32.33 $\pm$ 4.38 & 24.15 $\pm$ 4.38 & 4.85 $\pm$ 1.88 & 33.95 $\pm$ 5.68 & 34.75 $\pm$ 2.56 & \underline{35.15} $\pm$ \underline{4.04} & \textbf{45.2} $\pm$ \textbf{4.4} \\
+LOC & 31.75 $\pm$ 9.68 & 24.0 $\pm$ 5.56 & 16.62 $\pm$ 7.18 & 42.88 $\pm$ 2.03 & \underline{49.05} $\pm$ \underline{1.04} & 40.67 $\pm$ 4.85 & \textbf{52.0} $\pm$ \textbf{4.34} \\
+FAC & 36.7 $\pm$ 8.15 & 29.83 $\pm$ 5.58 & 6.93 $\pm$ 0.62 & 41.05 $\pm$ 2.74 & 43.52 $\pm$ 3.09 & \underline{45.4} $\pm$ \underline{3.01} & \textbf{56.85} $\pm$ \textbf{1.52} \\
+CARDINAL & 54.82 $\pm$ 1.87 & 53.7 $\pm$ 4.81 & 8.12 $\pm$ 7.92 & 64.05 $\pm$ 1.61 & \underline{69.2} $\pm$ \underline{1.51} & 62.98 $\pm$ 3.5 & \textbf{70.43} $\pm$ \textbf{3.43} \\
+QUANTITY & 64.3 $\pm$ 5.06 & 61.72 $\pm$ 4.9 & 12.88 $\pm$ 4.13 & 65.05 $\pm$ 8.64 & 67.97 $\pm$ 2.98 & \underline{69.65} $\pm$ \underline{5.8} & \textbf{76.35} $\pm$ \textbf{3.09} \\
+NORP & 73.5 $\pm$ 2.3 & 72.1 $\pm$ 6.0 & 39.92 $\pm$ 10.5 & \underline{83.02} $\pm$ \underline{1.42} & \textbf{84.5} $\pm$ \textbf{1.61} & 79.53 $\pm$ 1.32 & 82.4 $\pm$ 1.15 \\
+ORDINAL & 68.97 $\pm$ 6.16 & 71.65 $\pm$ 3.31 & 1.93 $\pm$ 3.25 & \textbf{76.08} $\pm$ \textbf{3.55} & 74.7 $\pm$ 4.94 & 69.77 $\pm$ 4.97 & \underline{75.52} $\pm$ \underline{5.11} \\
+WORK\_OF\_ART & \underline{30.48} $\pm$ \underline{1.42} & 27.5 $\pm$ 2.93 & 3.4 $\pm$ 2.37 & 28.0 $\pm$ 3.33 & 25.6 $\pm$ 2.86 & 30.2 $\pm$ 1.27 & \textbf{32.25} $\pm$ \textbf{3.11} \\
+PERSON & 70.05 $\pm$ 6.7 & 74.1 $\pm$ 5.32 & 38.88 $\pm$ 7.64 & \underline{80.53} $\pm$ \underline{2.15} & 78.8 $\pm$ 0.26 & 78.03 $\pm$ 3.98 & \textbf{82.32} $\pm$ \textbf{2.51} \\
+LANGUAGE & \underline{72.4} $\pm$ \underline{5.53} & 70.78 $\pm$ 2.62 & 4.25 $\pm$ 0.42 & 68.75 $\pm$ 6.36 & 52.72 $\pm$ 11.67 & 65.92 $\pm$ 3.52 & \textbf{75.62} $\pm$ \textbf{7.22} \\
+LAW & \underline{58.08} $\pm$ \underline{4.9} & 53.12 $\pm$ 4.54 & 2.4 $\pm$ 1.15 & 48.38 $\pm$ 8.0 & 44.35 $\pm$ 4.31 & \textbf{60.13} $\pm$ \textbf{6.08} & 57.72 $\pm$ 7.06 \\
+MONEY & 70.12 $\pm$ 5.19 & 66.05 $\pm$ 1.66 & 12.48 $\pm$ 11.92 & 68.4 $\pm$ 6.3 & \underline{72.12} $\pm$ \underline{5.87} & 68.4 $\pm$ 5.08 & \textbf{79.35} $\pm$ \textbf{3.6} \\
+PERCENT & 76.88 $\pm$ 2.93 & 75.55 $\pm$ 4.17 & 1.78 $\pm$ 1.87 & 80.18 $\pm$ 4.81 & \underline{85.65} $\pm$ \underline{3.6} & 79.2 $\pm$ 3.76 & \textbf{88.32} $\pm$ \textbf{2.76} \\
+PRODUCT & 43.6 $\pm$ 7.21 & \underline{44.35} $\pm$ \underline{3.48} & 3.95 $\pm$ 0.51 & 39.92 $\pm$ 7.22 & 30.07 $\pm$ 12.73 & 43.4 $\pm$ 8.43 & \textbf{49.32} $\pm$ \textbf{2.92} \\
+TIME & 35.93 $\pm$ 6.35 & 35.8 $\pm$ 2.61 & 8.6 $\pm$ 3.21 & 50.15 $\pm$ 5.12 & \underline{53.6} $\pm$ \underline{2.5} & 45.62 $\pm$ 5.64 & \textbf{59.8} $\pm$ \textbf{0.76} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{baseline_sl} Final results of experiments. $F_1$ score for different models and different classes. Bold means the best score, underlined means the second place.}
+\end{table*}
+
+
+
+
+\begin{table*}[t!]
+\begin{center}
+\begin{tabular}{|l|cccc|}
+\hline \bf Class name & \bf WarmBase + BIO & \bf WarmBase + TO & \bf WarmProto + BIO & \bf WarmProto + TO\\
+\hline
+ \multicolumn{5}{|c|}{\textbf{Validation Classes}} \\
+\hline
+GPE & 75.8 $\pm$ 6.2 & 74.8 $\pm$ 4.16 & \textbf{83.62} $\pm$ \textbf{3.89} & \underline{82.02} $\pm$ \underline{0.42} \\
+DATE & 56.32 $\pm$ 2.32 & 58.02 $\pm$ 2.83 & \underline{61.68} $\pm$ \underline{3.38} & \textbf{64.68} $\pm$ \textbf{3.65} \\
+ORG & 63.45 $\pm$ 1.79 & 62.17 $\pm$ 2.9 & \underline{63.75} $\pm$ \underline{2.43} & \textbf{65.22} $\pm$ \textbf{2.83} \\
+\hline
+ \multicolumn{5}{|c|}{\textbf{Test Classes}} \\
+\hline
+EVENT & \underline{35.15} $\pm$ \underline{4.04} & \textbf{35.4} $\pm$ \textbf{6.04} & 33.85 $\pm$ 5.91 & 34.75 $\pm$ 2.56 \\
+LOC & 40.67 $\pm$ 4.85 & 40.08 $\pm$ 2.77 & \textbf{49.1} $\pm$ \textbf{2.4} & \underline{49.05} $\pm$ \underline{1.04} \\
+FAC & \underline{45.4} $\pm$ \underline{3.01} & 44.88 $\pm$ 5.82 & \textbf{49.88} $\pm$ \textbf{3.39} & 43.52 $\pm$ 3.09 \\
+CARDINAL & 62.98 $\pm$ 3.5 & 63.27 $\pm$ 3.66 & \underline{66.12} $\pm$ \underline{0.43} & \textbf{69.2} $\pm$ \textbf{1.51} \\
+QUANTITY & \textbf{69.65} $\pm$ \textbf{5.8} & \underline{69.3} $\pm$ \underline{3.41} & 67.07 $\pm$ 5.11 & 67.97 $\pm$ 2.98 \\
+NORP & 79.53 $\pm$ 1.32 & 80.75 $\pm$ 2.38 & \textbf{84.52} $\pm$ \textbf{2.79} & \underline{84.5} $\pm$ \underline{1.61} \\
+ORDINAL & 69.77 $\pm$ 4.97 & 70.9 $\pm$ 6.34 & \underline{73.05} $\pm$ \underline{7.14} & \textbf{74.7} $\pm$ \textbf{4.94} \\
+WORK\_OF\_ART & \textbf{30.2} $\pm$ \textbf{1.27} & \underline{25.78} $\pm$ \underline{4.07} & 23.48 $\pm$ 5.02 & 25.6 $\pm$ 2.86 \\
+PERSON & 78.03 $\pm$ 3.98 & 76.0 $\pm$ 3.12 & \textbf{80.42} $\pm$ \textbf{2.13} & \underline{78.8} $\pm$ \underline{0.26} \\
+\hline
+\end{tabular}
+\end{center}
+\caption{\label{baseline_sl} $F_1$ score for models WarmBase and WarmProto with different task constructions: with and without BIO-tagging on the training stage.}
+\end{table*}
+\subsection{BIO-tagging} 
+We also checked the hypothesis that BIO-output of model can harm the F1-performance of the algorithm. 
+It might be possible that it does not make sense to separate B-tags and I-tags and separate classes because of 2 reasons:
+\begin{enumerate}
+	\item There might be too small number of I-tags since not all entities are bigger than 1 word.
+	\item The words contains B-tags and I-tags may be quite similar and it may be not possible to distinguish them using prototypes, which have high-variance itself because of small size of support set.
+\end{enumerate}
+As was mentioned above (?), we use chunk-wise F1-performance. If our model produces BIO-tags given sentences, we can extract chunks and then compute F1. But even if our model only produce TO-tags (tag/other), we can also compute F1 using the following procedure: if 'T' stands after 'O', it virtually becomes 'B', otherwise it virtually becomes 'I'. An important point is that we don't change the true chunks in the test dataset, they remain the same. We only change the way how our model produces our chunks, so we don't make out task easier. Moreover, now our model lose the possibility to predict any sequence of chunks, now it can't predict a couple chunks that go one by one.
+When we train our model, we change all BIO-tags to TO-tags in both small train dataset and big train dataset (in WarmProto).
+
+WarmProto + TO showed better results on validations tasks so firstly it seemed that TO-tagging is definitely better. However, results on test tasks showed WarmProto + TO is not as good as we thought comparing with WarmProto + BIO. 
+
+Here in the table 2 we provide the results for WarmProto and WarmBase with and without BIO-tagging.
+
+As we can see, this BIO-tagging doesn't affect both algorithms significantly.
+
+\section{Conclusions}
+...
+

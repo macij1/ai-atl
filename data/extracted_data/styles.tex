@@ -1,0 +1,89 @@
+\usepackage[utf8]{inputenc}
+\usepackage{xargs}
+\usepackage{xspace}
+
+\usepackage[nomargin,multiuser,inline,draft]{fixme} 
+\fxusetheme{color}
+% \FXRegisterAuthor{rg}{arg}{\color{blue}   {\underline{rG}}}
+% \FXRegisterAuthor{eM}{aeM}{\color{orange} {\underline{eM}}}
+
+
+\usepackage{rotating}
+
+% \renewcommand{\theequation}{\thesection.\roman{equation}}
+
+\newcounter{tmp}
+
+\renewcommand{\theequation}{\arabic{equation}}
+
+% \usepackage{cancel}
+\usepackage{caption}                % Needed by subcaption
+\usepackage{cmll} % \bigwith symbol
+\usepackage{colonequals}            % More symbols (colon equalities etc.)
+% \usepackage{enumerate}              % More enumeration styles
+\usepackage{environ}                % Provides NewEnviron w/ eager expansion
+\usepackage{etex,etoolbox}          % Needed by theorem-appendix.tex
+% \usepackage[left=1in,top=1in,bottom=1in,right=1in]{geometry} % Quick margins
+\usepackage{graphicx}               % For \scalebox etc.
+
+% CONFLICT WITH LMCS
+% \usepackage[affil-it]{authblk}      % Author affiliation
+% \usepackage{IEEEtrantools}          % Mostly for IEEEeqnarray env
+% \usepackage{makeidx}                % allows for indexgeneration
+
+\usepackage[protrusion=true,expansion=true]{microtype} % Better typography
+\usepackage{multirow}               % Table multirow/multicolumn support
+\usepackage{nicefrac}
+\usepackage{proof}                  % Logic proofs
+\usepackage{bussproofs}
+\EnableBpAbbreviations
+
+\usepackage{rotating}               % For \sidewaysfigure etc.
+\usepackage{subcaption}             % Support for subfigures
+\usepackage{thmtools, thm-restate, thm-autoref}  % Advanced theorem handling
+\usepackage{xifthen}                % for conditional commands
+\usepackage{appendix}               % for correct numeration of statements
+
+\usepackage{stmaryrd}
+%\usepackage{mathabx}
+ \usepackage{pdfsync}
+% \usepackage{wasysym}
+% \usepackage{chemarr}
+
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor} % must be loaded first
+\usepackage{tikz}                   % Graphs
+\usetikzlibrary{shadows,arrows,shapes,automata,positioning,decorations.markings}
+
+% \usepackage{fixltx2e} % Text mode subscript and superscript
+
+
+\usepackage{amsmath,amssymb,amsthm,amsbsy}
+\usepackage{mathtools} % \xRightArrow and stuff - load late to avoid conflicts
+% \usepackage[amsmath,amssymb,amsthm,thref,thmmarks]{ntheorem} % \listoftheorems and other stuff
+%\newtheorem*{remark}{Remark}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{example}{Example}
+
+\usepackage{hyperref}
+\usepackage[capitalise]{cleveref}
+%\hypersetup{final} % Needed to generate hyperlinks even in draft mode
+
+% \DeclareMathSizes{display size}{text size}{script size}{scriptscript size}
+\DeclareMathSizes{10}{10}{6}{6}
+
+%use csv file 
+\usepackage{csvsimple}
+
+% Figures setup
+% \numberwithin{figure}{section}
+
+%\usepackage[inline]{showlabels}
+%\renewcommand{\showlabelsetlabel}[1]{{\textcolor{ForestGreen}{\showlabelfont{\tiny #1}}}}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

@@ -1,0 +1,75 @@
+\section{Introduction}
+
+%\textcolor{blue}{
+%Dr. Gao: it would be great if you can write the main part of introduction section, providing a pre-LLM history of NLP, and how it led to the birth of LLMs, and how the LLM based models improved over the past few years and took over many areas of NLP applications, their potentials, etc.}
+
+Language modeling is a long-standing research topic, dating back to Shannon's exploration of his  theory of information to human language where Shannon measures how well simple n-gram models did at predicting or compressing natural text. 
+
+Thereafter, language modeling becomes fundamental to many natural language understanding and generation tasks, ranging from speech recognition, machine translation, to information retrieval.
+
+The recent advance on large-scale neural language models, pretrained on Web-scale text corpora, significantly extends the capabilities of large language models (LLMs), such as in-context learning, and makes LLMs the basic building blocks for the development of general-purpose AI agents or AGI.
+
+As the field of LLMs is fast moving, LLM researchers and practitioners find it challenging to figure out a right recipe to build LLM-power AI systems for their tasks. This paper presents a snapshot of the current state of the art of LLMs (Section 2), how LLMs are trained (Section 3), evaluated (Section 4), and augmented (Section 5), and utilized in real-world applications (Section6). We hope that this paper will prove a valuable and accessible resource for students, researchers and developers. 
+
+In the rest of this section, we briefly review the history of language models.
+\begin{itemize}
+    \item SLM -- text as a sequence of tokens, LM as a traditional ML model, n-gram, MT vs. SR 
+    \item NLM -- representation learning via deep learning -- open doors to fuse with other modalities, for the first time, we can estimate the similarity between Chinese and English, or even image and text.
+    \item PLM -- encoding world knowledge -- PLM + Finetuning -- context aware representation. BERT for all NLP tasks.
+    \item LLM -- in context learning via prompting -- change the way we build AI systems.
+\end{itemize}
+
+
+\subsection{ LLM Capabilities} \label{LLM_capabilities}
+Figure \ref{fig:llm_capabalities} shows the different categories and respective tasks in each category for LLM capabilities. The categorization of these capabilities comes from the fact that each part is an essential task that large language model, based on the application should be able to perform in a good manner.
+
+\begin{figure*}
+\begin{center}
+    \includegraphics [scale=0.8] {img/LLMCapabalities.pdf}
+\end{center}
+    \caption{LLM capabilities: Domain specific; Domain unspecific; Bias and fairness.}
+    \label{fig:llm_capabalities}
+\end{figure*}
+
+\subsubsection{General}
+Tasks or capabilities that are not specific to a certain domain and posses a general understanding or capability that can be applied to more than one specific domain are noted as domain unspecific ones.
+
+\textbf{Code Generation}
+
+Code generation or program synthesis is the task of automatically generating computer programs from higher-level requirements or natural language descriptions as input \cite{hendrycksapps2021}. In the wake of the power of LLMs on sequence modeling, they have been customized for code generation by appraoching programs as textual sequences \cite{zhang2023planning}. Some of the LLMs for Code Generation tools include CodeBERT \cite{feng2020codebert}, PyMT5 \cite{clement2020pymt5},Codex \cite{chen2021evaluating}, GPT-Neo \cite{Black2021GPTNeoLS},  GPT-J \cite{wang2021gpt}, CodeGen\cite{nijkamp2022codegen}, AlphaCode \cite{li2022competition}, InCoder \cite{fried2023incoder} and more.
+
+\textbf{Reading Comprehension}
+
+The Reading comprehension refers to the ability to comprehend written content, understand its meaning, and integrate it with what the reader already knows. Reading comprehension is based on two interconnected abilities: word reading and language comprehension \cite{rayner2001psychological}. In NLP domain,  the Machine Reading Comprehension or Reading Comprehension is a task designed to assess a machine's ability to read and grasp natural language by asking it to answer questions based on a given context \cite{liu2019neural}.
+
+\textbf{Reasoning}
+
+Reasoning refres to the cognitive process by which humans make sense of their circumstances. Reasoning is required to understand the experiences, draw conclusions from information, and convey new ideas \cite{leighton2004nature}.  Reasoning is a fundamental component in tasks such as problem solving, decision-making, and critical thinking \cite{huang2022towards}. Reasoning involves many different aspects such as arithmetic reasoning, symbolic, and commonsense reasoning. Each of these capabilities on its own brings additional value to the other capabilities as well.
+
+\textbf{Text Summarization}
+
+Text summarization involves distilling long documents with precise and coherent summaries while retaining the primary meaning and key information \cite{basyal2023text}. Summarization is one of the examples of the basic capabilities that LLMs can posses. Other tasks that are similar are noted as sentiment analysis, part of speech tagging, named entity recognition, etc.
+
+\textbf{Machine Translation}
+
+Machine translation refers to the automatic process by which a computer converts text from one language to another without the need for human interaction. Machine translation is one of the important capabilities in this scope because it is one of the tasks that shows how much a LLM can perform multilingual or cross-lingual tasks.
+
+
+\textbf{Tool Utilization}
+
+To figure out complicated tasks, LLMs often leverage the external tools. These tools can take various forms like API calls, Python functions, plugins, and more. This task is designed to assess how LLMs can benefit from tools \cite{wang2023mint, zhuang2023toolqa}. Tool utilization is important in cases where LLM is seen as an agent or part of a multi-agent environment where it is supposed to address certain tasks by using different tools available to it.
+
+\textbf{Fact Verification}
+
+With the rise of misinformation in the news and on social media, the role of fact-checking has gained prominence \cite{guo2022survey}. Fact-checking entails determining the veracity of a claim, where a claim is defined as a factual assertion under inquiry \cite{pan2021zero}.  In the realm of LLMs, fact-checking specifically assesses the truthfulness of a natural-language claim \cite{kadavath2022language}.
+
+\subsubsection{Domain Specific}
+Domain specific tasks or capabilities are those than are specific to a certain domain such as legal or medical. These capabilities can be considered as a very pin-pointed set of skills that aim to solve specific problems in specific domains. These capabilities can not be generalized to other domain but the learned task accomplishment can be generalized.
+
+Large language models ...
+
+
+
+
+
+

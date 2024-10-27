@@ -1,0 +1,100 @@
+\section{Future Work}
+\label{future_work}
+
+Relay generalizes \nnvm's computation graph by moving from a limited dataflow language
+to a full programming language. Relay is intended to act as the top layer of
+the \tvm stack and serves as its input format. Here we detail near-term future work.
+
+\subsection{Runtime System}
+
+Our current evaluator (an interpreter) is a reference implementation used for differential testing and
+experimentation. This evaluator is not sufficient for experimental evaluation, and the main thrust of
+our current work is its efficient counter part. An interesting aspect of this evaluator is its
+use of TVM as a just-in-time compiler to produce type-specialized tensor operators. The
+optimized runtime system, which is intended as the primary way to deploy and execute
+Relay programs, is still under heavy development.
+
+Traditional languages have optimized their execution engines'
+virtual machines for very specific execution profiles, with long-lived heap
+allocations, and relatively small stack values. DL workloads have a
+much different execution profile and often do not execute on
+traditional CPUs, but rather on special-purpose devices, such as GPUs and
+accelerators.
+
+There are many questions about the lifetime of values and how
+to handle in-place updates, allocation, reclamation, and more.
+The runtime system needs new representations of the
+call stack for functions, new allocation patterns
+around scopes, and distinct concepts of identity and
+allocation.
+
+\subsection{Optimizations}
+
+Relay is designed to provide a whole-program representation of
+deep learning programs, allowing us to address problems such as
+host slicing \cite{tf_swift}, dynamic networks, change of layout,
+latency hiding, and parallel and distributed scheduling. We have designed
+Relay with these goals in mind and to help address the critical
+optimizations identified in \cite{TVMSysML}.
+
+We envision the ability to add other systems' features as optimization passes
+over Relay programs, for example implementing auto-batching from DyNet\cite{dynet},
+operator fusion as done in the current NNVM framework, or change of layout for Tensors.
+Auto-batching relies on the ability to know about a set of transformations between
+unbatched operations and batched operations, inserting the appropriate aggregate
+instructions such as summing in the correct places. Given type information
+it is possible to extend certain programs with an extra batch dimension,
+inserting the appropriate operators to preserve typing and semantics.
+
+\subsection{Software Engineering}
+
+The previous version of Relay supported both a step debugger and the
+ability to compile Relay programs to Python for debugging and differential
+testing against other machine learning frameworks. We used this to
+test automatic differentiation by compiling Relay programs to Python,
+using the `autograd' Python library to compute the gradient,
+then checking the gradient's results using property-based
+testing \cite{quickcheck}.
+
+\subsection{Numerical Accuracy}
+
+ML workloads have proven exceptionally robust to issues of rounding
+error~\cite{ml-rounding-error}. Given this tolerance for low-accuracy
+arithmetic, we are eager to adapt recent techniques for automatically
+rewriting numerical code to improve accuracy at the cost of performance
+(e.g., Herbie~\cite{herbie}), to instead trade off accuracy for improved
+compute. By adapting tools like Herbie and STOKE~\cite{stoke-fp}
+to the context of machine learning inference and training, Relay
+will further support developers striving to maximize compute on
+platforms built around IEEE-754 floating point arithmetic.  Moving
+forward, we hope to further extend these tools and target
+specialized numerical representations including mixed width
+and fixed point computations; blocked floating point; non-standard,
+accelerator-specific numerics; and emerging alternate standards
+(e.g., the work on unums and posits~\cite{posits}).
+
+\subsection{Type System Extensions}
+
+One planned type system extension is handling tensors with partially-specified shapes,
+that is, shapes where some dimensions are unknown. This is useful for many NLP applications,
+where the data may be jagged in one or more dimensions and not representable with a fixed shape.
+
+One other extension is expanding the type system to track individual tensors' data layouts.
+This is motivated by the difficulties we have encountered writing change-of-layout optimizations,
+which both must infer existing layouts and ensure all uses are transformed. These types of errors
+have led to hard-to-debug code that silently produces incorrect results or crashes.
+By making these change-of-layout operations explicit, it would be possible to perform
+optimizations in that style around automatic boxing and unboxing of values.
+
+% A further extension to the type system would be making the type system more dependent on shapes,
+% namely allowing for types that specify tensor shapes that are in some way \textit{calculated}
+% from the shapes in parameters or branch based on different parameters (e.g., an axis parameter).
+% Having more granular rules in this style would allow the type system to
+% express specifications for operations whose output shape can vary and allow the type system
+% to easily compute the output shape of a composition of operations without any additional
+% manual annotation.
+
+A more significant extension would be an integrated effect system, allowing us to segregate code
+manipulating different resources such as random number generators, state, I/O and so on.
+This kind of change is more radical and for now is left as an analysis that must be performed
+by the compiler.

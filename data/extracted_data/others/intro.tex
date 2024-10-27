@@ -1,0 +1,21 @@
+\section{Introduction}
+
+%\textcolor{blue}{
+%Dr. Gao: it would be great if you can add more details about LLM applications as you shared over email with me before, scaling law, etc. in intro}
+
+
+Language modeling is a long-standing research topic, dating back to Shannon's exploration of  information theory to human language where he measures how well simple n-gram language models predict or compress natural language text. 
+
+Thereafter, statistical language modeling becomes fundamental to many natural language understanding and generation tasks, ranging from speech recognition, machine translation, to information retrieval \cite{jelinek1998statistical,manning1999foundations,manning2009introduction}.
+
+The recent advance on large-scale neural language models, pretrained on Web-scale text corpora, significantly extends the capabilities of large language models (LLMs), such as in-context learning, making LLMs the basic building blocks for the development of general-purpose AI agents or AGI.
+
+As the field of LLMs is fast moving, LLM researchers and practitioners find it challenging to figure out right recipes to build LLM-power AI systems for their tasks. This paper presents a snapshot of the current state of the art of LLMs (Section 2), how LLMs are built (Section 3), utilized (Section 4), evaluated (Section 5), and augmented (Section 6) for real-world applications (Section 7). We hope that this paper will prove a valuable and accessible resource for students, researchers and developers. 
+
+In the rest of this section, we briefly review the history of language models (and the expansion of their abilities).
+\begin{itemize}
+    \item SLM -- text as a sequence of tokens, LM as a traditional ML model, n-gram for language understanding and generation, MT vs. SR 
+    \item NLM -- representation learning via deep learning -- open doors to fuse with other modalities, for the first time, we can estimate the similarity between Chinese and English, or even image and text. LM for search.
+    \item PLM -- encoding world knowledge -- PLM + Finetuning -- context aware representation. BERT for all NLP tasks.
+    \item LLM -- in context learning via prompting -- change the way we build AI systems.
+\end{itemize}

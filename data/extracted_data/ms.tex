@@ -1,0 +1,130 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{wacv}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{import}
+\usepackage{preamble}
+\usepackage{wrapfig}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[numbers]{natbib}
+\usepackage{array}
+\usepackage{lipsum}
+\usepackage{hyperref}
+% Include other packages here, before hyperref.
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+%\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+\wacvfinalcopy % *** Uncomment this line for the final submission
+
+\def\wacvPaperID{535} % *** Enter the wacv Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifwacvfinal\pagestyle{empty}\fi
+\setcounter{page}{1}
+\begin{document}
+
+%%%%%%%%% TITLE
+\title{TextCaps : Handwritten Character Recognition with Very Small Datasets}
+
+% Authors at the same institution
+% \author{Vinoj Jayasundara \hspace{1cm} Sandaru Jayasekara \hspace{1cm} Hirunima Jayasekara \hspace{1cm} Jathushan Rajasegaran \\
+% Suranga Seneviratne \hspace{1cm} Ranga Rodrigo\\
+% University of Moratuwa \hspace{1cm} University of Sydney\\
+% {\tt\small \{vinojjayasundara, sandaruamashan, nhirunima, brjathu\}@gmail.com \\
+% \tt\small suranga.seneviratne@sydney.edu.au}
+% }
+% Authors at different institutions
+\author{Vinoj Jayasundara \\
+University of Moratuwa\\
+% Sri Lanka \\
+{\tt\small vinojjayasundara@gmail.com}
+\and
+Sandaru Jayasekara \\
+University of Moratuwa\\
+% Sri Lanka \\
+{\tt\small sandaruamashan@gmail.com}
+\and
+Hirunima Jayasekara \\
+University of Moratuwa\\
+% Sri Lanka \\
+{\tt\small nhirunima@gmail.com}
+\and
+Jathushan Rajasegaran \\
+University of Moratuwa\\
+% Sri Lanka \\
+{\tt\small brjathu@gmail.com}
+\and
+Suranga Seneviratne \\
+University of Sydney\\
+% Australia\\
+{\tt\small suranga.seneviratne@sydney.edu.au}
+\and
+Ranga Rodrigo \\
+University of Moratuwa\\
+% Sri Lanka \\
+{\tt\small ranga@uom.lk}
+}
+
+\maketitle
+\ifwacvfinal\thispagestyle{empty}\fi
+
+%%%%%%%%% ABSTRACT
+\begin{abstract}
+\import{/}{abstract}
+\end{abstract}
+
+%%%%%%%%% BODY TEXT
+% \vspace{-0.1cm}
+\import{/}{introduction}
+% \vspace{-0.1cm}
+\import{/}{relatedWork}
+%\vspace{-0.25cm}
+
+%\import{/}{relatedWork_capsnet}
+
+\section{Methodology} \label{sec:meth_overview}
+
+\import{/}{methodology}
+%\vspace{-0.25cm}
+\import{/}{methodology_full}
+%\vspace{-0.25cm}
+\import{/}{methodology_lesspoints}
+%\vspace{-0.25cm}
+\import{/}{methodology_pertubation}
+%\vspace{-0.25cm}
+%%\import{/}{methodology_variations}
+\import{/}{methodology_loss}
+%\import{/}{methodology_snapshot}
+%% \import{/}{methodology_cnn}
+
+
+\import{/}{results}
+%\vspace{-1cm}
+\section{Conclusion} \label{sec:conclusion}
+%\vspace{-0.25cm}
+\import{/}{conclusion}
+\section{Acknowledgement}
+The authors thank the Senate Research Committee of the University of Moratuwa for the financial support through the grant SRC/LT/2016/04 and the Faculty of Information Technology for providing computational resources.
+
+\bibliographystyle{splncs}
+%\bibliographystyle{plainnat}
+%\bibliographystyle{nature}
+\bibliography{references}
+
+%{\small
+%\bibliographystyle{ieee}
+%\bibliography{egbib}
+%}
+
+
+\end{document}

@@ -1,0 +1,522 @@
+In this section, we introduce our learning algorithm based on nominal
+automata. Our teacher still answers two kinds of queries: membership
+queries and equivalence queries regarding a target nominal regular
+language.
+
+\input{supp}
+             
+Fix a nominal regular language $L$, in our algorithm, the learner asks for membership queries about legal
+words. If a word $w$ is not legal, the learner marks it as
+$\bot$ in the observation table. The membership query consists of a
+legal word $w$ and it has the following possible answers:
+\begin{itemize}
+\item if $w\in L$, the answer is \quo{1},
+\item if $w$ is a prefix of a word in $L$, the answer is \quo{$P$},
+\item otherwise, the answer is \quo{0}.
+\end{itemize}
+
+As in Angluin's \lstar algorithm, only the teacher knows $L$.
+%
+Unlike in \lstar, the learner in our algorithm does not know the whole
+alphabet $A_n$.
+%
+The learner knows $\Sigma$ initially and learns names via
+counterexamples.
+%
+We will see that the learner knows the whole alphabet
+when the algorithm terminates.
+             % research questions here?
+             % give a brief explanation about why we let learner learn the alphabet not know it.
+             % give a brief how we reach the final version among many possibilities.
+  \paragraph{Remark.}The answer \quo{P} is used for efficiency. In
+  fact, the teacher could answer \quo{0} instead of \quo{P}. However,
+  this would require the learner to ask more membership or equivalence
+  queries.
+  %
+  This is confirmed by some experimental results that are not in scope of this paper.
+  % A comparison is provided in Table~\ref{tb:comparison}.
+\subsection{Nominal observation tables}
+Observation tables are pivotal data structure to ensure the
+algorithm's functionalities. A closed and consistent observation table
+allows us to construct a minimal automaton.
+%
+We extend Angluin's observation tables to \emph{nominal observation
+  tables}, \nOtable[s] for short.
+\begin{definition}[\nOtable]\label{def:nOT}
+A \emph{legal word} is a prefix of a nominal word; the \emph{depth}
+  $\|w\|$ of a legal word $w$ is the highest number of nested binders
+  in $w$.
+  % 
+  Let
+  \[
+    \Alp_0 = \Sigma
+    \qquad\text{and}\qquad
+    \Alp_n= \{\ll,\gg\} \cup \Sigma\cup \underline{n}
+    \quad \text{ for } 0 < n \in \Nat
+  \]
+  A tuple $\Otable$ is an
+  \emph{\nOtable} if
+  \begin{itemize}
+  \item{$S\subseteq {\Alp_n}^*$ is a prefix-closed set of legal strings, for all $s\in S$,$\reg{s}\leq n$, }
+  \item{$E\subseteq {\Alp_n}^*$ is suffix-closed,}
+ % \item{$lv:\reg{s}\rightarrow \mathbb{N}$,}  
+  \item{$T:(S\cup S\cdot {\Alp_n})\cdot E\rightarrow \labelsinT$.}
+  \end{itemize}
+\end{definition}
+As in Angluin's definition, an \nOtable $\Otable$ consists of rows
+labelled by legal words in $S\cup S\cdot \Alp_n$ and columns labelled
+by words in $E$:
+\begin{gather*}
+  \row {}:{}   (S\cup S\cdot \Alp_n) \to (E \to \labelsinT)\\
+  \row(s)(e)= T(s\cdot e)
+\end{gather*}
+In order to reflect the layers of nominal automata, we use $\reg{\_}$ to distinguish rows. Therefore, we need the following auxiliary notion of equivalence of rows:
+in an \nOtable $\Otable$, for all $ s, s'\in S\cup S\cdot \Alp_n$, $$\row(s)\doteq\row(s')\ \Longleftrightarrow\ \row(s)=\row(s')\  and\ \reg{s}=\reg{s'}.$$ 
+Accordingly, the definition of closed and consistent table changes as follows.
+\begin{definition}[Closed and Consistent Tables]
+  An \emph{\nOtable} $\Otable$ is \emph{closed} when
+  $$\forall s'\in S\cdot {\Alp_n}.\exists s\in S.\ \ \row(s')\doteq\row(s).$$ 
+  An \emph{\nOtable} $\Otable$ is \emph{consistent} when $$\forall \alpha\in {\Alp_n}.\forall s,s'\in S\ \ \row(s)\doteq\row(s')\implies \row(s\alpha)\doteq\row(s'\alpha). $$
+\end{definition}
+\subsection{From \nOtable[s] to nominal automata}
+Analogously to Angluin's theory, closed and consistent \nOtable[s]
+correspond to deterministic finite nominal automata.
+\begin{definition}
+The ($\Sigma,\mathcal{N}_{fin}$)-automaton $M=(Q,q_0,F,\delta)$ associated with a closed and consistent \emph{\nOtable} $\Otable$ is defined as 
+\begin{itemize}
+\item{$\Sigma={\Alp_n}\setminus\{\{\ll,\gg\}\cup\underline{n}\}$, $\mathcal{N}_{fin}=\underline{n}$,}
+\item{a set of states $Q=\{(\row(s),\reg{s})\mid s\in S \}$ with a map $\Mreg{\_}$, and $\Mreg{q}=\reg{s}$ for each $q=(\row(s),\reg{s})\in Q$,}
+\item{an initial state $q_0=(\row(\emptystring),\reg{\emptystring})$,}
+\item{a set of final states $F=\{(\row(s),\reg{s})\mid \row(s)(\emptystring)=1,\reg{s}=0\ and\ s\in S \}$, }
+%\item{for each $q\in Q$, we have a set $\delta(q,\alpha)\subseteq Q$ over ; for all $q'\in \delta(q,\alpha)$ must hold: $q=\state{s}, s\in S\implies s\cdot \alpha\in S\cup S\cdot A_n$. A transition is a triple $(q,\alpha,q')$ such that $q'\in \delta(q,\alpha)$.}
+\item{A transition function is a partial function $\delta:Q\times {\Alp_n}\rightarrow Q$: for all $s\in S,\alpha\in {\Alp_n}$,
+$\delta((\row(s),\reg{s}),\alpha)=
+                   (\row(s\alpha),\reg{s\alpha})$ if $s\alpha\in S\cup S\cdot {\Alp_n}$.
+}
+\end{itemize}
+\end{definition}
+
+
+Accordingly, we define a partial function $\delta^\ast: Q\times {\Alp_n}^* \to Q$ inductively as follows
+\begin{align*}
+  \delta^\ast(q,\emptyword) &= q\\
+  \delta^\ast(q,aw) &= \delta^\ast(\delta(q,a),w)
+\end{align*}
+for all $a\in \Alp_n,\ w\in {\Alp_n}^*$, $q\in
+Q$.  Note that $\delta^*(q,a)=\delta^*(q,a\cdot
+\emptyword)=\delta^*(\delta(q,a),
+\emptyword)=\delta(q,a)$.
+\begin{lemma}\label{lem:nTabledeltastar}
+  Let $M=(Q,q_0,F,\delta)$ be the automaton associated with a closed and consistent \nOtable $\Otable$. Suppose $w,u\in{\Alp_n}^*$. We have  $\delta^\ast(q,w\cdot u)=\delta^\ast(\delta^\ast(q,w), u)$ for all $q\in Q$.
+\end{lemma}
+
+\begin{proof}
+  By induction on length of $w$.
+\end{proof}
+
+\begin{theorem}\label{thm:nTabledeltastar}
+  Assume that  $M=(Q,q_0,F,\delta)$ is the automaton associated with a closed and consistent \nOtable $\Otable$.
+  \begin{itemize}
+  \item
+    For all $w$ in $S\cup S\cdot {\Alp_n}$, $\delta^\ast(q_0,w)=\state{w}$.
+  \item
+    For all $w$ in $S\cup S\cdot {\Alp_n}$ and $u$ in $E$, $\delta^\ast(q_0,w\cdot u)$ in $F$ if and only if $$\row(w)(u)=1.$$
+  \end{itemize}
+\end{theorem}
+\begin{proof}
+  Let $w=w'a$ in $S\cup S\cdot {\Alp_n}$ and $u=a\cdot u'$ in $E$.\\
+  \\
+  Since $S$ is prefix-closed, all prefixes of $w$ are in $S$, that is, $w'$ is in $S$. We know:
+  \begin{align*}
+    \delta^\ast(q_0,w)&=\delta^\ast(q_0,w'a)\\
+                      &=\delta^\ast(\delta^\ast(q_0,w'),a)&& \textrm{by Lemma~\ref{lem:nTabledeltastar}}\\
+                      &=\delta^\ast(\state{w'},a)&& \textrm{by induction hypothesis}\\
+                      &=\delta(\state{w'},a) && \textrm{by the definition of $\delta^\ast$}\\
+                      &=\state{w'a} && \textrm{by the definition of $\delta$}\\
+                      &=\state{w}
+  \end{align*}
+  Since $E$ is suffix-closed, all suffixes of $u$ are in $E$. Depending on the length of $u$, we have two situations.
+  \begin{itemize}
+  \item When
+    $u=\epsilon$,
+    $\row(w)(u)=\row(w)(\emptyword)$ and
+    $\delta^\ast(q_0,w\cdot
+    u)=\delta^\ast(q_0,w)$. From preceding
+    proof,
+    $\delta^\ast(q_0,w)=\state{w}$. Because
+    the table is closed, there is a $w'\in
+    S$ such that $\row(w')\doteq
+    \row(w)$. $\delta^\ast(q_0,w\cdot
+    u)$ is in $F$ if and only if
+    $\row(w')$ is in
+    $F$ from the definition of
+    $F$. Thus
+    $\row(w')(\emptyword)=\row(w)(\emptyword)=1$,
+    that is, $\row(w)(u)=1$.
+  \item{Assume that when the length of $u'\in E$ is $n$, we have that for all $w$ in $S\cup S\cdot {\Alp_n}$ and $u$ in $E$, $\delta^\ast(q_0,w\cdot u)$ in $F$ if and only if $\row(w)(u)=1$. Let $u=au'$ and $u\in E$. Because the table is closed, there is a $w'\in S$ such that $\row(w')\doteq\row(w)$.
+      \begin{align*}
+        \delta^\ast(q_0,w\cdot u)
+        &=\delta^\ast(\delta^\ast(q_0,w), u) && \textrm{by Lemma~\ref{lem:nTabledeltastar}}\\
+        &=\delta^\ast(\state{w}, u) && \textrm{by preceding proof}\\
+        &=\delta^\ast(\state{w'},u) && \textrm{since $\row(w')=\row(w)$}\\
+        &=\delta^\ast(\state{w'},au') && \textrm{$u=au'$}\\
+        &=\delta^\ast(\row(w'\cdot a),u') && \textrm{by closedness and definition of $\delta$}\\
+        &=\delta^\ast(\delta^\ast(q_0,w'\cdot a),u')&& \textrm{by preceding proof}\\
+        &=\delta^\ast(q_0,w'\cdot a\cdot u')
+      \end{align*}
+    }
+  \end{itemize}
+  By induction hypothesis on $u'$, $\delta^\ast(q_0,w'\cdot a\cdot
+  u')$ is in $F$ if only if $\row(w'\cdot a)(
+  u')=1$. Because $\row(w)\doteq \row(w')$ and $u=au'$, $\row(w'\cdot
+  a)( u')=T(w'\cdot a\cdot u')=\row(w')( a\cdot
+  u')=\row(w')(u)=\row(w)(u)$. Therefore $\delta^\ast(q_0,w\cdot
+  u)$ in $F$ if and only if $\row(w)(u)=1$.
+\end{proof}
+
+
+We are now ready to introduce a learning algorithm for our nominal
+automata.
+
+\section{The \nlstar\ Algorithm}
+%
+We dubbed our algorithm \nlstar, after \emph{nominal} \lstar.
+%
+The algorithm is shown in Figure~\ref{LANA_a3}.
+%
+The learner in \nlstar is similar to the one in \lstar.
+%
+Basically, our learner modifies the initial \nOtable until it becomes
+closed and consistent in the nominal sense (according to notions
+introduced before).
+%
+When the current \nOtable $\Otable$ is closed and consistent, the
+learner would ask the teacher if the automaton associated with $\Otable$
+accepts the input language $L$.
+%
+If this is the case, the teacher will reply \quo{yes} and the learning process halts.
+%
+Otherwise, the learning process continues after the teacher has
+produced a counterexample.
+
+Because of the new definitions of closedness and consistency, we
+refine some actions about checking closedness
+(line~\ref{codeline:closedchanges}) and consistency
+(line~\ref{codeline:findrowsconsistency}).
+%
+If the current \nOtable $\Otable$ is not closed, the learner finds a
+row $s'$ such that for no $s\in S$ we have $\row(s') \doteq \row(s)$.
+%
+If $\Otable$ is not consistent, the learner finds a word $a\cdot e$,
+with $a\in \Alp_n$ and $e\in E$, such that for some $s_1\in S$ and
+$s_2\in S$ with $\row(s_1) \doteq \row(s_2)$, we have
+$\row(s_1\cdot a)(e)\neq\row(s_2\cdot a)(e)$.
+
+\begin{figure}
+  \centering\small
+  \begin{algorithmic}[1]
+    \State{Initialisation: $S=\{\emptyword\}, E=\{\emptyword\}$, $n=0$}\label{codeline:init}
+    \State{Asking for membership queries about $\emptyword$ and each $a \in \Alp_n$ build the initial observation table $\Otable$.}
+    \Repeat
+    \While{$\Otable$ is not closed or consistent}\label{codeline:while1}
+    \If{$\Otable$ is not closed}\label{codeline:closedstatement}
+    \State{\textbf{find} $s'\in S\cdot \Alp_n$ such that $\row(s)\doteq\row(s')$ is not satisfied for all $s\in S$  \;}\label{codeline:closedchanges}
+    \State{\textbf{add} $s'$ into $S$\;}\label{codeline:addstate}
+    % \State{\textbf{extend} $\Alp_n$ with $\reg{s}$ for all $s\in S$, $\reg{s}>0$.}\label{codeline:alphabetchanges}
+    \State{\textbf{extend} $T$ to $(S\cup S\cdot \Alp_n)\cdot E$ using membership queries.}\label{codeline:closedextension}
+    
+    \EndIf
+    \If{$\Otable$ is not consistent}\label{codeline:consiststatement}
+    \State{\textbf{find} $s_1,s_2\in S$,$e\in E$ and $a\in \Alp_n$ such that \label{codeline:findrowsconsistency}
+      $\row(s_1)\doteq\row(s_2)$ but $\row(s_1\cdot a)(e)\neq \row(s_2\cdot a)(e)$.}\label{codeline:consistentchanges
+    }
+    
+    \State{\textbf{Add} $a\cdot e$ into $E$\;}\label{codeline:addE}
+    %	\EndIf
+    \State{\textbf{extend} $T$ to $(S\cup S\cdot \Alp_n)\cdot E$ using membership queries.}\label{codeline:consistentextension}
+    \EndIf
+    \EndWhile
+    \State{Construct an automata $M$ associated to $\Otable$.}
+    \State{Ask equivalence query about $M$.}
+    \If{teacher replies a counterexample $c$}\label{codeline:replycounterexample}
+    \State{add $c$ and all its prefixes into $S$.}\label{codeline:addcounterexample}
+    %	\State{A set $temp$=GENERATENAMES(c)}
+    %	\State{$S=S\cup temp$, also add all prefixes of $temp$'s elements into $S$ }
+    %	\If{$c$ includes $\langle$}
+    % \State{calculate $n$ the number of continuous occurrences of $\langle$ in $c$}
+    % \State{Add $n$ into $A$}
+    %	\EndIf
+    \State{\textbf{extend} $\Alp_n$ with $\reg{s}$ for all $s\in S$, $\reg{s}>0$.}\label{codeline:alphabetchanges2}
+    \State{\textbf{extend} $T$ to $(S\cup S\cdot \Alp_n)\cdot E$ using membership queries.}
+    \EndIf
+    \Until{teacher replies yes to $M$.}\label{codeline:replyyes}
+    
+    \State{Halt and output $M$.}
+  \end{algorithmic}
+  % \end{algorithm}
+  \caption{The learner of Learning Algorithm for Nominal Automaton}\label{LANA_a3}	
+\end{figure}
+The main difference with respect to the algorithm of Angluin is that
+the learner has partial knowledge of the alphabet.
+%
+The alphabet $\Alp_n$ is enlarged by adding names
+(line~\ref{codeline:alphabetchanges2}) during the learning
+process. More precisely, the learner expands the alphabet if the
+counterexample requires to allocate fresh names.
+%
+When names are required, the operators of allocations and deallocations are added into $\Alp_n$. When the algorithm terminates, the learner's alphabet $\Alp_n$ is the
+alphabet of the given language. Like in the original algorithm, our
+algorithm terminates when the teacher replies \quo{yes} to an equivalence
+query.
+
+We now show that \nlstar\ is correct.
+% 
+That is, that eventually the teacher replies \quo{yes} to an equivalence query.
+% 
+In other word, \nlstar\ terminates with a \quo{yes} answer to an equivalence query.
+% 
+Hence, the automaton submitted in the query accepts the input language.
+
+\begin{theorem}\label{thm:correct}
+  The algorithm terminates, hence it is correct.
+\end{theorem}
+\begin{proof}
+  We show that the if- and the while-statements terminate.
+  %
+  Let us consider the if-statements first.
+  %
+  It is easy to check that  closedness and
+  consistency are decidable because these properties require just the inspection of the
+  \nOtable (which is finite).
+  %
+  Hence, the if-statements starting at
+  lines~\ref{codeline:closedstatement}
+  and~\ref{codeline:consiststatement} never diverge because their
+  guards do not diverge and their then-branch is a finite sequence of
+  assignments:
+  \begin{itemize}
+  \item The if-statement for closedness
+    (line~\ref{codeline:closedstatement}) terminates directly if the
+    table is closed. Otherwise, in case of making a table closed, we
+    find a row $s' \in S \cdot \Alp_n$ such that $\row(s')\doteq\row(s)$
+    is not satisfied for all $s\in S$. The algorithm adds $s'$ into
+    $S$. Since $\Alp_n$ is finite and bounded by $n$, the sets $S$ and
+    $E$ are both finite. Thus, $S \cdot \Alp_n$ is a finite set and
+    there are finitely many choices for $s'$. That is, 
+    line~\ref{codeline:addstate} can only be executed finitely
+    times. Besides, the content of rows is one of the permutations and
+    combinations of $\labelsinT$ which also has finite
+    possibilities. So we conclude that the branch terminates.
+  \item Similarly, the if-statement for consistency
+    (line~\ref{codeline:consiststatement}) terminates directly if the
+    table is consistent. Otherwise, to make the table consistent the
+    algorithm searches for two rows $s_1,s_2\in S$ satisfying the
+    condition at line~\ref{codeline:findrowsconsistency}.
+    %
+    As in the previous case for closedness, to add elements into $E$
+    there are only finitely many possibilities $s_1$, $s_2$, $a$, and
+    $e$ (line~\ref{codeline:addE}). Thus, the branch of the
+    if-statement terminates.
+\end{itemize}
+  Therefore, the while-statement (line~\ref{codeline:while1}) terminates in finite repetitions, since the algorithm makes a table closed and consistent in finite operations. Then, the algorithm will succeed in construct an automata $M$ associated to a closed and consistent table. Next, the learner asks for an equivalence query. The teacher replies a counterexample $c$ (line~\ref{codeline:replycounterexample}) or yes (line~\ref{codeline:replyyes}). It remains to prove that the learner only asks finitely many equivalence queries.
+
+  Let $M$ be the nominal automaton associated to the current \nOtable
+  $\Otable$. Assume that the equivalence query about $M$ fails. The
+  teacher has to find a counterexample $c$; this is finitely
+  computable since the nominal regular expressions are closed under
+  the operations of Kleene algebra and under resource complementation.
+  Hence, the if-statement on line~\ref{codeline:replycounterexample}
+  goes the branch extending the table
+  (line~\ref{codeline:addcounterexample}). Then, the algorithm will
+  start a new loop (line~\ref{codeline:while1}) for the modified table
+  by the counterexamples.
+  %
+  We can prove that a closed and consistent table builds a minimal
+  finite automaton (omitted for space reasons).
+  %
+  A new automaton $M'$ will be constructed when the extended table
+  $\Otable$ is closed and consistent. Since $M'$ handles the
+  counterexample, $M'$ has more equivalent states to the minimal
+  automaton accepted the given language, compared with $M$. Repeating
+  this process, the automaton associated with a closed and consistent
+  table has the same number of the minimal automaton which accepted
+  the given language. Since the minimal automaton is unique, the two
+  minimal automata are equal. The teacher relies yes to the automaton
+  at such a point. Therefore, with respect to the number of the states
+  of the minimal automaton accepted the given language, equivalence
+  queries are finite and the algorithm terminates finally.
+\end{proof}
+
+In the following, we analyse the number of queries and the execution
+time of \nlstar\ in the worst case. Let $M$ be the minimal automaton
+accepting the given language and let $M$ have $\mathfrak{s}$ states.
+% 
+Let $\mathfrak{b}$ be a bound on the maximum length of the
+counterexamples presented by the teacher.
+
+From the Figure~\ref{LANA_a3} (line~\ref{codeline:init}), we know that $S$ and $E$ contain one element $\lambda$ initially. As the algorithm runs, it will add one element to $S$ when $\Otable$ is not closed (line~\ref{codeline:closedextension}). And it will add one element to $E$ when $\Otable$ is not consistent (line\ref{codeline:consistentextension}). For each counterexample of length at most $\mathfrak{b}$ presented by the teacher, the algorithm will add at most $\mathfrak{b}$ elements to $S$ (line~\ref{codeline:addcounterexample}).
+
+Thus, the cardinality of $S$ is depends on $\mathfrak{s}$ and $\mathfrak{b}$. In detail, $S$ is at most $$1+(\mathfrak{s}-1)+\mathfrak{b}(\mathfrak{s}-1)=\mathfrak{s}+\mathfrak{b}(\mathfrak{s}-1)$$ because $\Otable$ can be not closed at most $\mathfrak{s}-1$ times. As the same as the teacher replies counterexamples at most $\mathfrak{s}-1$ times. And each time the teacher replies with a counterexample of length $\mathfrak{b}$, $S$ will be increased by at most $\mathfrak{b}$ elements. 
+
+The cardinality of $E$ is at most $\mathfrak{s}$, because $\Otable$ can be not consistent at most $\mathfrak{s}-1$ times.   
+
+The cardinality of $S\cdot \Alp_n$ could calculate from two parts: the cardinality of $S$ and the cardinality of $\Alp_n$. We already know the cardinality of $S$ is at most $\mathfrak{s}+\mathfrak{b}(\mathfrak{s}-1)$. As the definition of $\Alp_n$, let $\mathfrak{k}$ be the cardinality of $\Sigma$. Therefore the cardinality of $\Alp_n$ is $\mathfrak{k}+n+2$ and the cardinality of $S\cdot \Alp_n$ is $(\mathfrak{k}+n+2)(\mathfrak{s}+\mathfrak{b}(\mathfrak{s}-1))$ at most.
+
+Therefore, the maximum cardinality of $(S\cup S\cdot \Alp_n)\cdot E$ is at most $$(\mathfrak{k}+n+2)(\mathfrak{s}+\mathfrak{b}(\mathfrak{s}-1))\mathfrak{s}=O((\mathfrak{k}+n)\mathfrak{b}\mathfrak{s}^2).$$ 
+% The maximum length of any word in $(S\cup S\cdot \Alp_n)\cdot E$ is at most $$
+
+The minimal automaton $M$ has $\mathfrak{s}$ states and the table $\Otable$ has one row initially. In the worst case, the table $\Otable$ adds only a distinguished row by every counterexample. The algorithm produces at most $\mathfrak{s}-1$  equivalence queries.
+
+\paragraph{Running \nlstar: An Example}
+Given a finite alphabet $\Sigma=\{a,b\}$, we have an example of learning a language $L$ representing as canonical nominal regular expression $cne=ab\langle 1^*\rangle$. 
+
+In the first step, we initialize $S_1=\{\emptystring\}$, $E_1= \{\emptystring\}$, $n=0$ and ${\Alp_0}=\Sigma$, and construct $T_1$ as follows.\\
+\textbf{Step 1}\\
+\begin{minipage}{0.5\textwidth}
+  \begin{center}
+    $T_1$=
+    \begin{tabular}{l|l|l}
+      
+      {$\reg{\_}$}  &{}  &      {$\emptystring$} \\
+      \hline
+      {0}  &  ${\emptystring}$ & {P} \\
+      \hline
+      {0}  & {$a$} & {P} \\
+      {0}  &{$b$} & {0}\\
+      
+    \end{tabular}
+  \end{center}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+  $(S_1,E_1,T_1,{\Alp_0})$ consistent?  There is only one row in $S$, thus the table is consistent.\\
+  $(S_1,E_1,T_1,{\Alp_0})$ closed? No, $\row(b)\neq \row(\emptystring)$.\\
+  So, $S_2\leftarrow S_1\cup \{b\}$ and we go to step 2.
+\end{minipage}
+\textbf{Step 2}\\
+Let $S_2= S\cup \{b\}$ and $E_2=E$ and then construct a new observation table $(S_2,E_2,T_2,{\Alp_0})$ through membership queries.\\
+\begin{minipage}{0.5\textwidth}
+  \begin{center}
+    $T_2$=
+    \begin{tabular}{l|l|l}
+      
+      {$\reg{\_}$}  &{}  &      {$\emptystring$} \\
+      \hline
+      {0}  & ${\emptystring}$ & {P} \\
+      {0}  &{$b$} & {0} \\
+      \hline
+      {0}  &{$a$} & {P}\\
+      {0}  &{$aa$} & {0}\\
+      {0}  &{$ab$} & {P}\\
+    \end{tabular}
+  \end{center}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+  $(S_2,E_2,T_2,{\Alp_0})$ closed? $\surd$ \\
+  $(S_2,E_2,T_2,{\Alp_0})$ consistent? $\surd$\\
+  Then, we compute the automaton $M$:
+  
+  \begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=15mm]
+    \node[initial,state,inner sep=1pt,minimum size=0pt] (q0)      {$q_0$};
+    \node[state,inner sep=1pt,minimum size=0pt]         (q1) [right of=q0]  {$q_1$};
+    
+    \path[->] (q0)  edge [bend left] node {$a$} (q1)
+    edge [loop above] node {$b$} (q0)
+    (q1) edge [bend left] node {$a$} (q0)
+    edge [loop above] node {$b$} (q1);
+    
+  \end{tikzpicture}
+  \\
+  Teacher replies no and a counterexample, say, $ab\ll 1. \gg$. It is in $L$ not in $M$. And we go to step 3.
+\end{minipage}
+\textbf{Step 3}\\
+Let $S_3\leftarrow S_2\cup \{a,ab, ab\ll 1.,ab\ll 1. \gg\}$, $E_3\leftarrow E_2$, and $n=1$, and then, the alphabet is extended to ${\Alp_1}=\Sigma\cup \underline{n}\cup\{\ll,\gg\}$. We should construct new observation tables sequentially through membership queries. Then we check the new table for closeness and consistency.\\
+\begin{minipage}{0.5\textwidth}
+  \begin{center}
+    $T_3$=
+    \begin{tabular}{l|l|l}
+      
+      {$\reg{\_}$}  &{}  &      {$\emptystring$}     \\
+      \hline
+      {0}  &${\emptystring}$ & {P} \\
+      
+      {0}  &{$b$} & {0} \\
+      {0}  &{$a$} & {P}\\
+      {0}  &{$ab$} & {P}\\
+      {1}  & {$ab\ll 1.$} & {P} \\
+      {0}  &{$ab\ll 1.\gg$} & {1} \\
+      \hline
+      {1}  &{$\ll 1.$} & {0} \\
+      {0}  &{$a$} & {P} \\
+      {0}  &{$ab\ll 1.\gg a$} & {0} \\
+      {0}  &{$ab\ll 1.\gg b$} & {0} \\
+      {1}  &{$ab\ll 1.1$} & {P} \\
+      {1}  &{$ab\ll 1.a$} & {0} \\
+      {$\cdots$}  &{$\cdots$} & {$\cdots$} \\
+    \end{tabular}
+  \end{center}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+  $(S_3,E_3,T_3,{\Alp}_1)$ consistent? \\
+  No, $\row(ab)=\row(\emptystring)$ but $\row(ab\ll 1.)\neq \row(\ll 1.)$ . \\
+  $(S_3,E_3,T_3,{\Alp}_1)$ closed? \\
+   No,  $\row(\ll 1.)$ with $\reg{\ll 1.}=1$ has a fresh content. \\
+\end{minipage}
+\textbf{Step 4}\\
+Let $S_4\leftarrow S_3\cup \{\ll 1. \}$,$E_4\leftarrow E_3\cup \{\ll 1.\}$, we should construct a new observation table $(S_4,E_4,T_4,{\Alp}_1)$ and check the new table for closeness and consistency.\\
+\begin{minipage}{0.5\textwidth}
+  \begin{center}
+    $T_4$=
+     \begin{tabular}{l|l|l|l}
+    
+    {$\reg{\_}$}  &{}  &      {$\emptystring$}   &      {$\ll 1.$} \\
+    \hline
+    {0}  &${\emptystring}$ & {P} & {0}\\
+    
+    {0}  &{$b$} & {0} & {0}\\
+    {0}  &{$a$} & {P}& {0}\\
+    {0}  &{$ab$} & {P}& {P}\\
+    {1}  &{$ab\ll 1.$} & {P} & {$\bot$}\\
+    {0}  & {$ab\ll 1.\gg$} & {1} & {0}\\	
+    {1}  &{$\ll 1.$} & {0}& {$\bot$}\\
+    \hline
+    {0}  &	{$ba$} & {0}& {0}\\
+    {0}  &	{$bb$} & {0}& {0}\\
+    {1}  &	{$ab\ll 1.1$} & {P} & {$\bot$}\\
+    {1}  &{$ab\ll 1.a$} & {0}  & {$\bot$}\\
+    {$\cdots$}  &{$\cdots$} & {$\cdots$} & {$\cdots$}\\
+  \end{tabular}
+  \end{center}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+Once the table is closed and consistent, we ask an equivalence query.\\
+Finally, the teacher replies \quo{yes} to an equivalence query about. The learning progress terminates. The learner automaton is as below.\\
+\end{minipage}
+\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=15mm]
+  \node[initial,state,inner sep=1pt,minimum size=0pt] (q0)      {$q_0$};
+  \node[state,inner sep=1pt,minimum size=0pt]         (q1) [right of=q0]  {$q_1$};
+  \node[state,inner sep=1pt,minimum size=0pt]         (q2) [right of=q1]  {$q_2$};
+  \node[state,inner sep=1pt,minimum size=0pt]         (q3) [above of=q2]  {$q_3$};
+  \node[state,accepting,inner sep=1pt,minimum size=0pt]         (q4) [right of=q2]  {$q_4$};
+  \node[state,inner sep=1pt,minimum size=0pt]         (q5) [right of=q4]  {$q_5$};
+  \node[state,inner sep=1pt,minimum size=0pt]         (q6) [right of=q3]  {$q_6$};
+  \path[->] (q0)  edge node {$a$} (q1)
+  edge[ bend right]  node[below] {$b$} (q5)
+  
+  (q1) edge[ bend right] node[below] {$a$} (q5)
+  edge node {$b$} (q2)
+  (q2) edge[ bend right]  node[below] {$a,b$} (q5)
+  edge [ bend left] node {$\ll$} (q3)
+  (q3) edge node {$a,b$} (q6)
+  edge [loop above] node {$1$} (q3)
+  edge [above] node {$\gg$} (q4)
+  (q4) edge [bend right] node[below] {$a,b$} (q5)
+  (q5) edge [loop right] node {$a,b$} (q5)
+  (q6) edge [loop above] node {$a,b,1$} (q6)
+  edge [bend left] node {$\gg$} (q5);
+\end{tikzpicture}	
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

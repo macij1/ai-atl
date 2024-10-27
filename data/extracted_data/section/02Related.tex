@@ -1,0 +1,89 @@
+\section{Background and Related Work}
+\label{sec:related}
+
+\textbf{ML-CAD.}
+\ac{ML} techniques, including \ac{DL} have shown promising results across numerous applications, including across the \ac{CAD} domain. 
+Recent work spans the design flow, from early-stage hardware cost estimations~\cite{servadei_accurate_2019}, through logic synthesis~\cite{yu_developing_2018}, and physical design~\cite{kahng_machine_2018}. %, including routing~\cite{xie_routenet:_2018}. 
+We explore the use of transfer learning~\cite{pan_survey_2010} to teach a \ac{DL}-based model to produce Verilog by framing it as a machine translation problem. %, where the model learns to transform an input sequence from one domain into a sequence of symbols from a second domain. 
+Transfer learning provides the ability to learn new tasks without large quantities of labelled data in a target domain. % by adapting existing knowledge. % by fine-tuning the existing architecture or adding specialized elements...?
+
+\textbf{GPT-2.}
+We use GPT-2~\cite{radford2019language} as our starting point, given its state-of-the-art performance in zero-shot task settings. 
+GPT-2 is based on the decoder part of the Transformer, a neural network encoder-decoder architecture with a self-attention mechanism~\cite{vaswani_attention_2017}.  
+At the core of the GPT-2 approach is language modelling, which can be framed as an unsupervised distribution estimation from some set of examples $(x_1, x_2, ..., x_n)$, where each example is composed of variable length sequences of symbols $(s_1, s_2, ..., s_n)$~\cite{radford2019language}. 
+This statistical model of language is thus the joint probability distribution of the symbols in the language (as the product of the conditional probabilities for each symbol given the preceding sequence~\cite{bengio_neural_2003}). 
+% As language itself has natural sequential ordering, it is common to factorize the joint probabilities over symbols as the product of conditional probabilities \todo{(Jelinek \& Mercer, 1980) (Bengio et al., 2003)}:
+% \begin{equation}
+%     p(x) = \prod^{n}_{i=1}p(s_n|s_1,...,s_{n-1})
+% \end{equation}
+% This approach allows for tractable sampling from and estimation of $p(x)$ as well as any conditionals of the form $p(s_{n-k}, ..., s_n | s_1, ..., s_{n-k-1})$.
+Put simply, the model learns to answer the following: \emph{given some sequence of symbols, what is the most likely next symbol in the sequence?} 
+
+% Given that 
+Different tasks can be specified in a language itself, e.g., \emph{\{"translate to french", "english text", "french text"\}}~\cite{radford2019language}.
+Radford \textit{et al.} speculate that a model with sufficiently large capacity can learn to perform tasks demonstrated in natural language without explicit supervision. 
+In other words, given a general system which produces $p(output|input)$, a condition can be introduced to model some task $p(output|input,task)$. 
+By training GPT-2 on a large, unlabelled dataset ($\sim$8 million webpages), Radford \textit{et al.} demonstrated the the trained model could perform well on numerous tasks without fine-tuning. 
+The trained model then provides a good starting point for performance in specific tasks following fine-tuning~\cite{radford_improving_nodate}. 
+% For example, recent work has attempted to fine-tune GPT-2 for summarizing text~\cite{kieuvongngam2020automatic} and producing dialogue~\cite{budzianowski2019hello}. 
+Fundamentally, GPT-2's pre-trained, implicit capability to process natural language can be directed towards specific tasks. %It is this capability that w
+We attempt to harness this capability by fine-tuning GPT-2 for translating natural language descriptions to Verilog. 
+
+% As the end-user has control over the sequences of symbols that are introduced into the learning and prediction engine, a multi-task learning system can be trained by adding additional task symbols into the training sequences.
+% In other words, given a general system which produces $p(output|input)$, a condition can be introduced to model some task $p(output|input,task)$.
+% This is also known as multi-task learning~\cite{radford2019language}, and enables flexibility in specifying requests in the natural language model: for example providing the sequence \emph{\{"translate to french", "english text", "french text"\}}.
+
+
+% \todo{In general, language models can be trained over tasks by just giving them datasets with key instructions encoded at the beginning, e.g. an input \{"translate english to french", (english text), (french text)\}}
+
+% \cite{radford2019language}
+
+% \noteDanger{Can we not just have this in a subsection under related work? Background and related work? It's only a six page paper and GPT-2 isn't our contribution}
+
+
+\textbf{Natural Language $\rightarrow$ Code.}
+The challenges in translating specifications into computer code has driven research in natural language programming~\cite{mihalcea2006nlp}. %, producing 
+% techniques for the automatic conversion of natural text~\cite{mihalcea2006nlp}, either through formal models for automatic code generation (e.g., in \cite{drechsler2012generating,zhao_automatic_2019,harris2016glast}) or via machine-learned natural language processing (e.g., in \cite{rahit2019machine}). 
+%
+Recent work has shown that there is a finite limit to the number of unique ways one can express certain programming structures (e.g. \emph{for}-loops) in natural language, and as such it is possible to extract this information and transform it into its corresponding computer code \cite{mihalcea2006nlp}. 
+Other related works use \ac{NLP} techniques, including rule-based processing, for formal system modeling~\cite{drechsler2012generating},
+generating hardware assertions~\cite{harris2016glast}, and for enhancing documentation by automatically extracting software development tasks and associating them with the relevant paragraphs~\cite{treude_extracting_2015}. 
+While showing promising results, there are limitations on how flexible the natural language descriptions can be with respect to structure. 
+Earlier work involves designing separate components to perform specific tasks such as identifying "steps", "loops", and "comments" from natural text~\cite{mihalcea2006nlp}. 
+% Learning-based approaches are promising for analyzing and generating code. Rahit \textit{et al.} use Long Short Term Memory (LSTM) to generate Python source code~\cite{rahit2019machine}. 
+% Fang \textit{et al.} use LSTMs to analyze JavaScript bytecode for detecting malicious behavior~\cite{fang2018research}.
+To our knowledge, \ac{DL} techniques to generate \ac{HDL} from natural language have not been explored. % until now. 
+
+% NLP for NLP
+% \cite{mihalcea2006nlp}
+
+% Using LSTM and RNNs
+% (Machine Translation from Natural Language to Code using Long-Short Term Memory)
+% \cite{rahit2019machine}
+
+% Generating summaries in natural language from code
+% (Generating natural language summaries for crosscutting source code concerns)
+% \cite{rastkar2011generating}
+
+% Code snippets from natural language
+% (NLP2Code: Code Snippet Content Assist via Natural Language Tasks)
+% \cite{campbell2017nlp2code}
+% replacing with \cite{treude_extracting_2015}
+
+% Research on Malicious JavaScript Detection Technology Based on LSTM
+% \cite{fang2018research}
+
+% Code Failure Prediction and Pattern Extraction Using LSTM Networks
+% \cite{hajiaghayi2019code}
+
+% A system to grade computer programming skills using machine learning
+% \cite{srikant2014a}
+
+
+
+% Natural Language Processing for Requirements Engineering
+% \cite{dalpiaz_natural_2018}
+
+
+
+

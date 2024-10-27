@@ -1,0 +1,331 @@
+\section{System Design}
+
+\nnvm currently represents DL programs as static computation graphs
+containing operators and input/output data flow. The topology of this graph is fixed,
+allowing straightforward compilation to \tvm's graph runtime.
+
+We first constructed a prototype in Python to validate our ideas, and to
+experiment with transformations, such as partial evaluation and automatic
+differentiation.
+
+Relay is composed of a series of interoperating essential modules:
+
+\begin{itemize}
+\item A Python frontend, which translates Python code into Relay's C++ data structures.
+\item A module for automatic differentiation of Relay programs.
+\item A shape-dependent tensor type system.
+\item A simple evaluator for prototyping and debugging.
+\item A type-specialized operator compiler built on TVM.
+\item An efficient runtime system, which is still in progress.
+\end{itemize}
+
+Below, we describe the design and implementation of the modules that have been prototyped and
+discuss the in-progress and yet-to-be-implemented components in \ref{future_work}.
+
+\subsection{Frontend}
+
+Relay currently has two interfaces: a textual AST that can be written in Python or C++ and a Python frontend. We intend to add a JSON serialization interface to allow for easy integration with other compilers.
+
+The Python frontend is the intended user-facing interaction
+mode for Relay while the other interfaces allow programmatic use of Relay's AST.
+
+The Python interface comprises two pieces: a library and a pair of decorators. The library contains standard DL operators and some Relay-specific functions. The pair of decorators transforms a subset of vanilla Python
+code into the Relay textual AST representation and generates a wrapper function
+which will execute that code using one of Relay's evaluation mechanisms.
+
+Although the core of Relay is written in C++, we are able to expose the
+internals of the system to Python by reusing \tvm's node system, which allows
+low-effort interoperability between the two languages. We can expose C++
+classes in Python simply by inheriting from a special class and
+writing a class stub in Python.
+
+The Python frontend is inspired by many other projects, which use similar
+mechanisms to
+rewrite Python ASTs, such as Tangent \cite{tangent} \cite{myia}.
+
+Targeting Python has significant advantages since it has become the lingua franca of the DL
+community, which is accustomed to Python libraries such as TensorFlow, PyTorch, and Keras. Using Python as a source language also allows users to write and extend Relay in the same language they use to do data processing and deployment.
+
+Figure \ref{fig:dec_ex} demonstrates how to use the decorators, and we will
+briefly outline their semantics below.
+
+\begin{figure*}
+\begin{minted}{python}
+    @relay_model
+    def lenet(x: Tensor[Float, (1, 28, 28)]) -> Tensor[Float, 10]:
+        conv1 = relay.conv2d(x, num_filter=20, ksize=[1, 5, 5, 1], no_bias=False)
+        tanh1 = relay.tanh(conv1)
+        pool1 = relay.max_pool(tanh1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1])
+        conv2 = relay.conv2d(pool1, num_filter=50, ksize=[1, 5, 5, 1], no_bias=False)
+        tanh2 = relay.tanh(conv2)
+        pool2 = relay.max_pool(tanh2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1])
+        flatten = relay.flatten_layer(pool2)
+        fc1 = relay.linear(flatten, num_hidden=500)
+        tanh3 = relay.tanh(fc1)
+        return relay.linear(tanh3, num_hidden=10)
+
+    @relay
+    def loss(x: Tensor[Float, (1, 28, 28)], y: Tensor[Float, 10]) -> Float:
+        return relay.softmax_cross_entropy(lenet(x), y)
+
+    @relay
+    def train_lenet(training_data: Tensor[Float, (60000, 1, 28, 28)]) -> Model:
+        model = relay.create_model(lenet)
+        for x, y in data:
+            model_grad = relay.grad(model, loss, (x, y))
+            relay.update_model_params(model, model_grad)
+        return relay.export_model(model)
+
+    training_data, test_data = relay.datasets.mnist()
+    model = train_lenet(training_data)
+    print(relay.argmax(model(test_data[0])))
+\end{minted}
+\caption{An example of the Relay Python decorator, which transforms a decorated
+  function into an analogous one in Relay. The defined model is based on
+  LeNet \cite{lenet} and is trained and tested on the MNIST dataset.}
+\label{fig:dec_ex}
+\end{figure*}
+
+Let us preface our description of the decorators by noting that not all of the
+functionality in this example is currently implemented and this example instead
+represents the design and ideal syntax for our frontend.
+
+To illustrate the decorators, we briefly trace how the frontend transforms the
+program in \ref{fig:dec_ex} into Relay.
+In this program, three Python functions have been decorated:
+\begin{itemize}
+  \item \texttt{lenet}: The declaration of the LeNet model \cite{lenet}.
+  \item \texttt{loss}: The loss function of the model.
+  \item \texttt{train\_lenet}: The training loop.
+\end{itemize}
+Then we have raw Python code at the bottom for facilitating training and
+inference.
+
+Each parameter of the function requires an explicit type annotation, but
+the type of local variable assignments can be left out and later be inferred
+by the back-end.
+
+Any function call in the \texttt{relay} namespace is converted to an intrinsic
+identifier, which must be implemented outside of Relay and registered with the
+runtime. TVM is the preferred mechanism for implementing them.
+
+In order to prevent the passing of model parameters to every function that needs
+them, we have two separate decorators: \texttt{relay} and
+\texttt{relay\_model}. The \texttt{relay} decorator declares a function that
+can be run without any hidden state (and thus, no functions that do require hidden
+state can be called). The \texttt{relay\_model} decorator declares a function
+that cannot be run by default and instead must first be instantiated by a call to
+\texttt{relay.create\_model}. When a model is created for a
+\texttt{relay\_model}-decorated function, the function's body is searched for any
+calls that require hidden parameters; any parameters for these calls are then initialized.
+Note that multiple calls to the same function will still generate multiple sets of
+hidden parameters. For example, in the \texttt{lenet} function, \texttt{conv1}
+and \texttt{conv2} both have their own hidden parameters. Initialization for all
+model parameters is currently assumed to be Gaussian with $\mu = 0$ and some
+small $\sigma$.
+
+To train the model, we define the \texttt{loss} function in terms of our model
+(i.e., \texttt{lenet}), and in our training loop, we use \texttt{relay.grad} to
+calculate the gradients of the parameters with respect to the output. Then we
+pipe the resulting gradients into \texttt{relay.update\_model\_params} to update
+our parameters (this example uses vanilla stochastic gradient descent).
+While the Relay IR in general is functional, for convenience, we expose
+\texttt{relay.update\_model\_params} as a limited form of mutation.
+
+When training is finished, \texttt{relay.export\_model} returns a callable
+version of the trained model that can then be used in raw Python.
+
+\subsection{Automatic Differentiation}
+\label{sec:autodiff}
+
+In \cite{toplas_reverse}, the authors demonstrate that reverse-mode automatic
+differentiation can be performed in a functional language by using a local
+program transformation that introduces references.
+Our approach is inspired by their insight and is closely related
+to performing forward-mode automatic differentiation using dual numbers.
+In the dual number approach, real values are transformed into pairs (called ``dual numbers'')
+of the original value and the derivative of the function at that value. All
+operations in a function are then lifted to operate over dual numbers.
+
+Instead of pairing each value with its partial derivative, as in the forward mode, we pair each real value
+with a reference of type real, denoting the reverse-mode partial derivative. The reverse-mode partial
+derivative of a real number is the derivative of that real with respect to the variable representing
+the final result of the function \cite{colah}. Additionally, for every reverse-mode AD transformation
+we perform, we return a reference to a function from unit to unit, called the ``backpropagator.''
+For every real number produced before, the backpropagator is updated to take its partial derivative
+and pass it upstream via the references, according to the chain rule. The backpropagator then
+calls the old version of itself, thus forming a chain of closures to update every partial derivative.
+For a more detailed explanation, see \cite{toplas_reverse}.
+
+We replace each operation over reals with a transformed operation that returns
+the original value and a zero-initialized reference, then updates the
+backpropagator to clear the gradient reference, propagate the gradient
+reference forward, and call the old backpropagator.
+To phrase it in more AD-specific terms, the Wengert list is constructed
+dynamically as new reals are created. The Wengert list is represented as the
+list of closures that created the backpropagator, and the operations to update
+the list are bundled with the list.
+
+For every generic operation, including control flow and higher-order functions, we only need to
+transform the inner expression and lift the type to accommodate the new expression.
+This is identical to what is done in the traditional dual number approach.
+
+Additionally, we extend the syntax with a gradient node (\texttt{Grad expr}). In the gradient node, \texttt{expr}
+should be a function from a product of reals to real. The transformed expression is a new function
+that calculates the result of the original function bundled with all the partial derivatives.
+This node is implemented by transforming the inner AST with our implementation of reverse mode automatic differentiation.
+For every real-type argument, we pass the original argument bundled with a new zero-initialized reference to the transformed function.
+We call the backpropagator, extract the value in the passed reference, clear the references,
+and return the extracted value in a product with the original result.
+
+This transformation requires us to transform every value inside the passed function, so the function
+must not contain free variables. (This limitation can always be circumvented by lambda-lifting.)
+Given a Relay program without free variables, the transformation always produces a valid Relay
+program, meaning it has the closure property. Thus, we have a higher-order reverse mode,
+even on programs containing closures.
+We take this approach over that in \cite{toplas_reverse} for three reasons:
+\vspace{-3pt}
+\begin{enumerate}
+  \item \textbf{Simplicity}: Pearlmutter and Siskind's approach requires
+    reflection on the AST and closure conversion, which means we would need to
+    implement reflection, algebraic data types, and closure conversion in our
+    own language if we were to follow \cite{toplas_reverse}.
+  \item \textbf{Typing}: Additionally, the backpropagators generated in
+    \cite{toplas_reverse} have types that depend on the free variables inside
+    closures. This means the types of the backpropagators are dynamic, which
+    would complicate our type system.
+  \item \textbf{Efficiency}: Reflection and traversing the AST are not
+    fast. While Pearlmutter and Siskind propose to use partial evaluation to
+    remove this overhead, it introduces another layer of complexity.
+\end{enumerate}
+
+Currently, we maintain the purity of Relay by only exposing the \texttt{Grad} operation.
+User code can never interact with the references that are produced in the above-described process;
+the process completely abstracts away the references and returns only the resulting values.
+We could also potentially make the code produced by the transformation pure by typing it as lazy functional state
+threads (monads), as presented in \cite{lazy_fn_st}.
+
+The implementation of automatic differentiation in Relay comprises 449 lines of C++ out of a total of approximately 10 thousand lines in the C++ backend.
+
+\subsection{A Type System}
+
+Our type system is informed by the authors' previous experience using and implementing dependent type theory. We
+have kept the language of types small, inspired by type system designs which use small core languages
+\cite{spj_talk, lean_meta}.
+
+Our type system allows shape dependency. That is, it allows types to be polymorphic over shapes which
+can appear both in expressions and types. This design allows us to capture important properties
+at compile-time, though it sheds the complexity of a traditional dependent type system. Importantly, we
+have kinding rules which enforce that shapes and base types are both of a different kind from types of values---
+namely tensors, products, and arrow types.
+
+In this paradigm, knowing all values are tensors allows compiler writers to design and implement optimizations over
+the AST in a uniform manner. For example, if a user of Relay wants to write an optimization that lifts a
+computation up one dimension, they can uniformly add a dimension without needing to handle scalar cases.
+This is very useful for optimizations that change dimension (e.g., auto-batching, spatial packing, or layout changes).
+We discuss possible extensions to the type system in \ref{future_work}.
+
+The decision to incorporate tensor shape into the type system, rather than to have it as a separate ``analysis,'' allows
+shape information to be easily stored and reasoned about at any stage of the optimization pipeline and makes it easier for
+users to be explicit about tensor shapes and their desired effect.
+
+% In the present prototype, shapes are
+% required to be fixed at constant sizes, but we plan to incorporate a ``shape language'' into the type system to allow for
+% more detailed specifications of different operations on tensors.
+
+\begin{figure*}
+  \begin{minipage}{.5\textwidth}%
+    \infrule[BaseType-T]
+       {width \in \mathbb{N}}
+       {\Delta \vdash \texttt{IntType}(width) : \texttt{BaseType} \\ \Delta \vdash \texttt{FloatType}(width) : \texttt{BaseType} \\ \Delta \vdash \texttt{UIntType}(width) : \texttt{BaseType} \\ \Delta \vdash \texttt{BoolType} : \texttt{BaseType}}
+    \infrule[Shape-T]
+      {\\ d_1, d_2, \ldots, d_n \in \mathbb{N}}
+      {\Delta \vdash \texttt{Shape}(d_1, d_2, \ldots, d_n) : \texttt{Shape} }
+    \infrule[Tensor-T]
+      {\\ \Delta \vdash bt : \texttt{BaseType} \andalso \Delta \vdash sh : \texttt{Shape}}
+      {\Delta \vdash \texttt{Tensor}(bt, sh) : \texttt{Type} }
+    \infrule[Arrow-T]
+      {\\ \Delta \vdash T : \texttt{Type} \andalso \Delta \vdash U : \texttt{Type}}
+      {\Delta \vdash T \rightarrow U : \texttt{Type} }
+  \end{minipage}%
+  \begin{minipage}{.5\textwidth}%
+    \infrule[Quantifier-T]
+      { K \in \{\texttt{Shape}, \texttt{Type}, \texttt{BaseType}\} \\ \Delta, T : K \vdash body : \texttt{Type} }
+      {\Delta \vdash \texttt{forall}\ (T : K), \, body : \texttt{Type}}
+    \infrule[Product-T]
+      {\\ \Delta \vdash T_1 : \texttt{Type} \\ \Delta \vdash T_2 : \texttt{Type} \\ \ldots \\ \Delta \vdash T_n : \texttt{Type} }
+      {\Delta \vdash (T_1 \times T_2 \times \cdots \times T_n) : \texttt{Type} }
+    \infrule[Ref-T]
+      {\\ \Delta \vdash T : \texttt{Type}}
+      {\Delta \vdash \texttt{RefType}(T) : \texttt{Type}}
+  \end{minipage}%
+\caption{Rules for constructing types, indicating kinds. Reference types are only generated internally by reverse-mode automatic differentiation and cannot be given in frontend user code. Also note we will eventually define a more complex AST for shapes.}
+\end{figure*}
+
+\begin{figure*}
+  \begin{minipage}{.5\textwidth}%
+    \infrule[Type-Int-Literal]
+      {i \in \mathbb{Z}}
+      {\Delta; \Gamma \vdash i : \texttt{Tensor}(\texttt{IntType}(32), \texttt{Shape}())}
+    \infrule[Type-Float-Literal]
+      {\\ f \in \mathbb{R}}
+      {\Delta; \Gamma \vdash f : \texttt{Tensor}(\texttt{FloatType}(32), \texttt{Shape}())}
+    \infrule[Type-Bool-Literal]
+      {\\ b \in \{\texttt{True}, \texttt{False}\}}
+      {\Delta; \Gamma \vdash b : \texttt{Tensor}(\texttt{BoolType}, \texttt{Shape}())}
+    \infrule[Type-Tensor-Literal]
+      {\\ \Delta \vdash s = \texttt{Shape}(d_1, d_2 \ldots, d_n) \andalso \Delta \vdash b : \texttt{BaseType} \\ \Delta; \Gamma \vdash t_1 : \texttt{Tensor}(b, s) \andalso \Delta; \Gamma \vdash t_2 : \texttt{Tensor}(b, s) \\ \ldots \andalso \Delta; \Gamma \vdash t_m : \texttt{Tensor}(b, s)}
+      {\Delta; \Gamma \vdash \lbrack t_1, t_2, \ldots, t_m \rbrack : \texttt{Tensor}(b, \texttt{Shape}(m, d_1, d_2, \ldots, d_n))}
+    \infrule[Type-Product]
+      {\\ \Delta; \Gamma \vdash p_1 : T_1 \andalso \Delta; \Gamma \vdash p_2 : T_2 \andalso \ldots \andalso \Delta; \Gamma \vdash p_n : T_n}
+      {\Delta; \Gamma \vdash (p_1, p_2, \ldots, p_n) : T_1 \times T_2 \times \cdots \times T_n }
+    \infrule[Type-Projection]
+      {\\ \Delta; \Gamma \vdash p : T_1 \times T_2 \times \cdots \times T_n \\ i \in \lbrack 0, n)}
+      {\Delta; \Gamma \vdash p \lbrack i \rbrack : T_i}
+   \infrule[Type-Let]
+      {\\  \Delta; \Gamma \vdash d : T \andalso \Delta; \Gamma, id : T \vdash b : T^\prime}
+      {\Delta; \Gamma \vdash \texttt{let } id = d \texttt{ in } b : T^\prime}
+   \infrule[Type-UnaryOp]
+      {\\ op \in \{ \texttt{-}, \texttt{sq} \} \andalso \Delta \vdash b : \texttt{BaseType} \andalso \Delta \vdash s : \texttt{Shape} \\ \Delta; \Gamma \vdash t : \texttt{Tensor}(b, s)}
+      {\Delta; \Gamma \vdash \texttt{UnaryOp}(op, t): \texttt{Tensor}(b, s)}
+   \infrule[Type-Noncomp-BinaryOp]
+      {\\ op \in \{\texttt{+}, \texttt{-}, \texttt{*}, \texttt{/} \} \andalso \Delta \vdash b : \texttt{BaseType} \andalso \Delta \vdash s : \texttt{Shape} \\ \Delta; \Gamma \vdash t_1 : \texttt{Tensor}(b, s) \andalso \Delta; \Gamma \vdash t_2 : \texttt{Tensor}(b, s)}
+      {\Delta; \Gamma \vdash \texttt{BinaryOp}(op, t_1, t_2): \texttt{Tensor}(b, s)}
+  \end{minipage}%
+  \begin{minipage}{.5\textwidth}%
+    \infrule[Type-Comp-BinaryOp]
+      {op \in \{\texttt{=}, \texttt{!=}, \texttt{>}, \texttt{<}, \texttt{>=}, \texttt{<=} \} \\ \Delta \vdash b : \texttt{BaseType} \andalso \Delta \vdash s : \texttt{Shape} \\ \Delta; \Gamma \vdash t_1 : \texttt{Tensor}(b, s) \andalso \Delta; \Gamma \vdash t_2 : \texttt{Tensor}(b, s)}
+      {\Delta; \Gamma \vdash \texttt{BinaryOp}(op, t_1, t_2): \texttt{Tensor}(\texttt{BoolType}, s)}
+    \infrule[Type-Function-Definition]
+      {\\ \Delta; \Gamma, p_1 : T_1, p_2 : T_2, \ldots, p_n : T_n, f : (T_1 \times T_2 \times \cdots \times T_n) \rightarrow T^\prime \\ \vdash body : T^\prime}
+      {\Delta; \Gamma \vdash \texttt{def}\ f(p_1 : T_1, p_2 : T_2, \ldots, p_n : T_n) \texttt{ -> } T^\prime, body \\ : (T_1 \times T_2 \times \cdots \times T_n) \rightarrow T^\prime}
+    \infrule[Type-Call]
+      {\\ \Delta; \Gamma \vdash f : (T_1 \times \cdots \times T_n) \rightarrow T^\prime \\ \Delta; \Gamma \vdash a_1 : T_1 \andalso \Delta; \Gamma \vdash a_2 : T_2 \andalso \ldots \andalso \Delta; \Gamma \vdash a_n : T_n}
+      {\Delta; \Gamma \vdash f(a_1, a_2, \ldots, a_n) : T^\prime }
+    \infrule[Type-If]
+      {\\ \Delta; \Gamma \vdash c : \texttt{Tensor}(\texttt{BoolType}, \texttt{Shape}()) \\ \Delta; \Gamma \vdash b_1 : T \andalso \Delta; \Gamma \vdash b_2 : T}
+      {\Delta; \Gamma \vdash \texttt{if}\ c\ \texttt{then}\ b_1\ \texttt{else}\ b_2 : T}
+    \infrule[Type-Zero]
+      {\\ \Delta \vdash b : \texttt{BaseType} \andalso \Delta \vdash s : \texttt{Shape}}
+      {\Delta; \Gamma \vdash \texttt{Zero } \texttt{Tensor}(b, s) : \texttt{Tensor}(b, s)}
+    \infrule[Type-Gradient]
+      {\\ \Delta; \Gamma \vdash \texttt{autodiff}(e) : T}
+      {\Delta; \Gamma \vdash \texttt{Grad}\ e : T}
+    \infrule[Type-Ref]
+      {\\ \Delta; \Gamma \vdash n : T}
+      {\Delta; \Gamma \vdash \texttt{Ref}\ n : \texttt{RefType}(T) }
+    \infrule[Type-Val-Ref]
+      {\\ \Delta; \Gamma \vdash r : \texttt{RefType}(T)}
+      {\Delta; \Gamma \vdash\ !r : T }
+    \infrule[Type-Set-Ref]
+      {\\ \Delta; \Gamma \vdash r : \texttt{RefType}(T) \andalso \Delta; \Gamma \vdash v : T}
+      {\Delta; \Gamma \vdash r := v : () }
+\end{minipage}%
+
+    \caption{Rules for deriving types of expressions and definitions. The unit type, $()$, is syntactic sugar
+            for a product type with zero members. Note that these type rules assume that all type variables
+            in quantifiers have already been concretely instantiated. Additionally, in the rule for
+            gradient, ``autodiff'' is the automatic differentiation AST transformation on expression $e$; rather
+            than attempt to capture the entire semantics of the transformation in that inference rule,
+            we explain the transformation in \ref{sec:autodiff}.}
+\end{figure*}

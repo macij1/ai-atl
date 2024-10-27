@@ -1,0 +1,265 @@
+\section{Methods}
+\label{sec:methods}
+In this section we first describe the speech models which are the
+targets of our analyses, followed by a discussion of the methods used
+here to carry out these analyses.  
+
+
+\subsection{Target models}
+We tested the analysis methods on three target models trained on speech
+data.
+\label{sec:target_models}
+\paragraph{Transformer-ASR model}
+\label{sec:trans-asr}
+The first model is a transformer model
+\citep{vaswani_attention_2017} trained on the automatic speech
+recognition (ASR)
+task. More precisely, we used a pretrained joint CTC-Attention
+transformer model from the ESPNet toolkit \citep{watanabe2018espnet},
+trained on the Librispeech dataset
+\citep{panayotov_librispeech:_2015}.\footnote{We used ESPnet code from
+  commit
+  \href{https://github.com/espnet/espnet/commit/8fdd8e96b0896d97a63ab74ceb1cbc01c7652778}{8fdd8e9}
+  with the pretrained model available from
+  \href{https://tinyurl.com/r9n2ykc}{tinyurl.com/r9n2ykc}.}
+The architecture is based on the hybrid CTC-Attention decoding scheme
+presented by \citet{watanabe_hybrid_2017} but adapted to the transformer
+model. The encoder is composed of two 2D convolutional layers
+(with stride 2 in both time and frequency) and a linear layer,
+followed by 12 transformer layers, while the decoder has 6 such
+layers. The convolutional layers use 512 channels, which is also the
+output dimension of the linear and transformer layers. The dimension
+of the flattened output of
+the two convolutional layers (along frequencies and channel) is then
+20922 and 10240 respectively: we omit these two layers in our analyses
+due to their excessive size.
+The input to the model is made of a spectrogram with 80 coefficients
+and 3 pitch features, augmented with the
+SpecAugment method \citep{Park2019}. The output is
+composed of 5000 SentencePiece subword tokens
+\citep{kudo-richardson-2018-sentencepiece}. The model is trained for 120 epochs
+using the optimization strategy from
+\citet{vaswani_attention_2017}, also known as Noam optimization.
+Decoding is performed with a beam of
+size 60 for reported word error rates (WER) of 2.6\% and 5.7\% on the test
+set (for the \texttt{clean} and \texttt{other} subsets respectively).
+
+\paragraph{RNN-VGS model}
+\label{sec:rnn-vgs}
+
+The Visually Grounded Speech (VGS) model is trained on the task of
+matching images with their corresponding spoken captions, first introduced
+by \citet{harwath2015deep} and \citet{harwath2016unsupervised}. We
+use the architecture of \citet{Merkx2019} which implemented
+several improvements over the RNN model of \citet{chrupala-etal-2017-representations},
+and train it on the Flickr8K Audio Caption Corpus
+\citep{harwath2015deep}.  The speech encoder consists of one
+1D convolutional layer (with 64 output channels) which
+subsamples the input by a factor of two, and four bidirectional GRU
+layers (each of size 2048) followed by a self-attention-based pooling
+layer. The image encoder uses features from a pre-trained ResNet-152
+model \citep{he2016deep}
+followed by a linear projection. The loss function is a margin-based
+ranking objective. Following \citet{Merkx2019} we trained the model
+using the Adam optimizer \citep{kingma2014adam} with a cyclical learning
+rate schedule \citep{smith2017cyclical}. The
+input are MFCC features with total energy and delta and double-delta
+coefficients with combined size 39.
+
+\paragraph{RNN-ASR model}
+\label{sec:rnn-asr}
+
+This model is a middle ground between the two previous ones. It is
+trained as a speech recognizer similarly to the transformer model but
+the architecture of the encoder follows the RNN-VGS model
+(except that the recurrent layers are one-directional in order to fit
+the model in GPU memory).  The last GRU layer of the encoder is fed to
+the attention-based decoder from \citet{bahdanau_neural_2015}, here
+composed of a single layer of 1024 GRU units. The model is trained
+with the Adadelta optimizer \citep{zeiler_adadelta:_2012}. The input
+features are identical to the ones used for the VGS model; it is also
+trained on the Flickr8k dataset spoken caption data, using the
+original written captions as transcriptions.  The architecture of this model is not
+optimized for the speech recognition task: rather it is designed to be
+as similar as possible to the RNN-VGS model while still performing
+reasonably on speech recognition (WER of 24.4\% on Flickr8k validation set with a beam of size 10).
+
+\subsection{Analytical methods}
+\label{sec:analytical}
+We consider two analytical approaches:
+
+\begin{itemize}
+\item {\bf Diagnostic model} is a simple, often linear, classifier or
+regressor trained to predict some information of interest given neural
+activation patterns. To the extent that the model successfuly decodes
+the information, we conclude that this information is present in
+the neural representations.
+\item {\bf Representational similarity analysis (RSA)} is a second-order
+approach where similarities between pairs of some stimuli are measured in
+two representation spaces: e.g. neural activation pattern space and a space
+of symbolic linguistic representations such as sequences of phonemes or syntax
+trees \citep[see][]{chrupala-alishahi-2019-correlating}. Then the
+correlation between these pairwise similarity measurements quantifies
+how much the two representations are aligned.
+\end{itemize}
+The diagnostic models have trainable parameters while the
+RSA-based models do not, except when using a trainable pooling
+operation.
+
+We also consider two ways of viewing activation patterns in hidden layers as
+representations:
+\begin{itemize}
+\item {\bf Local representations} at the level of a single frame
+or time-step;
+\item {\bf Global representations} at the level of the whole
+utterance.
+\end{itemize}
+Combinations of these two facets give rise to the following concrete analysis models.
+
+\paragraph{Local diagnostic classifier.} We use single frames of input
+(MFCC or spectrogram) features, or activations at a single timestep as input
+to a logistic diagnostic classifier which is trained to predict the
+phoneme aligned to this frame or timestep.
+
+\paragraph{Local RSA.}
+We compute two sets of similarity scores. For neural representations,
+these are cosine similarities
+between neural activations from pairs of frames. For phonemic
+representations our similarities are binary, indicating whether a pair
+of frames are labeled with the same phoneme. Pearson's $r$
+coefficient computed against  a binary variable, as in our setting, is
+also known as point biserial correlation.
+
+
+\paragraph{Global diagnostic classifier.}
+We train a linear diagnostic classifier to predict the presence of phonemes
+in an utterence based on global (pooled) neural activations.
+For each phoneme $j$ the predicted probability that it is present in the
+utterance with representation $\mathbf{h}$ is denoted as
+$\mathrm{P}(j|\mathbf{h})$ and computed as:
+\begin{equation}
+  \label{eq:global_diagnostic}
+   \mathrm{P}(j|\mathbf{h}) =  \mathrm{sigmoid}(\mathbf{W}\mathrm{\text{Pool}}(\mathbf{h})+\mathbf{a})_j
+\end{equation}
+where $\mathrm{Pool}$ is one of the pooling function in Section~\ref{sec:pooling}.
+
+
+\paragraph{Global RSA.}
+We compute pairwise similarity scores between global (pooled; see Section~\ref{sec:pooling})
+representations and measure Pearson's $r$ with the pairwise string
+similarities between phonemic transcriptions of
+utterances. We define string similarity as:
+\begin{equation}
+  \mathrm{sim}(a, b) = 1 - \frac{\mathrm{Levenshtein}(a, b)}{\max(|a|, |b|)}
+\end{equation}
+where $|\cdot|$ denotes string length and $\mathrm{Levenshtein}$ is
+the string edit distance.
+
+
+
+\subsubsection{Pooling}
+\label{sec:pooling}
+
+The representations we evaluate are sequential: sequences of input
+frames, or of neural activation states. In order to
+pool them into a single global representation of the whole utterance
+we test two approaches.
+\paragraph{Mean pooling.} We simply take the mean for
+each feature along the time dimension.
+\paragraph{Attention-based pooling.}  Here we use a simple
+self-attention operation with parameters trained to optimize the score
+of interest, i.e.\ the RSA score or the error of the diagnostic classifier.
+The attention-based pooling operator performs a weighted average
+over the positions in the sequence, using scalar weights. The
+pooled utterance representation $\mathrm{\text{Pool}}(\mathbf{h})$ is defined as:
+\begin{equation}
+  \label{eq:pooling1}
+  \mathrm{\text{Pool}}(\mathbf{h}) = \sum_{t=1}^N \alpha_t \mathbf{h}_t,
+\end{equation}
+with the weights $\mathbf{\alpha}$ computed as:
+\begin{equation}
+  \label{eq:pooling2}
+  \alpha_t = \frac{\exp(\mathbf{w}^T\mathbf{h}_t)}{\sum_{j=1}^N \exp(\mathbf{w}^T\mathbf{h}_j)},
+\end{equation}
+  where $\mathbf{w}$ are learnable parameters, and
+  $\mathbf{h}_t$ is an input or activation vector at position $t$.\footnote{Note that the visually grounded speech models of
+\citet{chrupala-etal-2017-representations,chrupala-2019-symbolic,Merkx2019} use similar mechanisms to aggregate
+the activations of the final RNN layer; here we use it as part of the
+analytical method to pool any sequential representation of interest. A
+further point worth noting is that we use scalar weights $\alpha_t$ and
+apply a linear model for learning them in order to keep the analytic
+model simple and easy to train consistently.}
+
+\subsection{Metrics}
+\label{sec:metrics}
+For RSA we use Pearson's $r$ to measure how closely
+the activation similarity space corresponds to the phoneme or phoneme
+string similarity space. For the diagnostic classifiers we use the
+relative error reduction (RER) over the majority class baseline to
+measure how well phoneme information can be decoded from the
+activations.
+\paragraph{Effect of learning}
+In order to be able to assess and compare how sensitive the different
+methods are to the effect of learning on the activation patterns, it
+is important to compare the score on the trained model to that on the
+randomly initialized model; we thus always display the two jointly.
+We posit that a desirable property of an analytical method is that it is
+sensitive to the learning effect, and that the scores on trained
+versus randomly initialized models are clearly separated.
+
+\paragraph{Coefficient of partial determination}
+Correlation between similarity structures of two representational
+spaces can, in principle, be partly due to the fact that both these
+spaces are correlated to a third space. For example, were we to get a
+high value for global RSA for one of the top layers of the RNN-VGS
+model, we might suspect that this is due to the fact that string
+similarities between phonemic transcriptions of captions are
+correlated to visual similarities between their corresponding images,
+rather than due to the layer encoding phoneme strings. In order to
+control for this issue, we can carry out RSA between two spaces while
+controling for the third, confounding, similarity space. We do this by
+computing the {\it coefficient of partial determination} defined as the
+relative reduction in error caused by including variable $X$ in a linear
+regression model for $Y$:
+\begin{equation}
+  R^2_{\text{partial}}(Y,X|Z) = \frac{e_{Y\sim Z}-e_{Y\sim X+Z}}
+    {e_{Y\sim Z}}
+\end{equation}
+where $e_{Y \sim X+Z}$ is the sum squared error of the model with all
+variables, and $e_{Y \sim Z}$ is the sum squared error of the model
+with $X$ removed.
+Given the scenario above with the confounding space being visual
+similarity, we identify $Y$ as the pairwise similarities in phoneme
+string space, $X$ as the similarities in neural activation space, and
+$Z$ as similarities in the visual space. The visual similarities are
+computed via cosine similarity on the image feature vectors
+corresponding to the stimulus utterances.
+
+
+\subsection{Experimental setup}
+\label{sec:experimental}
+All analytical methods are implemented in Pytorch \citep{NEURIPS2019_9015}. The diagnostic
+classifiers are trained using Adam with learning rate schedule which is
+scaled by 0.1 after 10 epochs with no improvement in accuracy.  We
+terminate training after 50 epochs with no improvement.
+Global RSA with attention-based pooling is trained using Adam for 60
+epochs with a fixed learning rate (0.001).  For all trainable models
+we snapshot model parameters after every epoch and report the results
+for the epoch with best validation score.
+In all cases we sample half of the available data for training (if
+applicable), holding out the other half for validation.
+
+\paragraph{Sampling data for local RSA.}
+When computing RSA scores it is common practice in neuroscience
+research to use the whole upper triangular part of the matrices
+containing pairwise similarity scores between stimuli, presumably
+because the number of stimuli is typically small in that setting. In
+our case the number of stimuli is very large, which makes using all
+the pairwise similarities computationally taxing. More importantly,
+when each stimulus is used for computing multiple similarity scores,
+these scores are not independent, and score distribution changes
+with the number of stimuli. We therefore use an alternative procedure
+where each stimulus is sampled without replacement and used only in a
+single similarity calculation.
+
+

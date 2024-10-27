@@ -149,11 +149,11 @@ def calculate_network_stats(papers, citations):
 
     return stats
 
-def main():
-    st.set_page_config(layout="wide", page_title="Citation Network")
+def render_graph():
     
     # Load data
-    papers, citations = load_sample_data()
+    papers = st.session_state.papers
+    citations = st.session_state.citations
     
     # Sidebar with paper list and controls
     st.sidebar.header("Papers")
@@ -247,7 +247,3 @@ def main():
 
     
     # Interactive features guide
-
-
-if __name__ == "__main__":
-    main()

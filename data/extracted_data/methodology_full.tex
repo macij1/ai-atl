@@ -1,0 +1,48 @@
+\subsection{Character Recognition with Capsule Networks} 
+\label{sec:meth_full}
+
+For the character recognition task, we propose an architecture comprising of a capsule network and a decoder network, as illustrated in Fig. \ref{fig:base} and Fig. \ref{fig:decoder}. 
+
+\begin{figure*}[!h]
+  \centering
+  \includegraphics[scale=0.5]{figures/fig_pdf/capsnet.pdf}
+  %\setlength{\belowcaptionskip}{-1cm}
+  \vspace{-2mm}
+  \caption{\textbf{TextCap Model}: Proposed CapsNet model for character classification.}
+ \label{fig:base}
+ \vspace{-3mm}
+\end{figure*}
+
+\begin{figure*}[!h]
+  \centering
+  \includegraphics[scale=0.2]{figures/fig_pdf/decoder.pdf}
+  \caption{\textbf{TextCap Decoder}: Decoder network for the character reconstruction. Input to this network is obtained by masking the DigitCaps layer of the TextCap classifier}
+ \label{fig:decoder}
+  \vspace{-4mm}
+\end{figure*}
+
+In the capsule network, the first three layers are convolutional layers with 64 3$\times$3 kernels with stride 1, 128 3$\times$3 kernels with stride 1 and 256 3$\times$3 kernels with stride 2 respectively. The fourth layer is a primary capsule layer with 32 channels of 8-dimensional capsules, with each primary capsule containing 8 convolutional units with a 9$\times$9 kernel and a stride of 2. The fifth layer, termed as the character capsule layer, is a fully connected capsule layer with a 16-dimensional capsule per class, resulting in $M$ capsules for a dataset with $M$ number of classes. We use dynamic routing between the primary capsule layer and the character capsule layer, as proposed by \cite{sabour2017dynamic}, with 3 routing iterations. The input to the capsule network is a set of $J$, $28\times28$ images and the output is a $J\times M \times16$ dimensional tensor $C$, containing the corresponding instantiation parameters, where each $C_{j}, j\in[J]$ is the instantiation parameter matrix of the $j^{th}$ training sample.
+
+%The current architecture proposed by \cite{sabour2017dynamic} for the MNIST dataset is a shallow architecture with 3 layers and 3 additional reconstruction layers. The first layer is a convolutional layer consisting 256, 9$\times$9 kernels with a stride of 1 and ReLU activation. The second layer is a convolutional capsule layer with 32 channels of 8-dimensional convolutional capsules, with each primary capsule containing 8 convolutional units with a 9$\times$9 kernel and a stride of 2. The third layer has a 16-dimensional capsule per class, resulting in 10 capsules for the MNIST dataset. 
+
+%The first two reconstruction layers are fully connected layers with ReLU activation and 512 and 1024 units respectively, whereas the third layer is also a fully connected layer with Sigmoid activation and 784 units for the MNIST dataset. The sum of squared differences between the outputs of the logistic units and the input pixel intensities is taken as the loss function and it is minimized during the training phase.
+
+Prior to passing $C$ as the input to the decoder network, the corresponding instantiation parameters should be masked with zeros for all the classes except the true class. Hence, the masked tensor $\widehat{C}$ is still a $J \times M \times16$ dimensional matrix, yet containing only the instantiation parameters corresponding to the true class as the non-zero values.
+
+The decoder network comprises one fully connected layer, followed by five deconvolutional layers \cite{decon2010} with parameters as shown by Fig. \ref{fig:decoder}. The input to the decoder is the masked matrix $\widehat{C}$, and the output of the decoder is the set of reconstructed $28\times28$ images. Except for the final deconvolution layer, which has sigmoid activation, the fully connected layer and the other deconvolution layers have ReLU activation.
+
+%We test the performance of the proposed architecture using all the training samples available for five datasets including EMNIST-balanced, which contains 2400 training samples per class, EMNIST-letters, which contains 4800 training samples per class and etc. 
+%We intend to use the classifier of the existing architecture to our network, subjected to one minor change. Instead of using $9\times9$ kernels in the first convolutional layer and the subsequent capsule layer, we use $3\times3$ kernels, in order to capture the lower level features with the smallest localized area.
+%As for the reconstruction network shown in figure \ref{fig:capsnet}, we use an architecture with five deconvolution layers \cite{decon2010} (\textcolor{red}{explain deconvolution -hj}) and a fully connected layer. The first layer is the fully connected layer with ReLU activation and 6272 units. Then the output of the fully connected layer is reshaped in to $7\times7\times128$ in order to feed to the first deconvolution layer. This layer consists of 128 number of $3\times3$ kernels with $(1,1)$ sub sampling. Second deconvolution layer consists of 64 number of $3\times3$ kernels with $(2,2)$ sub sampling. Third deconvolution layer consists of 32 number of $3\times3$ kernels with $(2,2)$ sub sampling. Final convolution layer consists of one $3\times3$ kernel with $(1,1)$ sub sampling, resulting $28\times28\times1$ image for the EMNIST data set.
+% We consider this architecture, as illustrated by figure \ref{fig:base}, to be the base model throughout this paper. 
+ 
+
+%\cite{sabour2017dynamic} already established that model in figure \ref{fig:capsnet} achieves state-of-the-art performance for the full MNIST dataset, with 6000 data points per training class. We evaluate the base model for its performance when the number of data points available is as low as 200 data points per training class.
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[scale=0.2]{figures/capsnet.png}
+%   \caption{\textbf{Original Model}: This is the original CapsNet model present in the original paper \cite{sabour2017dynamic}. }
+
+%  \label{fig:capsnet}
+% \end{figure}

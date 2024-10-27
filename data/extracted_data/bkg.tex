@@ -1,0 +1,406 @@
+We survey the principal concepts need in the rest of the paper.  In
+particular, we review basics of formal language theory, its nominal
+counterpart, and the learning algorithm of Angluin's \lstar~\cite{Angluin87}.
+
+\subsection{Regular Languages}
+Regular Languages, regular expressions and finite automata have a
+well-known relationship established by the Kleene
+theorem~\cite{kle56}.
+%
+A regular language can be represented by regular expressions and
+accepted by a finite state automaton. In this section, we introduce
+necessary notions and definitions for these concepts.
+
+An \emph{alphabet} is a set (whose elements are often called
+\emph{letters} or \emph{symbols}).
+%
+We denote a finite alphabet as $\Sigma$.
+%
+A \emph{word} is a sequence of symbols of an alphabet. Let $w$ be a
+word, we denote the length of $w$ as $\length{w}$. The word of
+length zero is called \emph{empty word} and denoted by
+$\emptyword$. The concatenation of two words is denoted as
+$\_\cdot\_$.
+%
+We define $\Sigma^\star=\bigcup_{n=0}^{\infty}\Sigma^n$, where
+$\Sigma^0=\{\emptyword\}$ and for each
+$n>0,\ \Sigma^n=\{w \cdot w' \sst w\in \Sigma\ and\ w'\in
+\Sigma^{n-1}\}$. A \emph{language} $L$ is a set of words over an
+alphabet $\Sigma$, that is, $L\subseteq\Sigma^\star$.
+
+Other language operations we use are concatenation, union,
+\emph{Kleene-star} and complementation. Assuming that $L\ and\ L'$ are
+languages over $\Sigma$, we have the following standard definitions:
+\begin{itemize}
+\item concatenation $L\cdot L'=\{w\cdot w' \sst w\in L \ and \ w'\in L'\}$,
+\item union $L\cup L'=\{w \sst w\in L \ or \ w\in L'\}$,
+\item \emph{Kleene-star} $L^\star=\bigcup_{n=0}^{\infty}L^n=\left \{
+    \begin{tabular}{cc}
+      $\{\emptyword \}$ & $n=0$  \\
+      $L^{n-1}\cdot L $ & $n\neq 0$  
+    \end{tabular}
+  \right .$,
+\item complementation $L^C=\{w\in \Sigma^\star \sst w\notin L\}$.
+\end{itemize}
+A \emph{regular expressions over $\Sigma$} is a term derived from the
+grammar where $a\in \Sigma$:
+\[
+  re \grmeq \epsilon \grmor \emptyset \grmor a \grmor  re+re \grmor  re \cdot re \grmor re^\star
+\]
+(where operators are listed in inverse order of precedence).
+%
+Given two regular expressions $re$ and $re'$, $re+re'$ denotes the
+union of $re$ and $re'$, $re\cdot re'$ denotes the concatenation of
+$re$ and $re'$, and $re^\star$ denotes the Kleene-star of $re$.
+
+A \emph{finite automaton over alphabet $\Sigma$} is a five-tuple
+$M=\langle Q,q_0,F,\delta\rangle$ such that $Q$ is a finite set of
+states, $q_0$ is the initial state, $F\subseteq Q$ is the finite set
+of final states, $\delta \subseteq Q\times \Sigma\times Q$ is a
+relation from states and alphabet symbols to states.
+%
+The automaton $M$ is \emph{deterministic} when $\delta$ is a function
+on $Q\times\Sigma\rightarrow Q$.
+%
+We extend the transition relation $\delta$ to $\Sigma^\star$ in the
+obvious way, define the language of an automaton $M$ as usual, and
+denote it as $\lofm{M}$.
+
+It is well-known that regular expressions denote regular languages; we
+let $\languageof{re}$ denote the language of a regular expression
+$re$.
+%
+\begin{theorem}[\cite{Hopcroft1979}]\label{thm:minimal_unique}
+  A language $L$ is regular iff there exists a finite automaton $M$
+  such that $L=\lofm{M}$.
+  %
+  Moreover, there exists a minimal finite automaton $M$ accepting $L$
+  and $M$ is unique.
+\end{theorem}
+
+
+
+\subsection{Nominal Languages}\label{st:NL}
+We use the nominal regular expressions introduced
+in~\cite{Kurz0T2012,Kurz0T13}.
+%
+Languages over infinite alphabets are generalised to nominal automata
+and nominal expressions~\cite{BojanczykKL14,Kurz0T2012,Kurz0T13,SchroderKMW17,segoufin2006}.
+%
+The approach in~\cite{Kurz0T2012} is distinguished by the use of names
+and binders in the expressions.
+%
+In the following, we recall the basic notions first and then we survey
+nominal languages~\cite{Kurz0T2012}.
+%
+Hereafter, we fix a countably infinite set of names $\Nom$.
+
+A \emph{nominal language over $\Nom$ and $\Sigma$} is a set of nominal
+words $w$ over $\Nom$ and $\Sigma$, that is terms derived by the
+grammar
+\[
+  w \grmeq \epsilon \grmor a \grmor \aname \grmor w\cdot w \grmor \ll \aname.w\gg
+  \qquad
+  \text{where } \aname \in \Nom \text{ and } a \in \Sigma
+\]
+%
+A name is \emph{bound} in a word when it occurs in the scope of a
+binder.
+%
+Occurrences of names not bound are called \emph{free}.
+%
+For example, $\aname$ is bound in word
+$\ll \aname. \aname \, a \gg \, \aname[m]$ while $\aname[m]$ is free.
+
+A \emph{nominal regular expression} is a term derived from the grammar
+\[
+  ne \grmeq \epsilon \grmor \emptyset \grmor a \grmor \aname \grmor ne+ne  \grmor ne \cdot ne \grmor ne^\star \grmor \langle \aname.ne \rangle
+  \qquad
+  \text{where } \aname \in \Nom \text{ and } a \in \Sigma
+\]
+In nominal expressions, binders are represented as
+$\langle \aname.\_ \rangle$ for $\aname \in \Nom$.
+%
+If the names in a nominal expression are all bound, the nominal
+expression is \emph{closed}.
+%
+Nominal regular expressions denote \emph{nominal languages}.
+\begin{definition}\cite{Kurz0T2012}\label{df:neTolanguage}
+  The \emph{nominal language $\languageof{ne}$ of a nominal regular
+    expression $ne$} is defined as
+  \begin{itemize}
+  \item $ \languageof{\emptyword}=\{\emptyword\} \qquad \languageof{\emptyset}=\emptyset \qquad \languageof{a}=\{a\} \qquad \languageof{\aname}=\{\aname\}$
+  \item $\languageof{ne_1+ne_2}=\languageof{ne_1}\cup \languageof{ne_2}$
+  \item $\languageof{ne_1\cdot ne_2}=\languageof{ne_1}\cdot \languageof{ne_2}=\{w\cdot v \sst w\in \languageof{ne_1},v\in \languageof{ne_2}\}$
+  \item $\languageof{ne^\star}=\bigcup\limits_{k\in \Nat} \languageof{ne}^k$, where $\languageof{ne}^k= 
+      \left \{
+        \begin{tabular}{cc}
+          $\{\epsilon\}$ & $k=0$  \\
+          $\languageof{ne}\cdot \languageof{ne}^{k-1} $ & $k\neq 0$  
+        \end{tabular}
+      \right .
+      $
+    \item $\languageof{\langle \aname . ne \rangle}=\{\ll \aname.w\gg \sst w\in \languageof{ne}\}$.
+  \end{itemize}
+\end{definition}
+The closure properties of nomianl regular languages are stated below:
+\begin{theorem}~\cite{Kurz0T2012}\label{thm:closureprops}
+  Nominal regular languages are closed under union, intersection, and \emph{resource sensitive} complementation. 
+\end{theorem}
+The main difference with respect to classical regular expressions is
+on complementation.
+%
+Since, the complement of $\languageof{ne}$ is not a nominal regular
+language, the classical complementation does not work in the nominal
+case.
+%
+Therefore,~\cite{Kurz0T2012} give the following definition:
+\begin{definition}~\cite{Kurz0T2012}\label{def:rsComplementation} Let
+  $ne$ be a nominal regular expression.
+  %
+  The \emph{resource sensitive complement of $\languageof{ne}$} is the
+  set $\{w \notin \languageof{ne} \sst \theta(w) \leq \theta(ne)\}$
+  where
+  \begin{itemize}
+  \item
+    $ne \in \{\emptyword,\emptyset\} \cup \Nom \cup \Sigma \implies
+    \theta(ne) =0$
+  \item $ne=ne_1+ne_2$ or
+    $ne_1\cdot ne_2 \implies \theta(ne) =max(\theta(ne_1) , \theta(ne_2) )$
+  \item $ne = \langle \aname. ne \rangle \implies 1 + \theta(ne)$
+  \item $ne= ne^\star \implies \theta(ne) $.
+  \end{itemize}
+  and the depth $\theta$ of a word is defined as the depth the corresponding
+  expression.
+\end{definition}
+
+We now define the notions of nominal automata adopted here. Let
+$\Nat$ be the set of natural numbers and define
+$\underline{n}=\{1,\cdots,n\}$ for each $n\in \Nat$. Considering
+a set of states $Q$ paired with a map $\|\_\|: Q\rightarrow \Nat$,
+let us define the local registers of $q\in Q$ to be
+$\underline{\|q\|}$. We use a definition of nominal
+automata~\cite{Kurz0T12} as Definition~\ref{def:NA}. Moreover, we
+describe how to allocate names via maps
+$\sigma:\underline{\|q\|}\rightarrow \Nom$.
+
+\begin{definition}[Nominal Automata~\cite{Kurz0T12}]\label{def:NA}
+  Let $\Nf \subset \Nom$ be a finite set of names. A
+  \emph{nominal automaton with binders over $\Sigma$ and $\Nf$},
+  $(\Sigma, \Nf)$-automaton for short, is a tuple
+  $M=\langle Q,q_0,F,\delta\rangle$ such that
+  \begin{itemize}
+  \item $Q$ is a finite set of states equipped with a map $\|\_\|: Q\rightarrow \Nat$
+  \item $q_0$ is the initial state and $\|q_0\|=0$
+  \item $F$ is the finite set of final states and $\|q\|=0$ for each $q\in F$
+  \item for each $q\in Q\ and\ \alpha\in \Sigma\cup\Nf \cup{\{\emptyword,\ll,\gg\}}$, we have a set $\delta(q, \alpha)\subseteq Q$ such that for all $q'\in \delta(q, \alpha)$ must hold:
+      \begin{itemize}
+      \item $ \alpha =\ll$ $\implies \ \|q'\|=\|q\|+1$
+      \item $ \alpha=\gg$ $\implies \ \|q'\|=\|q\|-1$
+      \item otherwise $\implies \ \|q'\|=\|q\|$
+      \end{itemize}
+      A transition is a triple $(q, \alpha,q')$ such that $q'\in \delta(q, \alpha)$.
+  \end{itemize}
+\end{definition}
+A nominal automaton $M$ is \emph{deterministic} if, for each $q\in Q$,
+\[
+  \left\{ \begin{array}{ll}
+            \textrm{$| \delta(q, \alpha)| =0$,} & \textrm{if ($ \alpha =\ll$ and $\|q\|=max\{\|q'\|\ |\ q'\in Q\}$) or ($ \alpha =\gg$ and $\|q\|=0$)}\\
+            \textrm{$| \delta(q, \alpha)| =1$,} & \textrm{otherwise}
+          \end{array} \right..
+\]
+Let $M=\langle Q,q_0,F,\delta\rangle$ be a nominal automata over
+$\Sigma$ and $\Nf$, we denote the image of a map $\sigma$ by
+$Im(\sigma)$ and the empty map by $\emptyset$. Let $q$ be a state, $w$
+be a word whose free names are in $\Nf\cup Im(\sigma)$ and
+$\sigma:\underline{\|q\|}\rightarrow \Nom$ be a map, a
+configuration of $M$ is denoted by $\langle q,w,\sigma\rangle$. A
+configuration $\langle q,w,\sigma\rangle$ is \textit{initial} if
+$q=q_0$, $w$ is a word whose free names are in $\Nf$, and
+$\sigma=\emptyset$; a configuration $\langle q,w,\sigma\rangle$ is
+accepting if $q\in F$, $w=\emptyword$, and $\sigma=\emptyset$.
+%\begin{definition}\label{def:AllocatingNames}
+  Given $q,q'\in Q$ and two configurations
+  $t=\langle q,w,\sigma\rangle$ and
+  $t'=\langle q',w',\sigma' \rangle$, $M$ \emph{moves from $t$ to
+    $t'$} if there is
+  $s \in \Sigma \cup \Nom \cup \{\emptyword,\ll,\gg\} \cup \Nat$
+  such that $q'\in \delta(q,s)$ and
+  \[\begin{cases}
+      s \in \underline{\|q\|}, & w=\sigma(s)w',\ \sigma'=\sigma \text{ and } \forall n > s \qst \sigma(s) \neq \sigma(n)
+      \\
+      s \in \Nf \setminus Im(\sigma) & w=aw',\ \sigma'=\sigma
+      \\
+      s \in \Sigma & w=aw',\ \sigma'=\sigma
+      \\
+      s = \emptyword & w=w',\ \sigma'=\sigma
+      \\
+      s = \ll & w=\ll w',\ \sigma' = \sigma \lbrack \|q'\| \mapsto n \rbrack
+      \\
+      s = \gg & w=\gg w', \ \sigma' = \sigma_{|_{\underline{\|q'\|}}}
+    \end{cases}
+  \]
+  where $\sigma\lbrack\|q'\| \mapsto n\rbrack$ extends $\sigma$ by
+  allocating the maximum index in $\underline{\|q\|}$ to $n$ and
+  $\sigma_{|_{\underline{\|q'\|}'}}$ is restriction on
+  $\underline{\|q'\|} $ of $\sigma$.
+  %
+  The language accepted by $M$ is the set of nominal words $w$ such
+  that $M$ moves from the initial configuration
+  $\langle q,w,\sigma\rangle$ to an accepting configuration.
+  %
+  (For more details see~\cite{Kurz0T12,Kurz0T13}).
+  
+  % \end{definition}
+
+%  Theorem~\ref{thm:kleeneforNA} transfers to nominal regular expressions  the classical theorem of Kleene
+  \begin{theorem}~\cite{Kurz0T2012}\label{thm:kleeneforNA} Every
+    language recognised by a nominal automaton is representable by a
+    nominal regular expression. Conversely, every language represented
+    by a nominal regular expression is acceptable by a nominal
+    automaton.
+\end{theorem}
+
+
+\subsection{Angluin's Algorithm $\lstar$}\label{st:Lstar}
+The algorithm $\lstar$ was introduced in~\cite{Angluin87} to learn a
+finite automaton accepting a given regular language $L$ over an
+alphabet $\Sigma$.
+%
+The basic idea of the algorithm is to implement a dialogue between a
+\emph{learner} and a \emph{teacher}.
+%
+The learner may ask the teacher for \textit{membership} queries
+``$w \in L$?'' to check whether a word $w$ is in the given
+language.
+%
+Moreover, the learner may submit an automaton $M$ to the teacher who
+replies ``yes'' if $\lofm{M} = L$, or provides a counter-example
+showing that $\lofm{M} \neq L$.
+%
+The teacher is assumed to answer all the learner's questions
+correctly.
+
+Key data structures of $\lstar$ are \emph{observation tables}
+representing finite predicates of words over $\Sigma$ classifying them
+as members of $L$ or not.
+\begin{definition}[Observation Tables~\cite{Angluin87}]
+  An \emph{observation table} $(S,E,T)$ consists of nonempty finite languages $S, E\subseteq\Sigma^\star$ such that $S$ is prefix-closed and $E$ is suffix-closed, and a function $T:(S\cup S\cdot \Sigma)\cdot E\rightarrow \{0,1\}$.
+\end{definition}
+The rows of an observation table are labelled by elements of
+$S\cup S\cdot \Sigma$, and the columns are labelled by elements of $E$
+with the entry for row $s$ and column $e$ given by $T(s\cdot e)$.
+%
+A row of the table can be represented by a function
+$\row(s): E\rightarrow \{0,1\}$ such that $\row(s)(e)=T(s\cdot e)$.
+%
+A word $s\cdot e$ is a member of $L$ of $(S,E,T)$ iff
+$T(s\cdot e)= 1$.  An observation table $(S,E,T)$ is \emph{closed}
+when
+%
+\[
+  \forall w\in S\cdot \Sigma\,.\,\exists s\in S\,.\,\row(w)=\row(s)
+\]
+An observation table $(S,E,T)$ is \emph{consistent} when for all
+$a \in \Sigma$ and all $s,s'\in S$
+%
+\[
+  \row(s)=\row(s')\implies \row(sa)=\row(s'a)
+\]
+%
+A closed and consistent observation table $(S,E,T)$ has an associated
+finite automaton $M=(Q,\delta,q_0,F)$ given by
+\begin{itemize}
+\item $Q =\{\row(s) \sst s \in S\}$,
+\item $q_0 = \row(\emptyword)$,
+\item $F =\{\row(s) \sst \row(s)(\emptyword)=1, s \in S \}$,
+\item {$\delta(\row(s),a)=\row(s\cdot a),\ a\in \Sigma$.}
+\end{itemize}
+
+To see that this is a well-defined automaton, note that the initial state
+is defined since $S$ is prefix-closed and must contain
+$\emptyword$. Similarly, $E$ is suffix-closed and must contain
+$\emptyword$. And, if $s,s'\in S, \row(s)=\row(s')$, then
+$T(s)=T(s\cdot\emptyword)$ and $T(s')=T(s'\cdot\emptyword)$ are equal
+as defined.
+%
+The transition function is well-defined since the table is closed and
+consistent. Suppose $s$ and $s'$ are elements of $S$ such that
+$\row(s)=\row(s')$. Since the table $(S,E,T)$ is consistent,
+$\forall a\in \Sigma, \row(sa)=\row(s'a) $. And the value of
+$\row(sa)$ is equal to such a $\row(s'')$ for an $s''\in S$, since the
+table is closed.
+
+\begin{figure}[h]
+  \centering
+  \begin{algorithmic}[1]
+    
+    % \Statex{Input: a regular language $L$ on the alphabet $\Sigma$.}
+    % \Statex{Output: an finite automaton accepting $L$.}
+    \State{Initialisation: $S=\{\emptyword\}, E=\{\emptyword\}$.}
+    \State{Construct the initial observation table $(S,E,T)$ by asking for membership queries about $(S\cup S\cdot \Sigma)\cdot E$.}\label{ag:init}
+    \Repeat\label{ag:mainstart}
+    \While{$(S,E,T)$ is not closed or not consistent}
+    \If{$(S,E,T)$ is not closed}\label{ag:or_closed}
+    \State{find $s'\in S\cdot \Sigma$ such that\;}
+    \State{$\row(s)\neq \row(s')$ for all $s\in S$ ,\;}
+    \State{add $s'$ into $S$,\;}
+    \State{extend $T$ to $(S\cup S\cdot \Sigma)\cdot E$ using membership queries.}
+    \EndIf
+    \If{$(S,E,T)$ is not consistent}\label{ag:or_consistent}
+    \State{find $s_1,s_2\in S$,$e\in E$ and $a\in \Sigma$ such that\;}
+    \State{$\row(s_1)=\row(s_2)$ and $\row(s_1\cdot a)(e)\neq \row(s_2\cdot a)(e)$,} 	
+    \State{Add $a\cdot e$ into $E$,\;}
+    
+    \State{extend $T$ to $(S\cup S\cdot \Sigma)\cdot E$ using membership queries.}
+    \EndIf
+    \EndWhile
+    \State{Construct an automaton $M$ from table $(S,E,T)$ and ask teacher an equivalence query.}
+    \If{teacher replies a counterexample $c$}
+    \State{add $c$ and all its prefixes into $S$.}
+    \State{extend $T$ to $(S\cup S\cdot \Sigma)\cdot E$ using membership queries.}
+    \EndIf
+    \Until{teacher replies yes to equivalence query $M$.}\label{ag:mainend}
+    \State{Halt and output $M$.}
+  \end{algorithmic}
+  \caption{The learner in $\lstar$.}\label{Angluin_LA}
+\end{figure}
+
+The learning process of \lstar is shown in Figure~\ref{Angluin_LA}.
+%
+Let  $L$ be the input regular language over an alphabet $\Sigma$.
+%
+Initially, the observation table $(\{\emptyword\},\{\emptyword\},T)$
+is such that $T$ is initialised by asking for membership queries about
+$\emptyword$ and each element in $\Sigma$ (line~\ref{ag:init}).
+%
+Then the algorithm enters into the main loop
+(lines~\ref{ag:mainstart}-\ref{ag:mainend}). Inside of the main loop,
+a while loop tests the current observation table $(S,E,T)$ for
+closedness (line~\ref{ag:or_closed}) and consistency
+(line~\ref{ag:or_consistent}).
+
+If the current observation table $(S,E,T)$ is not closed, the
+algorithm finds $s'$ in $S\cdot \Sigma$ such that $\row(s')$ is
+different from $\row(s)$ for all $s\in S$. Then the word $s'$ is added
+into $S$ and new rows are added for words $s'\cdot a$ for all
+$a\in \Sigma$. Thus, $T$ is extended to $(S\cup S\cdot \Sigma)\cdot E$
+by asking for membership queries about missing elements.
+
+Similarly, if $(S,E,T)$ is not consistent, the algorithm finds $s_1,s_2\in S$,$e\in E$, and $a\in \Sigma$ such that $\row(s_1)=\row(s_2)$ but $\row(s_1\cdot a)(e)\neq \row(s_2\cdot a)(e)$. The word $a\cdot e$ is added into $E$. That is, each row in the table has a new column $a\cdot e$. $T$ is extended to $(S\cup S\cdot \Sigma)\cdot E$ by asking for missing elements $\row(s)(a\cdot e)$ for all $s\in (S\cup S\cdot \Sigma)$.
+
+An associated automaton $M$ is constructed when the observation table
+$(S,E,T)$ is closed and consistent. And then, an equivalence query
+about $M$ is asked for. The algorithm terminates and outputs $M$ when
+the teacher replies ``yes" to the query. If the teacher replies with a
+counterexample $c$, the word $c$ and all its prefixes are added into
+$S$, and then $T$ is extended by asking membership queries about new
+entries in $(S\cup S\cdot \Sigma)\cdot E$. Then, a new round for the main
+loop of closedness and consistency starts.
+% We give an example of how the algorithm works in \cref{sec:AngluinAlgorithm}.
+% Angluin orginal algorithm~\cite{Angluin87} think about stochastic setting to finding counterexamples. The Latest~\cite{Angluin17} discuss proper equivalence queries with random counterexamples. Instead, our research dose not choose random counterexamples and we will introduce it in Section~\ref{st:findingC}. Assuming that $M$ is learner's automaton and $L$ is the target language, the approach in~\cite{Angluin87} is roughly finding a word $w$ in some probability distribution on the set of all words over $\Sigma$, which $w$ is accepted by either $M$ or $L$.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

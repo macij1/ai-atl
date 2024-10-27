@@ -1,0 +1,81 @@
+\begin{table}[tb] %RESULTS ARE FROM MODEL VERSION 5, results-final-pt1.sqlite3
+\centering
+\caption{Testing DAVE on Descriptive and Multi- Tasks\label{tbl:res-descriptive}}
+\vspace{-4mm}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{C{0.7cm}C{2cm}C{1.5cm}C{1.6cm}C{1.5cm}C{1.5cm}}
+\hline
+\textbf{Type}                       & \textbf{Template Name} & \textbf{\# Trained} & \textbf{\# Validated} & \textbf{\# Correct} & \textbf{Avg. Error R-O} \\ \hline
+\multirow{5}{*}{\rotatebox{90}{Assign.}}
+& da00                   
+& 3800                                          
+& 200                                             
+& 200                                           
+& --                           
+\\ \cline{2-6} 
+& da01                   
+& 3800                                          
+& 200                                             
+& 199                                           
+& 0.952                           
+\\ \cline{2-6} 
+& da02                   
+& 3800                                          
+& 200                                             
+& 196                                           
+& 0.956                           
+\\ \cline{2-6} 
+& \textbf{da03}                   
+& \textbf{0}                                          
+& \textbf{200}                                             
+& \textbf{200}                                           
+& \textbf{--}                           
+\\ \hline
+\multirow{5}{*}{\rotatebox{90}{Register}}
+& dr00 
+& 3800
+& 200                                            
+& 200                                           
+& --                                             
+\\ \cline{2-6} 
+& dr01                   
+& 3800                                         
+& 200                                            
+& 195                                          
+& 0.985                           
+\\ \cline{2-6} 
+& dr02                   
+& 3800                                         
+& 200                                            
+& 199                                          
+& 0.992                           
+\\ \cline{2-6} 
+& dr03                   
+& 3800                                         
+& 200                                            
+& 198                                           
+& 0.988    
+\\ \cline{2-6} 
+& \textbf{dr04}                   
+& \textbf{0}                                         
+& \textbf{200}                                            
+& \textbf{196}                                           
+& \textbf{0.987}                                      
+\\ \hline 
+\multirow{2}{*}{\rotatebox{90}{M-T}}
+& Trained 
+& 5000
+& 250                                            
+& 130                                           
+& 0.907                                            
+\\ \cline{2-6} 
+& \textbf{Non-Trained}                   
+& \textbf{0}                                         
+& \textbf{250}                                            
+& \textbf{103}                                           
+& \textbf{0.817}                                      
+\\ \hline
+\end{tabular}
+}
+\vspace{-5mm}
+\end{table}

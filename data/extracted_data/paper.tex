@@ -1,0 +1,260 @@
+%% For double-blind review submission, w/o CCS and ACM Reference (max submission space)
+%% \documentclass[sigplan,10pt,review,anonymous]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
+%% For double-blind review submission, w/ CCS and ACM Reference
+%\documentclass[sigplan,10pt,review,anonymous]{acmart}\settopmatter{printfolios=true}
+%% For single-blind review submission, w/o CCS and ACM Reference (max submission space)
+%\documentclass[sigplan,10pt,review]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
+%% For single-blind review submission, w/ CCS and ACM Reference
+%\documentclass[sigplan,10pt,review]{acmart}\settopmatter{printfolios=true}
+%% For final camera-ready submission, w/ required CCS and ACM Reference
+
+\documentclass[sigplan,screen]{acmart}\settopmatter{}
+
+\pdfoutput=1
+
+\makeatletter                   %1
+\def\mdseries@tt{m}             %1
+\makeatother                    %1
+\usepackage[plain]{fancyref}
+\usepackage[draft=true]{minted} %2
+\usepackage{color}
+\usepackage{hyperref}           %5
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=red,
+    urlcolor=magenta,
+    breaklinks=true,            %3
+}
+\usepackage{breakurl}           %3
+
+%%% The following is specific to MAPL'18 and the paper
+%%% 'Toward a New IR for Machine Learning Frameworks'
+%%% by Jared Roesch, Steven Lyubomirsky, Logan Weber, Josh Pollock, Marisa Kirisame, Tianqi Chen, and Zachary Tatlock.
+%%%
+\setcopyright{acmcopyright}
+\acmPrice{15.00}
+\acmDOI{10.1145/3211346.3211348}
+\acmYear{2018}
+\copyrightyear{2018}
+\acmISBN{978-1-4503-5834-7/18/06}
+\acmConference[MAPL'18]{2nd ACM SIGPLAN International Workshop on Machine Learning and Programming Languages}{June 18, 2018}{Philadelphia, PA, USA}
+
+%% Bibliography style
+\bibliographystyle{ACM-Reference-Format}
+%% Citation style
+%\citestyle{acmauthoryear}  %% For author/year citations
+%\citestyle{acmnumeric}     %% For numeric citations
+%\setcitestyle{nosort}      %% With 'acmnumeric', to disable automatic
+                            %% sorting of references within a single citation;
+                            %% e.g., \cite{Smith99,Carpenter05,Baker12}
+                            %% rendered as [14,5,2] rather than [2,5,14].
+%\setcitesyle{nocompress}   %% With 'acmnumeric', to disable automatic
+                            %% compression of sequential references within a
+                            %% single citation;
+                            %% e.g., \cite{Baker12,Baker14,Baker16}
+                            %% rendered as [2,3,4] rather than [2-4].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Note: Authors migrating a paper from traditional SIGPLAN
+%% proceedings format to PACMPL format must update the
+%% '\documentclass' and topmatter commands above; see
+%% 'acmart-pacmpl-template.tex'.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{macros}
+
+\usepackage{minted}
+
+%% Some recommended packages.
+\usepackage{booktabs}   %% For formal tables:
+                        %% http://ctan.org/pkg/booktabs
+\usepackage{subcaption} %% For complex figures with subfigures/subcaptions
+                        %% http://ctan.org/pkg/subcaption
+
+\usepackage{bcprules}
+\usepackage{graphicx}
+\usepackage[nounderscore]{syntax}
+
+\graphicspath{ {figures/} }
+% \usepackage{syntax}
+
+\begin{document}
+
+%% Title information
+\title[Relay]{Relay: A New IR for Machine Learning Frameworks}
+% \title{Toward a New IR for Machine Learning Frameworks}
+% \subtitle{(Extended Abstract)}
+%\title[Short Title]{Full Title}         %% [Short Title] is optional;
+                                        %% when present, will be used in
+                                        %% header instead of Full Title.
+%\titlenote{with title note}             %% \titlenote is optional;
+                                        %% can be repeated if necessary;
+                                        %% contents suppressed with 'anonymous'
+%\subtitle{Subtitle}                     %% \subtitle is optional
+%\subtitlenote{with subtitle note}       %% \subtitlenote is optional;
+                                        %% can be repeated if necessary;
+                                        %% contents suppressed with 'anonymous'
+
+\author{Jared Roesch}
+\email{jroesch@cs.uw.edu}
+
+\author{Steven Lyubomirsky}
+\email{sslyu@cs.uw.edu}
+
+\author{Logan Weber}
+\email{weberlo@cs.uw.edu}
+
+\author{Josh Pollock}
+\email{joshpoll@cs.uw.edu}
+
+\author{Marisa Kirisame}
+\email{jerry96@cs.uw.edu}
+
+\author{Tianqi Chen}
+\email{tqchen@cs.uw.edu}
+
+\author{Zachary Tatlock}
+\email{ztatlock@cs.uw.edu}
+\affiliation{
+  % \position{Position1}
+  \department{Paul G. Allen School of \\ Computer Science and Engineering}
+  \institution{University of Washington}
+  \city{Seattle}
+  \state{WA}
+  \country{USA}
+}
+
+% Thanks Pavel and friends!
+% Avoid overlapping text in running head.
+\renewcommand{\shortauthors}{Roesch, et al.}
+
+\makeatletter
+% This replaces the usual authorship heading with at totally new one
+% while overriding a minimal part of the template. Touchable.
+\def\addresses{
+  \@affiliationfont%
+  \centering%
+  \begin{tabular}{cccc}%
+    \@authorfont Jared Roesch & \@authorfont Steven Lyubomirsky & \@authorfont
+    Logan Weber & \@authorfont Josh Pollock \\%
+    \nolinkurl{jroesch@cs.uw.edu} &%
+    \nolinkurl{sslyu@cs.uw.edu} &%
+    \nolinkurl{weberlo@cs.uw.edu} &%
+    \nolinkurl{joshpoll@cs.uw.edu} \\ \\%
+  \vspace{-0.35in}
+  \end{tabular}
+  \begin{tabular}{ccc}%
+    \@authorfont Marisa Kirisame &
+    \@authorfont Tianqi Chen & \@authorfont Zachary Tatlock \\%
+    \nolinkurl{jerry96@cs.uw.edu} &%
+    \nolinkurl{tqchen@cs.uw.edu} &%
+    \nolinkurl{ztatlock@cs.uw.edu} \\ \\%
+  \vspace{-0.35in}
+  \end{tabular}
+  \begin{tabular}{c}%
+    Paul G. Allen School of Computer Science and Engineering \\
+    University of Washington, Seattle, WA, USA
+  \end{tabular}
+}
+\makeatother
+
+%% Abstract
+%% Note: \begin{abstract}...\end{abstract} environment must come
+%% before \maketitle command
+\begin{abstract}
+
+  Machine learning powers diverse services in industry including search,
+  translation, recommendation systems, and security. The scale and
+  importance of these models require that they be efficient, expressive, and
+  portable across an array of heterogeneous hardware devices. These constraints
+  are often at odds; in order to better accommodate them we propose a
+  new high-level intermediate representation (IR) called Relay. Relay is being designed
+  as a purely-functional, statically-typed language with the goal of balancing efficient
+  compilation, expressiveness, and portability. We discuss the goals of Relay and
+  highlight its important design constraints. Our prototype is part of the open
+  source NNVM compiler framework, which powers Amazon's deep learning framework
+  MxNet.
+\end{abstract}
+
+
+%% 2012 ACM Computing Classification System (CSS) concepts
+%% Generate at 'http://dl.acm.org/ccs/ccs.cfm'.
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10011007.10011006.10011041</concept_id>
+<concept_desc>Software and its engineering~Compilers</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10011007.10011006.10011050.10011017</concept_id>
+<concept_desc>Software and its engineering~Domain specific languages</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10010257</concept_id>
+<concept_desc>Computing methodologies~Machine learning</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+<concept>
+<concept_id>10010520.10010521.10010542.10010294</concept_id>
+<concept_desc>Computer systems organization~Neural networks</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+<concept>
+<concept_id>10010520.10010521.10010542.10010546</concept_id>
+<concept_desc>Computer systems organization~Heterogeneous (hybrid) systems</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Computer systems organization~Architectures}
+\ccsdesc[300]{Computer systems organization~Neural networks}
+\ccsdesc[300]{Computer systems organization~Heterogeneous (hybrid) systems}
+\ccsdesc[500]{Software and its engineering~Compilers}
+\ccsdesc[500]{Software and its engineering~Domain specific languages}
+\ccsdesc[300]{Computing methodologies~Machine learning}
+%% End of generated code
+
+
+%% Keywords
+%% comma separated list
+\keywords{intermediate representation, machine learning, compilers, differentiable programming}  %% \keywords are mandatory in final camera-ready submission
+
+
+%% \maketitle
+%% Note: \maketitle command must come after title commands, author
+%% commands, abstract environment, Computing Classification System
+%% environment and commands, and keywords command.
+\maketitle
+
+\input{intro}
+\input{background}
+\input{lang}
+\input{design}
+\input{future}
+\input{conclusion}
+
+%% Acknowledgments
+\begin{acks}
+  This work was supported in part by the Center for Applications Driving Architectures (ADA),
+  one of six centers of JUMP, a Semiconductor Research Corporation program co-sponsored by DARPA.
+  The authors would also like to thank Calvin Loncaric, Pavel Panchekha, Vinod Grover, and
+  Eunice Jun for discussion, insightful comments, and feedback on earlier drafts.
+\end{acks}
+
+%\clearpage
+
+%% Bibliography
+\bibliography{paper}
+
+%% Appendix
+%% \appendix
+%% \section{Appendix}
+
+%% Text of appendix \ldots
+
+\end{document}

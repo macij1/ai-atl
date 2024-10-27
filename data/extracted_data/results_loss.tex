@@ -1,0 +1,218 @@
+\subsection{Results of the Reconstruction Loss Functions and Analysis}
+Next, we discuss the variations on reconstruction with respect to different loss functions and combinations of loss functions. All the modifications we consider here were tested with varying number of training samples (100, 200, 500 and 1000) per class, from the \textit{EMNIST-Balanced} dataset. 
+We used the CapsNet model proposed in \cite{sabour2017dynamic} with minor alterations for this analysis, where decoder network consists of fully connected layers, since that architecture is well established. 
+
+%Test accuracy for different reconstruction loss functions when the number of training samples are increasing are summarized in Table \ref{table:1}. We can observe that with the number of training samples, test accuracy increases in the same way regardless of the reconstruction loss function used.
+% 
+%\begin{table}[h!]
+%\caption{Test accuracy for different reconstruction loss functions with the number of training samples per class.}
+%\label{table:1}
+%\centering
+%\begin{tabular}{|| c | c | c | c | c ||} 
+% \hline
+% \multirow{2}{4em}{Loss Function} & \multicolumn{4}{c||}{Number of Training Samples}\\
+% \cline{2-5}
+% 			& 100 		& 200 		& 500 		& 1000 	\\ [0.5ex] 
+% \hline\hline
+% $L_1$ 		& 85.66\% 	& 87.27\% 	& 88.39\%	& 89.28\%  	\\ 
+% $MSE$ 		& 85.84\% 	& 87.23\% 	& 88.77\% 	& 89.54\%	\\
+% $DSSIM$ 	& 85.76\% 	& 87.51\% 	& 88.59\% 	& 89.50\%	\\
+% $BCE$ 		& 85.81\% 	& 87.34\% 	& 88.61\% 	& 89.55\% 	\\ [1ex]
+% \hline
+%\end{tabular}
+%\end{table}
+
+
+% To observe how different reconstruction loss functions affect the reconstruction, we compare each of the reconstructed image sets with the test image set. To determine the quality of the reconstruction depending on the reconstruction loss function used, we compute the PSNR values between reconstructed images and test images. 
+Fig. \ref{psnr_for_loss} illustrates the variation of PSNR with the amount of training samples used for different loss functions, which leads to a number of interesting observations. For example, when the number of training samples are small (100 or 200), performance of $L_1$ is poor compared to $MSE$, yet for higher number of training samples, $L_1$ performs better. PSNR values for $BCE$ are the highest regardless of the number of training samples. Hence, we conclude that the most suitable loss function for reconstruction loss in general is $BCE$. Fig. \ref{real_and_recon_loss} illustrates the variations in reconstructed images with the use of different loss functions for 200 training samples.
+
+\begin{figure}[!h]
+\centering
+\subfigure[Change in PSNR for different reconstruction loss functions.\label{psnr_for_loss}]{\includegraphics[scale=0.35]{figures/psnr_for_loss.pdf}}\hfill
+\subfigure[Change in PSNR for different combinations of loss functions.\label{psnr_for_loss_comb}]{\includegraphics[scale=0.35]{figures/psnr_for_loss_comb.pdf}}
+\caption{Change in PSNR with the number of training samples.}
+\label{psnr_loss_graph}
+\vspace{-5mm}
+\end{figure}
+
+%\begin{table}[h!]
+%\parbox{.42\linewidth}{
+%\caption{PSNR values for different reconstruction loss functions with the no. of training samples per class.}
+%\label{table2}
+%\centering
+%\begin{tabular}{| c | c | c | c | c |} 
+% \hline
+% \multirow{2}{4em}{Loss Function} & \multicolumn{4}{c|}{No. of Training Samples}\\
+% \cline{2-5}
+% 			& 100 		& 200 		& 500 		& 1000 \\ [0.5ex] 
+% \hline\hline
+% $L_1$ 		& 13.03 	& 13.69 	& 15.11		& 16.33  	\\ 
+% $MSE$ 		& 13.32		& 14.14		& 15.12 	& 15.95		\\
+% $DSSIM$ 	& 12.47 	& 13.09		& 14.73		& 16.13		\\
+% $BCE$ 		& 14.18		& 15.02 	& 16.13		& 17.32		 \\ [1ex]
+% \hline
+%\end{tabular}
+%}
+%\hspace{0.2cm}
+%\parbox{.58\linewidth}{
+%\caption{PSNR values for combined reconstructions when different reconstruction loss function combinations are used.}
+%\label{table4}
+%\centering
+%\begin{tabular}{| c | c | c | c | c |} 
+% \hline
+% \multirow{2}{8em}{Loss Function Combination} & \multicolumn{4}{c|}{No. of Training Samples}\\
+% \cline{2-5}
+% 						& 100 		& 200 		& 500 		& 1000 	\\  
+% \hline\hline
+% $L_1$ \& $DSSIM$ 		& 14.25 	& 15.44 	& 16.83		& 18.45  \\ 
+% $L_1$ \& $BCE$ 		& 15.76		& 16.62		& 17.91 	& 19.45	\\
+% $MSE$ \& $DSSIM$ 		& 15.28	 	& 16.06		& 17.14		& 18.44	\\
+% $MSE$ \& $BCE$ 		& 14.99	 	& 15.66		& 17.19		& 18.61	\\
+% $BCE$ \& $DSSIM$		& 15.98		& 16.64 	& 17.94		& 19.28	\\ 
+% \hline
+%\end{tabular}
+%}
+%
+%\end{table}
+
+We observed that if we linearly combine two loss functions to design a modified loss function, the obtained reconstructions were relatively poor. Nonetheless, since different loss functions capture different properties of handwritten characters, we used two decoders with two loss functions and combined the two reconstructed images together to get a resultant reconstructed image with improved quality. With this modification, it was interestingly observed that individual reconstructions for respective loss functions also improved, due to the effect of the reconstruction loss component in the training loss. However, the amount of improvement of individual PSNRs depends on the loss function combination. Table \ref{table3} demonstrates how the individual PSNR values improve with the two-decoder networks for different combinations of reconstruction loss functions.
+
+
+\begin{table}[h!]
+\caption{PSNR values for individual reconstructions when different combinations of loss functions are used. Here, we use the two-decoder network model with one loss function per each decoder. For each loss function combination, the PSNR value in the first row of PSNR pairs corresponds to the first reconstruction loss function (used in the first decoder) whereas the second row corresponds to the second loss function (used in the second decoder).}
+\label{table3}
+\centering
+\footnotesize
+\begin{tabular}{| p{1.9cm} | p{1cm} | p{1cm} | p{1cm} | p{1cm} |} 
+ \hline
+ \multirow{2}{8em}{Loss function combination} & \multicolumn{4}{c|}{Number of training samples}\\
+ \cline{2-5}
+ 										& 100 		& 200 		& 500 		& 1000 \\ [0.5ex] 
+ \hline\hline
+ \multirow{2}{4em}{$L_1$  \&  $DSSIM$} 	& 13.51 	& 14.64 	& 15.95		& 17.48  	\\ 
+ 										& 12.89		& 14.19 	& 15.57		& 17.03	 \\
+ \hline
+ \multirow{2}{4em}{$L_1$  \&  $BCE$}	& 14.33		& 15.26 	& 16.60		& 18.10  	\\	
+ 										& 14.57		& 15.44		& 16.71		& 18.13	\\
+ \hline
+ \multirow{2}{4em}{$MSE$  \&  $DSSIM$}	& 13.87		& 14.81		& 16.00		& 17.29	\\
+ 										& 12.95		& 14.06		& 15.47		& 16.79 	\\
+ \hline												
+\multirow{2}{4em}{$MSE$  \&  $BCE$}		& 14.58		& 15.19 	& 16.55		& 17.76  \\
+										& 14.59		& 15.20		& 16.56		& 17.78	\\
+\hline
+ \multirow{2}{4em}{$BCE$  \&  $DSSIM$} 	& 14.62		& 15.41 	& 16.78		& 18.08  \\
+ 										& 13.80		& 14.77 	& 16.24		& 17.61 \\ [1ex]
+ \hline
+\end{tabular}
+\vspace{-3mm}
+\end{table}
+
+%\begin{table}[!h]
+%\caption{PSNR values for individual reconstructions for the two-decoder network model with one loss function per each decoder. For each loss function combination in the table, the first value of each PSNR pair corresponds to the first reconstruction loss function used in the first decoder and the second value corresponds to the second loss function used in the second decoder.}
+%\label{table3}
+%\centering
+%\begin{tabular}{| c | c | c | c | c |} 
+% \hline
+% \multirow{2}{8em}{Loss function combination} & \multicolumn{4}{c|}{Number of training samples}\\
+% \cline{2-5}
+% 										& 100 		& 200 		& 500 		& 1000 \\ [0.5ex] 
+% \hline\hline
+% $L_1$  \&  $DSSIM$ 	& 13.51/12.89 	& 14.64/14.19 	& 15.95/15.57	& 17.48/17.03 \\ 
+% $L_1$  \&  $BCE$		& 14.33/14.57	& 15.26/15.44 	& 16.60/16.71	& 18.10/18.13  	\\	
+% $MSE$  \&  $DSSIM$		& 13.87/12.95	& 14.81/14.06	& 16.00/15.47	& 17.29/16.79 \\
+% $MSE$  \&  $BCE$		& 14.58/14.59	& 15.19/15.20 	& 16.55/16.56	& 17.76/17.78  \\
+% $BCE$  \&  $DSSIM$ 	& 14.62/13.80	& 15.41/14.77 	& 16.78/16.24	& 18.08/17.61  \\[1ex]
+% \hline
+%\end{tabular}
+%\end{table}
+
+With two loss functions, the quality of final reconstructions were much better and PSNR values significantly improved, compared to the single-decoder model with a single loss function. Fig. \ref{psnr_for_loss_comb} shows the improvement in PSNR of the final output reconstruction, when two loss functions are combined together by a two-decoder network. Fig. \ref{real_and_recon_loss_comb} shows the variations in the reconstructed images with the use of different loss function combinations for 200 training samples.
+
+Fig. \ref{psnr_for_loss} illustrates that $BCE$ performs better compared to other loss functions when used in either single-decoder or two-decoder network model. Fig. \ref{psnr_for_loss_comb} illustrates that the combinations $BCE$ \& $DSSIM$ and $L_1$ \& $BCE$ perform significantly better than other loss combinations for the two-decoder model. Even though PSNR values for $DSSIM$ loss were not sufficiently significant, it captures the spatial similarity aspects in reconstruction. Hence, the $BCE$ \& $DSSIM$ loss combination provides marginally better reconstructions, compared to $L_1$ \& $BCE$ for fewer number of training samples. However, when the number of training samples increase, $L_1$ \& $BCE$ combination produces much better reconstructions.
+
+%\begin{table}[h!]
+%\caption{PSNR values for combined reconstructions when different reconstruction loss function combinations are used.}
+%\label{table4}
+%\centering
+%\begin{tabular}{|| c | p{1cm} | p{1cm} | p{1cm} | p{1cm} ||} 
+% \hline
+% \multirow{2}{8em}{Loss Function Combination} & \multicolumn{4}{c||}{Number of Training Samples}\\
+% \cline{2-5}
+% 						& 100 		& 200 		& 500 		& 1000 	\\  
+% \hline\hline
+% $L_1$  \&  $DSSIM$ 	& 14.25 	& 15.44 	& 16.83		& 18.45  \\ 
+% $L_1$  \&  $BCE$ 		& 15.76		& 16.62		& 17.91 	& 19.45	\\
+% $MSE$  \&  $DSSIM$ 	& 15.28	 	& 16.06		& 17.14		& 18.44	\\
+% $MSE$  \&  $BCE$ 		& 14.99	 	& 15.66		& 17.19		& 18.61	\\
+% $BCE$  \&  $DSSIM$	& 15.98		& 16.64 	& 17.94		& 19.28	\\ 
+% \hline
+%\end{tabular}
+%\end{table}
+
+
+
+
+%%%%%%Loss with GAN
+%When we use deconvolutional layers instead of fully connected layers in the decoder network, quality of the reconstructions will be further improved. We present the results with deconvolutional layers for $BCE$ and $L_1$ \& $BCE$ which produced the best results for single-decoder and two-decoder models. 
+%
+%For $BCE$, with deconvolutional layers, PSNR values for 100, 200, 500, and 1000 training samples are 14.8163, 15.6164, 16.8193, and 18.0656, respectively. If we compare these values with the results of $BCE$ given in Table \ref{table2}, where decoder network consists of fully connected layers, we can see that the PSNR values are improved by 4.46\%, 3.14\%, 4.29\%, and 4.28\% respectively. 
+%%%%%%%%14.1836	& 15.0196 	& 16.1282	& 17.3234
+%Also, for $L_1$ \& $BCE$ combination, improved results for two-decoder model with deconvolutional layers are given in Table \ref{table_gan}. 
+%%for 100, 200, 500 and 1000 training samples, individual PSNRs for $MSE$ are 15.2055, 15.9765, 17.3947 and 18.4296, individual PSNRs for $BCE$ are 15.1989, 15.9753, 17.3850 and 18.4367 and PSNR values for combined reconstructions are 15.7916, 16.6291, 18.1737 and 19.2985. All the individual and combined PSNR values are improved compared to PSNR values for  $MSE$  \&  $BCE$ in tables \ref{table3} and \ref{table4}.
+%
+%\begin{table}[h!]
+%\caption{Improvements in PSNR values for $L_1$ \& $BCE$ when the two-decoder network consists of deconvolutional layers.}
+%\label{table_gan}
+%\centering
+%\begin{tabular}{| c | p{1cm} | p{1cm} | p{1cm} | p{1cm} |} 
+% \hline
+% \multirow{2}{8em}{Reconstruction} & \multicolumn{4}{c|}{Number of Training Samples}\\
+% \cline{2-5}
+% 														& 100 		& 200 		& 500 	& 1000 \\ [0.5ex] 
+% \hline\hline
+% Individual reconstruction for $L_1$ (first decoder) 	& 14.33 	& 15.43 	& 17.22		& 18.50  \\ 
+% Individual reconstruction for $BCE$ (second decoder) 	& 14.65		& 15.69 	& 17.35		& 18.54	\\
+% Combined reconstruction								& 15.88		& 16.82 	& 18.49		& 19.74	\\ 
+% \hline
+%\end{tabular}
+%\end{table}
+
+\begin{figure}[!h]
+\vspace{-2mm}
+\centering
+\footnotesize
+\begin{tabular}{m{1.5cm} c }
+ Original    	&	\includegraphics[scale=0.325]{figures/original.png}		\\ 
+ $L_1$ 			&   \includegraphics[scale=0.325]{figures/l1.png}	\\ 
+ $MSE$ 			& 	\includegraphics[scale=0.325]{figures/l2.png}	\\
+ $DSSIM$ 		& 	\includegraphics[scale=0.325]{figures/dssim.png}	\\
+ $BCE$ 			& 	\includegraphics[scale=0.325]{figures/bce.png}	\\ 
+\end{tabular}
+\caption{Variations in reconstruction with different loss functions }
+\label{real_and_recon_loss}
+\vspace{-3mm}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\footnotesize
+\begin{tabular}{m{2.2cm} c }
+Original         		&	\includegraphics[scale=0.29]{figures/original.png}		\\ 
+$L_1$ \& $DSSIM$		&   \includegraphics[scale=0.29]{figures/l1_dssim.png}	\\ 
+$L_1$ \& $BCE$			& 	\includegraphics[scale=0.29]{figures/l1_bce.png}	\\
+$MSE$ \& $DSSIM$ 		& 	\includegraphics[scale=0.29]{figures/l2_dssim.png}	\\
+$MSE$ \& $BCE$			& 	\includegraphics[scale=0.29]{figures/l2_bce.png}	\\ 
+$BCE$ \& $DSSIM$		&	\includegraphics[scale=0.29]{figures/bce_dssim.png}	\\
+\end{tabular}
+\caption{Variations in reconstruction with different loss function combinations}
+\label{real_and_recon_loss_comb}
+\end{figure}
+
+
+%\begin{figure}[h!]
+%\centering
+%\includegraphics[scale=0.7]{figures/real_and_recon_loss.png}
+%\caption{Variations in Reconstruction with Different Reconstruction Loss Functions for 200 Training Samples}
+%\label{real_and_recon_loss}
+%\end{figure}

@@ -1,0 +1,534 @@
+%This is the quantikz library for typesetting quantum circuits using LaTeX/Tikz. version 0.9.1
+%Written by Alastair Kay, 2018. Published under a CC-BY-4.0 licence
+% Please email me with any bug reports or feature requests.
+%If you find this library useful, please cite its usage in your work,using the DOI: 10.17637/rh.7000520.
+% Usage is at your own risk.
+
+%version 0.9.2:
+%	made 'wires' the default key, so [wires=2] now becomes [2]
+%	added 'slice title', 'slices style', 'slices label style' key to control titles of slices under 'slice all'
+%	better access to positioning of gategroup label.
+%	now arXiv compatible (that was a challenge! they use old versions of packages)
+%Previous versions:
+%version 0.9.1:
+%	added \cwbend gate for cornering classical wires.
+%	made size of strike through for multiqubit gates stylable via the keys /quantikz/Strike Height/ and /quantikz/Strike Width/
+%	added new \gate[swap] variant of swap (nearest-neighbour only).
+%version 0.9.0:
+%original release.
+
+
+% Package(s) to include
+\RequirePackage{xargs,ifthen,xstring,xparse,etoolbox}
+\RequirePackage{tikz}
+%\RequirePackage{pgffor,pgfmath}
+\usetikzlibrary{cd,decorations.pathreplacing,calc,positioning,fit,shapes.symbols,decorations.pathmorphing,shapes.misc,backgrounds,decorations.markings}
+
+\makeatletter
+\newcounter{aaa}
+\tikzset{
+  apply/.style args={#1 except on segments #2}{postaction={
+      /utils/exec={
+        \@for\mattempa:=#2\do{\csdef{aaa@\mattempa}{}}
+        \setcounter{aaa}{0}
+      },
+      decorate,decoration={show path construction,
+        moveto code={},
+        lineto code={
+          \stepcounter{aaa}
+          \ifcsdef{aaa@\theaaa}{}{
+            \path[#1] (\tikzinputsegmentfirst) -- (\tikzinputsegmentlast);
+          }
+        },
+        curveto code={
+          \stepcounter{aaa}
+          \ifcsdef{aaa@\theaaa}{}{
+            \path [#1] (\tikzinputsegmentfirst) .. controls
+            (\tikzinputsegmentsupporta) and (\tikzinputsegmentsupportb)
+            ..(\tikzinputsegmentlast);
+          }
+        },
+        closepath code={
+          \stepcounter{aaa}
+          \ifcsdef{aaa@\theaaa}{}{
+            \path [#1] (\tikzinputsegmentfirst) -- (\tikzinputsegmentlast);
+          }
+        },
+      },
+    },
+  },
+}
+
+\long\def\ifnodedefined#1#2#3{%
+    \@ifundefined{pgf@sh@ns@#1}{#3}{#2}%
+}
+
+%the main gate command
+\newcommand\gate[2][]{%optional parameter contains styling info. compulsory is gate text.
+	\def\toswap{0}
+	\edef\options{row=\the\pgfmatrixcurrentrow,col=\the\pgfmatrixcurrentcolumn,#1}
+	\pgfkeys{/quantikz,wires=1,style=,label style=,braces=}
+ 	\pgfkeys{/quantikz,#1}%
+	\pgfkeysgetvalue{/quantikz/wires}{\quantwires}
+	\pgfkeysgetvalue{/quantikz/style}{\a}
+	\pgfkeysgetvalue{/quantikz/label style}{\b}
+	\edef\n{\the\pgfmatrixcurrentrow}
+	\edef\m{\the\pgfmatrixcurrentcolumn}
+	\ifthenelse{\toswap=1}{\def\quantwires{2}\phantom{wide}}{\phantom{#2}}
+	\edef\k{\the\numexpr\n+\quantwires-1\relax}
+	\foreach \i in {\n,...,\k} {
+		\edef\from{\i-\m}
+		\edef\to{\i-\the\numexpr\m-1\relax}
+		\expandafter\expandafter\expandafter\vqwexplicit\expandafter\expandafter\expandafter{\expandafter\from\expandafter}\expandafter{\to}
+	}
+	\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\pgfutil@g@addto@macro\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\tikzcd@atendsavedpaths\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{%
+		\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\gate@end\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\a\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\b\expandafter}\expandafter{\options}{#2}
+	}
+}
+%deferred gate command
+\newcommand{\gate@end}[4]{
+	\pgfkeys{/quantikz,wires=1}
+	\def\toswap{0}
+ 	\pgfkeys{/quantikz,#3}%
+	\pgfkeysgetvalue{/quantikz/wires}{\quantwires}
+	\pgfkeysgetvalue{/quantikz/row}{\row}
+	\pgfkeysgetvalue{/quantikz/col}{\col}
+	\ifthenelse{\toswap=1}{\def\quantwires{2}}{}
+	\xdef\LoopGG{}
+	\foreach \n in  {\row,...,\the\numexpr\row+\quantwires-1\relax} {
+	\ifnodedefined{\tikzcdmatrixname-\n-\col}{
+		\xdef\LoopGG{\LoopGG(\tikzcdmatrixname-\n-\col)}
+		}{}
+	}
+	\ifthenelse{\toswap=1}{
+		\node (group\tikzcdmatrixname-\row-\col) [fit=\LoopGG,operator,inner xsep=3pt,inner ysep=5pt,#1] {\hphantom{wide}};
+		\draw [thick] (group\tikzcdmatrixname-\row-\col.west|-\tikzcdmatrixname-\row-\col.center) to[out=0,in=180] (group\tikzcdmatrixname-\row-\col.east|-\tikzcdmatrixname-\the\numexpr\row+1\relax-\col.center);
+		\draw [line width=3pt,white,shorten >=0.9pt,shorten <=0.9pt] (group\tikzcdmatrixname-\row-\col.east|-\tikzcdmatrixname-\row-\col.center) to[out=180,in=0] (group\tikzcdmatrixname-\row-\col.west|-\tikzcdmatrixname-\the\numexpr\row+1\relax-\col.center);
+		\draw [thick] (group\tikzcdmatrixname-\row-\col.east|-\tikzcdmatrixname-\row-\col.center) to[out=180,in=0] (group\tikzcdmatrixname-\row-\col.west|-\tikzcdmatrixname-\the\numexpr\row+1\relax-\col.center);
+	}{
+	  \node (group\tikzcdmatrixname-\row-\col) [fit=\LoopGG,operator,inner xsep=3pt,inner ysep=5pt,label={[gg label,#2]$#4$},#1] {\hphantom{$#4$}};
+	}
+}
+
+
+%single slice
+\newcommand\slice[2][]{%
+	%\edef\currcol{\the\pgfmatrixcurrentcolumn}
+	\pgfkeys{/quantikz,wires=1,style=,label style=,braces=}
+	\pgfkeys{/quantikz,#1}%
+ 	\edef\options{\pgfkeysvalueof{/quantikz/style}}
+ 	\edef\opts{\pgfkeysvalueof{/quantikz/label style}}
+	\edef\n{\the\pgfmatrixcurrentcolumn}
+	%\expandafter\show\n
+	\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\pgfutil@g@addto@macro\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\tikzcd@atendslices\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{%
+		\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\slice@end\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\n\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\options\expandafter}\expandafter{\opts}{#2}%
+	}}
+%deferred slice command
+\newcommand{\slice@end}[4]{
+	\edef\top{($1/2*(\tikzcdmatrixname-col#1.east |- \tikzcdmatrixname-row1.north)+1/2*(\tikzcdmatrixname-col\the\numexpr#1+1\relax.west |- \tikzcdmatrixname-row1.north)$)}
+	\edef\bottom{($1/2*(\tikzcdmatrixname-col#1.east |- \tikzcdmatrixname-row\the\pgfmatrixcurrentrow.south)+1/2*(\tikzcdmatrixname-col\the\numexpr#1+1\relax.west |- \tikzcdmatrixname-row\the\pgfmatrixcurrentrow.south)+(0,-3pt)$)}
+	\expandafter\expandafter\expandafter\make@slice\expandafter\expandafter\expandafter{\expandafter\top\expandafter}\expandafter{\bottom}{#4}{#2}{#3}
+}
+\newcommand{\make@slice}[5]{
+	\draw[slice,#4] #1 to node[pos=0,inner sep=4pt,anchor=south,color=black,#5] {#3} #2;
+}
+%deferred command which will slice everything
+\newcommand{\sliceallr}{
+	\foreach \n in  {2,...,\the\numexpr\pgfmatrixcurrentcolumn-1-\pgfkeysvalueof{/tikz/remove end slices}\relax} {
+		\edef\col{\the\numexpr\n-1\relax}
+		\edef\title{\pgfkeysvalueof{/tikz/slice titles}}
+		\edef\sstyle{\pgfkeysvalueof{/tikz/slice style}}
+		\edef\slstyle{\pgfkeysvalueof{/tikz/slice label style}}
+		\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\slice@end\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\n\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\sstyle\expandafter}\expandafter{\slstyle}{\title}
+	}
+}
+
+%labelling of inputs
+\newcommand\lstick[2][]{%
+	\pgfkeys{/quantikz,wires=1,style=,label style=,braces=}
+	\pgfkeys{/quantikz,#1}%
+	\edef\newoptions{row=\the\pgfmatrixcurrentrow,col=\the\pgfmatrixcurrentcolumn,#1}
+	\pgfkeysgetvalue{/quantikz/label style}{\options}
+	\pgfkeysgetvalue{/quantikz/braces}{\opts}
+	%\edef\n{\the\pgfmatrixcurrentrow}
+	%\edef\m{\the\pgfmatrixcurrentcolumn}
+	\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\pgfutil@g@addto@macro\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\tikzcd@atendsavedpaths\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{%
+		\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\groupinput@end\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\newoptions\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\options\expandafter}\expandafter{\opts}{#2}%
+	}
+}
+%labelling of outputs
+\newcommand\rstick[2][]{%
+	\pgfkeys{/quantikz,wires=1,style=,label style=,braces=}
+	\pgfkeys{/quantikz,#1}%
+	\edef\newoptions{row=\the\pgfmatrixcurrentrow,col=\the\pgfmatrixcurrentcolumn,#1}
+	\pgfkeysgetvalue{/quantikz/label style}{\options}
+	\pgfkeysgetvalue{/quantikz/braces}{\opts}
+	%\edef\n{\the\pgfmatrixcurrentrow}
+	%\edef\m{\the\pgfmatrixcurrentcolumn}
+	\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\pgfutil@g@addto@macro\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\tikzcd@atendsavedpaths\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{%
+		\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\groupoutput@end\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\newoptions\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\options\expandafter}\expandafter{\opts}{#2}%
+	}
+}
+%deferred labelling of inputs
+\newcommand{\groupinput@end}[4]{%basic data as keys, lable options, brace options, text
+	\pgfkeys{/quantikz,wires=1}
+ 	\pgfkeys{/quantikz,#1}%
+	\pgfkeysgetvalue{/quantikz/wires}{\quantwires}
+	\pgfkeysgetvalue{/quantikz/row}{\row}
+	\pgfkeysgetvalue{/quantikz/col}{\col}
+	\xdef\LoopGI{}
+	\foreach \n in  {\row,...,\the\numexpr\row+\quantwires-1\relax} {
+	\ifnodedefined{\tikzcdmatrixname-\n-\col}{
+		\xdef\LoopGI{\LoopGI(\tikzcdmatrixname-\n-\col)} 
+		}{}
+		}
+	\ifthenelse{\quantwires=1} {
+		\node (ingr-\row) [fit=\LoopGI, inner sep=0pt,label={[align=center,#2]left:#4}] {};
+	}{
+	\node (ingr-\row) [fit=\LoopGI, inner sep=0pt] {};
+	\draw[dm,#3] ($(ingr-\row.north west)+(-0.1cm,0.1cm)$) to node[midway,align=center,anchor=east,xshift=-0.1cm,#2] {#4} ($(ingr-\row.south west)+(-0.1cm,-0.1cm)$);
+	}
+} %
+%deferred labelling of outputs
+\newcommand{\groupoutput@end}[4]{%basic data as keys, lable options, brace options, text
+	\pgfkeys{/quantikz,wires=1}
+ 	\pgfkeys{/quantikz,#1}%
+	\pgfkeysgetvalue{/quantikz/wires}{\quantwires}
+	\pgfkeysgetvalue{/quantikz/row}{\row}
+	\pgfkeysgetvalue{/quantikz/col}{\col}
+	\xdef\LoopGO{}
+	\foreach \n in  {\row,...,\the\numexpr\row+\quantwires-1\relax} {
+		\ifnodedefined{\tikzcdmatrixname-\n-\col}{
+			\xdef\LoopGO{\LoopGO(\tikzcdmatrixname-\n-\col)} 
+		}}
+		\ifthenelse{\quantwires=1} {
+		\node (outgr-\row) [fit=\LoopGO, inner sep=0pt,label={[align=center,#2]right:#4}] {};
+	}{
+	\node (outgr-\row) [fit=\LoopGO, inner sep=0pt] {};
+	\draw[dd,#3] ($(outgr-\row.north east)+(0.1cm,0.1cm)$) to node[midway,align=center,anchor=west,xshift=0.1cm,#2] {#4} ($(outgr-\row.south east)+(0.1cm,-0.1cm)$);
+	}
+} %
+%inputs and outputs within a multi-wire gate
+\newcommand\gateinput[2][]{%
+	\pgfkeys{/quantikz,wires=1,style=,label style=,braces=}%
+	\pgfkeys{/quantikz,#1}%
+	\edef\newoptions{row=\the\pgfmatrixcurrentrow,col=\the\pgfmatrixcurrentcolumn,#1}
+ 	\pgfkeysgetvalue{/quantikz/label style}{\options}
+ 	\pgfkeysgetvalue{/quantikz/braces}{\opts}%
+	\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\pgfutil@g@addto@macro\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\tikzcd@atendlabels\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{%
+		\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\mginput@end\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\newoptions\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\options\expandafter}\expandafter{\opts}{#2}%
+	}
+}
+\newcommand\gateoutput[2][]{%
+	\pgfkeys{/quantikz,wires=1,style=,label style=,braces=}
+	\pgfkeys{/quantikz,#1}%
+	\edef\newoptions{row=\the\pgfmatrixcurrentrow,col=\the\pgfmatrixcurrentcolumn,#1}
+ 	\pgfkeysgetvalue{/quantikz/label style}{\options}
+ 	\pgfkeysgetvalue{/quantikz/braces}{\opts}
+	\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\pgfutil@g@addto@macro\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\tikzcd@atendlabels\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{%
+		\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\mgoutput@end\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\newoptions\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\options\expandafter}\expandafter{\opts}{#2}%
+	}
+}
+%deferred functions for the above
+\newcommand{\mginput@end}[4]{%collected options,label style, brace style,text
+	\pgfkeys{/quantikz,wires=1}
+ 	\pgfkeys{/quantikz,#1}%
+ 	\edef\quantwires{\pgfkeysvalueof{/quantikz/wires}}
+	%\pgfkeysgetvalue{/quantikz/wires}{\quantwires}
+	\pgfkeysgetvalue{/quantikz/row}{\row}
+	\pgfkeysgetvalue{/quantikz/col}{\col}
+%can we find the gategroup node?
+\xdef\cell{group\tikzcdmatrixname-1-\col}
+\foreach \n in {\row,...,1} {%
+	%test if node group-\n-#2 exists
+	\ifnodedefined{group\tikzcdmatrixname-\n-\col}{%
+    	\xdef\cell{group\tikzcdmatrixname-\n-\col}
+    	\breakforeach
+	}{}
+}
+\ifthenelse{\quantwires=1}{%
+	\node at ($(\cell.west |- \tikzcdmatrixname-\row-\col.west)+(0,0cm)$)[leftinternal,#2]{#4};
+}{%
+%\show\quantwires
+\draw[dd,#3] ($(\cell.west |- \tikzcdmatrixname-\row-\col.west)+(0.1cm,0.1cm)$) to node[leftinternal,midway,#2] {#4} ($(\cell.west |- \tikzcdmatrixname-\the\numexpr\row+\quantwires-1\relax-\col.west)+(0.1cm,-0.1cm)$);
+}
+} %
+\newcommand{\mgoutput@end}[4]{%
+	\pgfkeys{/quantikz,wires=1}
+ 	\pgfkeys{/quantikz,#1}%
+ 	\edef\quantwires{\pgfkeysvalueof{/quantikz/wires}}
+	%\pgfkeysgetvalue{/quantikz/wires}{\quantwires}
+	\pgfkeysgetvalue{/quantikz/row}{\row}
+	\pgfkeysgetvalue{/quantikz/col}{\col}
+%can we find the gategroup node?
+\xdef\cell{group\tikzcdmatrixname-1-\col}
+\foreach \n in {\row,...,1} {%
+	%test if node group-\n-#2 exists
+	\ifnodedefined{group\tikzcdmatrixname-\n-\col}{%
+    	\xdef\cell{group\tikzcdmatrixname-\n-\col}
+    	\breakforeach
+	}{}
+}
+\ifthenelse{\quantwires=1}{%
+	\node at ($(\cell.east |- \tikzcdmatrixname-\row-\col.east)+(0,0cm)$)[rightinternal,#2]{#4};
+}{%
+\draw[dm,#3] ($(\cell.east |- \tikzcdmatrixname-\row-\col.east)+(-0.1cm,0.1cm)$) to node[rightinternal,midway,#2] {#4} ($(\cell.east |- \tikzcdmatrixname-\the\numexpr\row+\quantwires-1\relax-\col.east)+(-0.1cm,-0.1cm)$);
+}
+} %
+
+%wave command
+\newcommand\wave[1][]{%
+	\edef\n{\the\pgfmatrixcurrentrow}
+	\expandafter\pgfutil@g@addto@macro\expandafter\tikzcd@atendslices\expandafter{%
+		\expandafter\wave@end\expandafter{\n}{#1}%
+	}
+}
+%deferred wave
+\newcommand{\wave@end}[2]{
+	\node (wave-#1) [fit=(\tikzcdmatrixname-row#1),wave,#2] {};
+}
+
+
+\newcommand\gategroup[2][]{%
+	\pgfkeys{/quantikz,wires=1,style=,label style=,braces=}
+	\pgfkeys{/quantikz,#1}%
+	\edef\newoptions{row=\the\pgfmatrixcurrentrow,col=\the\pgfmatrixcurrentcolumn,#1}
+ 	\pgfkeysgetvalue{/quantikz/style}{\options}
+ 	\pgfkeysgetvalue{/quantikz/label style}{\opts}
+	\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\pgfutil@g@addto@macro\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\tikzcd@atendlabels\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{%
+		\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\gategroup@end\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\newoptions\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\options\expandafter}\expandafter{\opts}{#2}%
+	}
+}
+
+\newcommand{\gategroup@end}[4]{%options, gate style, text style, text
+	\pgfkeys{/quantikz,wires=1,style=,label style=,braces=,steps=1}%
+	\edef\background{0}%
+	\pgfkeys{/quantikz,#1}%
+	\pgfkeysgetvalue{/quantikz/wires}{\quantwires}%
+	\pgfkeysgetvalue{/quantikz/row}{\row}%
+	\pgfkeysgetvalue{/quantikz/col}{\col}%
+	\pgfkeysgetvalue{/quantikz/steps}{\steps}%
+	\edef\fit{(\tikzcdmatrixname-col\col.west |- \tikzcdmatrixname-row\row.north)(\tikzcdmatrixname-col\the\numexpr\col+\steps-1\relax.east |- \tikzcdmatrixname-row\the\numexpr\row+\quantwires-1\relax.south)}%
+	\ifthenelse{\background=1}{%
+		\begin{scope}[on background layer]\node (ggroup-\row-\col) [fit=\fit,draw,inner sep=4pt,thick,label={[group label,#3]:#4},#2] {};\end{scope}
+	}{%
+		\node (ggroup-\row-\col) [fit=\fit,draw,inner sep=4pt, thick,label={[group label,#3]:#4},#2] {};
+	}
+}
+
+%use for fudging classical wires that have horizontal and vertical sections
+\newcommand{\cwbend}[1]{
+	\vcw{#1}\cw
+	\edef\cell{\the\pgfmatrixcurrentrow-\the\pgfmatrixcurrentcolumn}
+	\expandafter\pgfutil@g@addto@macro\expandafter\tikzcd@atendlabels\expandafter{%
+		\expandafter\latephase@end\expandafter{\cell}
+	}
+}
+
+\newcommand{\latephase@end}[1]{
+	\node [phase,inner sep=2pt] at (\tikzcdmatrixname-#1) {};
+}
+
+
+%patch tikzcd to allow for multiple layers of commands
+\patchcmd\tikzcd@{\tikzpicture}{\def\toslice{0}
+ \tikzpicture}{}{}
+\patchcmd\tikzcd@
+    {\global\let\tikzcd@savedpaths\pgfutil@empty}
+    {\global\let\tikzcd@savedpaths\pgfutil@empty
+    \global\let\tikzcd@atendsavedpaths\pgfutil@empty
+    \global\let\tikzcd@atendlabels\pgfutil@empty
+    \global\let\tikzcd@atendslices\pgfutil@empty
+    \pgfutil@g@addto@macro\tikzcd@savedpaths\DivideRowsCols
+    %\pgfmathsetmacro{\mname}{random(100000)}
+    \ifthenelse{\toslice=1}{\pgfutil@g@addto@macro\tikzcd@atendslices\sliceallr}{}
+    }{}{}
+
+%this patching works on modern systems, but I believe is incompatible with the old version that arXiv is running
+%\patchcmd\endtikzcd{\tikzcd@savedpaths}{\tikzcd@savedpaths\tikzcd@atendsavedpaths\tikzcd@atendlabels\tikzcd@atendslices}{}{}
+
+%instead, completely redefine the function
+\def\endtikzcd{%
+  \pgfmatrixendrow\egroup%
+  \pgfextra{\global\let\tikzcdmatrixname\tikzlastnode};%
+  \tikzcdset{\the\pgfmatrixcurrentrow-row diagram/.try}%
+  \begingroup%
+    \pgfkeys{% `quotes' library support
+      /handlers/first char syntax/the character "/.initial=\tikzcd@forward@quotes,%
+      /tikz/edge quotes mean={%
+        edge node={node [execute at begin node=\iftikzcd@mathmode$\fi,%$
+                         execute at end node=\iftikzcd@mathmode$\fi,%$
+                         /tikz/commutative diagrams/.cd,every label,##2]{##1}}}}%
+    \let\tikzcd@errmessage\errmessage% improve error messages
+    \def\errmessage##1{\tikzcd@errmessage{##1^^J...^^Jl.\tikzcd@lineno\space%
+        I think the culprit is a tikzcd arrow in cell \tikzcd@currentrow-\tikzcd@currentcolumn}}%
+    \tikzcd@before@paths@hook%
+    \tikzcd@savedpaths\tikzcd@atendsavedpaths\tikzcd@atendlabels\tikzcd@atendslices%I just added stuff here instead
+  \endgroup%
+  \endtikzpicture%
+  \ifnum0=`{}\fi}
+
+
+%end patching
+\makeatother
+
+%this command runs after we've finished the matrix, and makes unified cells for each row and each column. This allows much nicer alignment of large boxes.
+\newcommand{\DivideRowsCols}{
+	\foreach \n in {1,...,\the\pgfmatrixcurrentrow} {%for each row, construct a master cell that contains all entries
+	\xdef\LoopRow{}
+		\foreach \m in {1,...,\the\pgfmatrixcurrentcolumn}{
+			\ifnodedefined{\tikzcdmatrixname-\n-\m}{
+				\xdef\LoopRow{\LoopRow(\tikzcdmatrixname-\n-\m)}
+			}{}
+			\ifnodedefined{group\tikzcdmatrixname-\n-\m}{
+				\xdef\LoopRow{\LoopRow(group\tikzcdmatrixname-\n-\m)}
+			}{}
+	}
+	\node (\tikzcdmatrixname-row\n) [fit=\LoopRow] {};
+	}
+	\foreach \n in {1,...,\the\pgfmatrixcurrentcolumn} {%for each column, construct a master cell that contains all entries
+	\xdef\LoopCol{}
+		\foreach \m in {1,...,\the\pgfmatrixcurrentrow}{
+			\ifnodedefined{\tikzcdmatrixname-\m-\n}{
+				\xdef\LoopCol{\LoopCol(\tikzcdmatrixname-\m-\n)}
+			}{}
+			\ifnodedefined{group\tikzcdmatrixname-\m-\n}{
+				\xdef\LoopCol{\LoopCol(group\tikzcdmatrixname-\m-\n)}
+			}{}
+	}
+	\node (\tikzcdmatrixname-col\n) [fit=\LoopCol] {};
+	}
+}
+
+%initialise all the pgfkeys for key=value parametre passing in macro options
+
+\pgfkeys{/tikz/slice all/.code={\def\toslice{1}},/tikz/remove end slices/.initial=0,/tikz/slice titles/.initial={\col},/tikz/slice style/.initial={},/tikz/slice label style/.initial={}}
+\pgfkeys{/quantikz/.is family,/quantikz,%
+.unknown/.style={%
+	/quantikz/wires=\pgfkeyscurrentname
+},%
+wires/.initial=1,%
+style/.initial={},label style/.initial={},braces/.initial={},background/.code={\def\background{1}},alternate/.code={\def\helper{1}},row/.initial=1,col/.initial=1,steps/.initial=1,Strike Width/.initial=0.08cm,Strike Height/.initial=0.12cm,swap/.code={\def\toswap{1}}}
+%\pgfkeys{/quantikz/.unknown/.style={/tikz}}
+%\pgfkeys{/tikz/background/.style={},/tikz/wires/.style={}}
+
+%Define some useful commands
+\providecommand{\ket}[1]{\ensuremath{\left | #1 \right\rangle}}
+\providecommand{\bra}[1]{\ensuremath{\left \langle #1 \right |}}
+\providecommand{\proj}[1]{\ket{#1}\bra{#1}}
+
+%single qubit operations
+\newcommand{\phantomgate}[1]{|[linecont,thick, inner ysep=3pt]| \phantom{#1} \qw}
+\newcommand{\hphantomgate}[1]{|[linecont,minimum size=1.5em,thick]| \hphantom{#1} \qw}
+\newcommand{\push}[1]{#1 \qw}
+\DeclareExpandableDocumentCommand{\phase}{O{}m}{|[phase,label={[phase label]#2},#1]| {} \qw}
+\DeclareExpandableDocumentCommand{\control}{O{}m}{|[phase,#1]| {} \qw}
+\DeclareExpandableDocumentCommand{\ocontrol}{O{}m}{|[ophase,#1]| {} \qw}
+\DeclareExpandableDocumentCommand{\targ}{O{}m}{|[circlewc,#1]| {} \qw}
+\DeclareExpandableDocumentCommand{\targX}{O{}m}{|[crossx2,#1]| {} \qw}
+
+%measuring
+\DeclareExpandableDocumentCommand{\meter}{O{}{m}}{|[meter,label={[my label]#2},#1]| {} \qw}
+\DeclareExpandableDocumentCommand{\measuretab}{O{}{m}}{|[measuretab,#1]| {#2} \qw}
+\DeclareExpandableDocumentCommand{\meterD}{O{}{m}}{|[meterD,#1]| {#2} \qw}
+\DeclareExpandableDocumentCommand{\measure}{O{}{m}}{|[measure,#1]| {#2} \qw}
+
+%controlled gates
+\def\ctrl#1{\control{}	\vqw{#1}}
+\def\octrl#1{\ocontrol{}\vqw{#1}}
+\def\swap#1{%
+	\targX{}
+	\edef\start{\the\pgfmatrixcurrentrow-\the\pgfmatrixcurrentcolumn}
+	\edef\end{\the\numexpr#1+\pgfmatrixcurrentrow\relax-\the\pgfmatrixcurrentcolumn}
+	\expandafter\expandafter\expandafter\vqwexplicitcenter\expandafter\expandafter\expandafter{\expandafter\start\expandafter}\expandafter{\end}
+}
+
+%vertical wires
+%classical vertical wire, relative positioning
+\newcommand{\vcw}[1]{
+	\edef\start{\the\pgfmatrixcurrentrow-\the\pgfmatrixcurrentcolumn}
+	\edef\end{\the\numexpr#1+\pgfmatrixcurrentrow\relax-\the\pgfmatrixcurrentcolumn}
+	\expandafter\expandafter\expandafter\vcwexplicit\expandafter\expandafter\expandafter{\expandafter\start\expandafter}\expandafter{\end}
+}
+%vertical quantum wire, relative positioning
+\newcommand{\vqw}[1]{
+	\edef\start{\the\pgfmatrixcurrentrow-\the\pgfmatrixcurrentcolumn}
+	\edef\end{\the\numexpr#1+\pgfmatrixcurrentrow\relax-\the\pgfmatrixcurrentcolumn}
+	\expandafter\expandafter\expandafter\vqwexplicit\expandafter\expandafter\expandafter{\expandafter\start\expandafter}\expandafter{\end}
+}
+%quantum wire, absolute positioning
+\newcommand{\vqwexplicit}[2]{
+	\arrow[from=#1,to=#2,dash,thick] {}
+}
+\newcommand{\vcwexplicit}[2]{
+	\arrow[from=#1,to=#2,dash,thick,xshift=0.05cm] {}\arrow[from=#1,to=#2,dash,thick,xshift=-0.05cm] {}
+}
+%quantum wire, absolute positioning, going to centres of cell, not edge.
+\newcommand{\vqwexplicitcenter}[2]{
+	\arrow[from=#1,to=#2,dash,thick,start anchor=center,end anchor=center] {}
+}
+
+%horizontal wires
+\newcommand{\qw}{\ifthenelse{\the\pgfmatrixcurrentcolumn>1}{\arrow[dash,thick]{l}}{}}
+\newcommand{\cw}{\ifthenelse{\the\pgfmatrixcurrentcolumn>1}{\arrow[dash,thick,yshift=0.05cm]{l}\arrow[dash,thick,yshift=-0.05cm]{l}}{}}
+%define the strike distance for strike-through on qwbundle.
+%\newcommand*{\StrikeDistance}{0.1cm}%
+%a bundle of horizontal quantum wires
+\newcommand{\qwbundle}[1][]{\ifthenelse{\the\pgfmatrixcurrentcolumn>1}{
+	\def\helper{0}
+	\pgfset{/quantikz,#1}
+	\ifthenelse{\helper=1}{
+		\arrow[dash,thick,yshift=0.1cm]{l}\arrow[dash,thick]{l}\arrow[dash,thick,yshift=-0.1cm]{l}
+	}{
+	\arrow[phantom,strike arrow]{l}
+	}}{}}
+
+
+
+
+%configure some of the style properties.
+\tikzcdset{row sep/normal=0.5cm,column sep/normal=0.5cm,thick,nodes in empty cells,every cell/.style={
+        anchor=center,minimum size=0pt,inner sep=0pt,outer sep=0pt,thick
+    }
+    }
+\tikzset{
+    operator/.style={draw,fill=white,minimum size=1.5em, inner xsep=2pt,thick,align=center},
+    leftinternal/.style={anchor=mid west,font=\scriptsize,inner sep=4pt,align=center},
+    rightinternal/.style={anchor=mid east,font=\scriptsize,inner sep=4pt,align=center},
+    wave/.style={inner sep=-3pt,tape,fill=white,apply={draw=black} except on segments {5,6,1,2,9}},
+    phase/.style={fill,shape=circle,minimum size=4pt},
+    phase label/.style={label distance=2mm,label position=45,anchor=mid},
+    ophase/.style={fill=white,draw=black,shape=circle,minimum size=4pt},
+    line/.style={path picture={ 
+\draw[thick,black](path picture bounding box.west) -- (path picture bounding box.east);
+}},
+	linecont/.style={circle,line},
+    cross/.style={path picture={ 
+\draw[thick,black](path picture bounding box.north) -- (path picture bounding box.south) (path picture bounding box.west) -- (path picture bounding box.east);
+}},
+    circlewc/.style={draw,circle,cross,minimum width=4pt,inner sep=3pt},
+    crossx/.style={path picture={ 
+\draw[thick,black,inner sep=0pt]
+(path picture bounding box.south east) -- (path picture bounding box.north west) (path picture bounding box.south west) -- (path picture bounding box.north east) (path picture bounding box.west) -- (path picture bounding box.east);
+}},
+	crossx2/.style={circle,crossx,minimum size=1em},
+    dd/.style={decoration={brace},decorate,thick},
+    dm/.style={decoration={brace,mirror},decorate,thick},
+    slice/.style={thick,red,dash pattern=on 5pt off 3pt,align=center},
+    meter/.style={draw,fill=white,minimum width=2em,minimum height=1.5em, rectangle, font=\vphantom{A}, line width=.8,
+ path picture={\draw[black] ([shift={(.1,.24)}]path picture bounding box.south west) to[bend left=50] ([shift={(-.1,.24)}]path picture bounding box.south east);\draw[black,-{Latex[scale=0.6]}] ([shift={(0,.1)}]path picture bounding box.south) -- ([shift={(.3,-.1)}]path picture bounding box.north);}},
+ 	measuretab/.style={draw,signal,signal to=west,inner sep=4pt,fill=white},
+ 	meterD/.style={draw,rounded rectangle,rounded rectangle left arc=none,inner sep=4pt,fill=white},
+ 	measure/.style={draw,rounded rectangle,inner sep=4pt,fill=white},
+ 	my label/.style={yshift=0.1cm,above,align=center},
+ 	gg label/.style={label position=center,align=center},
+ 	group label/.style={label position=above,yshift=0.2cm,anchor=mid},
+ 	strike arrow/.style={
+    decoration={markings, mark=at position 0.5 with {
+        \draw [black, thick,-] 
+            ++ (-\pgfkeysvalueof{/quantikz/Strike Width},-\pgfkeysvalueof{/quantikz/Strike Height} )
+            -- ( \pgfkeysvalueof{/quantikz/Strike Width}, \pgfkeysvalueof{/quantikz/Strike Height});}	%can I use pgfkeys and do some maths here?
+    },
+    postaction={decorate},
+}
+}
