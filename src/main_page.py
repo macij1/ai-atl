@@ -8,10 +8,10 @@ def switch_page(page):
 # Initialize session state to track the active page
 if 'active_page' not in st.session_state:
     st.session_state.active_page = 'main'
+    # Main landing page UI
+    st.markdown("<h1 style='text-align: center; margin-top: 50px;'>Welcome to I-Cite!</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; margin-bottom: 50px;'>How can we help you today?</h3>", unsafe_allow_html=True)
 
-# Main landing page UI
-st.markdown("<h1 style='text-align: center; margin-top: 50px;'>Welcome to I-Cite!</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center; margin-bottom: 50px;'>How can we help you today?</h3>", unsafe_allow_html=True)
 
 
 # Create a sidebar
@@ -29,7 +29,7 @@ with st.sidebar:
 
 
 # Centered buttons with larger size and closer alignment
-col1, col2, _ = st.columns([1, 1, 1], gap="small")
+col1, col2 = st.columns([1, 1], gap="small")
 button_style = """
     <style>
         .stButton>button {
