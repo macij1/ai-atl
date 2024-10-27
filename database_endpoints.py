@@ -29,6 +29,17 @@ class Paper:
         self.date = date
         self.content: str = content
     
+    def from_dict(object: dict) -> None:
+        return Paper(doi=object.get('doi'),
+                       id=object.get('id', None),
+                       abstract=object.get('abstract', None),
+                       title=object.get('title', None),
+                       similarity=object.get('similarity', None),
+                       title_similarity=object.get('title_similarity', None),
+                       content=object.get('content', None),
+                       date=object.get('date', None)
+        )
+
     def __str__(self) -> str:
         return f"doi: {self.doi}"
     
@@ -151,7 +162,7 @@ async def _fetch_similarity(embeding: np.ndarray, nbr_articles=3, DESC=True) -> 
         matches = []
         for r in results1 + results2:
             # Collect the description for all the matched similar toy products.
-            matches.append(Paper(*r))
+            matches.append(Paper.from_dict(r))
 
         await conn.close()
         return matches
@@ -214,7 +225,7 @@ async def _fetch_similarity_from_list(embedding: np.ndarray, bois: list[str], DE
         matches = []
         for r in results:
             # Collect the description for all the matched similar toy products.
-            matches.append(Paper(*r))
+            matches.append(Paper.from_dict(r))
 
         await conn.close()
         return matches
@@ -347,7 +358,7 @@ async def _fetch_all_citations():
         await conn.close()
         return matches
 
-def _bfs(dois: list[str], citations: list[dict], max_papers=10000) -> Union[list[str], list[dict]]:
+def _bfs(dois: list[str], citations: list[dict], max_papers=17) -> Union[list[str], list[dict]]:
     """
     Performs a breadth-first search (BFS) to explore related papers based on citations.
 
