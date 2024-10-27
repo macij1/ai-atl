@@ -50,16 +50,24 @@ def render_query_page():
             async def handle_query():
                 with st.spinner("Fetching papers..."):
                     six_papers = await get_papers(query)
-                    ids = [paper.id for paper in six_papers][:1]
-                    dois = [paper.doi for paper in six_papers][:1]
-                    titles =  [paper.title for paper in six_papers][:1]
+                    ids = [paper.id for paper in six_papers]
+                    dois = [paper.doi for paper in six_papers]
+                    titles =  [paper.title for paper in six_papers]
                     context = ""
                 with st.spinner("Fetching documents..."):
-                    llm_context_docs = get_whole_documents(ids) # The good stuff (list)
-                    for i in range(len(llm_context_docs)):
-                        with open(llm_context_docs[i], "r") as f:
-                            doc=f.read()
-                        context+="\nTITLE: "+str(titles[i]) + "\nDOI: "+str(dois[i]) +  "\nDOCUMENT\n "+str(doc)
+                    max_len = len(titles)
+                    while max_len > 0:
+                        try:
+                            ids = ids[:max_len]
+                            dois = dois[:max_len]
+                            titles = titles[:max_len]
+                            llm_context_docs = get_whole_documents(ids) # The good stuff (list)
+                            for i in range(len(llm_context_docs)):
+                                with open(llm_context_docs[i], "r") as f:
+                                    doc=f.read()
+                                context+="\nTITLE: "+str(titles[i]) + "\nDOI: "+str(dois[i]) +  "\nDOCUMENT\n "+str(doc)
+                        except:
+                            max_len -= 1
 
                 with st.spinner("Calling Claude..."):
                     api_key = os.getenv("CLAUDE_API_KEY")
