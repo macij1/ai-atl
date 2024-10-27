@@ -17,6 +17,23 @@ instance_name = "research-paper-db"
 database_name = "research-papers"
 database_user = os.getenv("DATABASE_USER")
 
+class Paper:
+    def __init__(self, doi, id=None, title=None, abstract=None, similarity=None, title_similarity=None, date=None, content=None) -> None:
+        self.id = id
+        self.doi = doi
+        self.title = title
+        self.abstract = abstract
+        self.similarity = similarity
+        self.title_similarity = title_similarity
+        self.date = date
+        self.content = content
+    
+    def __str__(self) -> str:
+        return f"doi: {self.doi}"
+    
+    def __repr__(self):
+        return f"doi: {self.doi}"
+
 async def test_connection():
     """
     Tests the connection to a Cloud SQL database using the asyncpg driver.
@@ -51,7 +68,7 @@ async def test_connection():
         # close asyncpg connection
         await conn.close()
 
-async def _fetch_similarity(embeding, nbr_articles=2, DESC=True):
+async def _fetch_similarity(embeding, nbr_articles=2, DESC=True) -> list[Paper]:
     """
     Fetch similar articles from the database based on a given embedding vector.
 
@@ -113,15 +130,7 @@ async def _fetch_similarity(embeding, nbr_articles=2, DESC=True):
         matches = []
         for r in results:
             # Collect the description for all the matched similar toy products.
-            matches.append(
-                {
-                    "doi": r['doi'],
-                    "id": r['id'],
-                    "title": r["title"],
-                    "abstract": r["abstract"],
-                    "similarity": r["similarity"],
-                    "title_similarity": r["title_similarity"],
-                }
+            matches.append(Paper(*r)
             )
 
         await conn.close()
@@ -208,4 +217,133 @@ async def _get_embeding(query: str) -> torch.Tensor:
     # Optionally, get the embeddings for the [CLS] token
     cls_embedding = last_hidden_states[:, 0, :]
 
-    return cls_embedding
+    return cls_embedding[0]
+
+async def _fetch_all_citations():
+    """
+    Fetches all citation records from the Cloud SQL database.
+
+    This asynchronous function connects to the Cloud SQL database and retrieves 
+    all entries from the citations table. Each entry includes the source paper 
+    and the papers that cite it.
+
+    Returns:
+        list[dict]: A list of dictionaries, each representing a citation record with the following keys:
+            - 'source_paper' (str): The DOI of the paper being cited.
+            - 'cited_by' (str): The DOI of the paper that cites the source paper.
+
+    If no citation records are found, the function returns an empty list.
+
+    Note:
+        This function uses the pgvector extension to enable advanced vector operations,
+        although it does not perform any vector-based queries in this implementation.
+    """
+    loop = asyncio.get_running_loop()
+    async with Connector(loop=loop) as connector:
+        # Create connection to Cloud SQL database.
+        conn: asyncpg.Connection = await connector.connect_async(
+            f"{project_id}:{region}:{instance_name}",  # Cloud SQL instance connection name
+            "asyncpg",
+            user=f"{database_user}",
+            password=f"{database_password}",
+            db=f"{database_name}",
+        )
+
+        results = await conn.fetch(
+            """
+            SELECT *
+            FROM citations
+            """
+        )
+
+        if len(results) == 0:
+            return []
+        matches = []
+        for r in results:
+            # Collect the description for all the matched similar toy products.
+            matches.append(
+                {
+                    "source_paper": r["source_paper"],
+                    "cited_by": r["cited_by"],
+                }
+            )
+
+        await conn.close()
+        return matches
+
+
+def _bfs(bois: list[str], citations: list[dict], max_papers=10) -> list[str]:
+    """
+    Performs a breadth-first search (BFS) to explore related papers based on citations.
+
+    This function takes a list of base of interest (BOI) papers and a list of citation data to find
+    additional papers that are cited by or cite the BOI papers. The search continues until it reaches 
+    a specified maximum number of papers.
+
+    Parameters:
+    - bois (list[str]): A list of DOIs (or identifiers) representing the base papers of interest.
+    - citations (list[dict]): A list of citation records, where each record is a dictionary containing:
+        - 'cited_by' (str): The DOI of the paper that is citing another paper.
+        - 'source_paper' (str): The DOI of the paper being cited.
+    - max_papers (int): The maximum number of papers to return, including the base papers and 
+                        their related papers. Default is 10.
+
+    Returns:
+    - list[str]: A list of DOIs representing the base papers and any additional papers found 
+                 through citations, up to the maximum specified.
+
+    Note:
+    The search stops once the total number of identified papers reaches the `max_papers` limit.
+    """
+    based_on = set()
+    future_work = set()
+    queue = [i for i in bois]
+    for boi in queue:
+        for citation in citations:
+            if citation['cited_by'] == boi and citation['source_paper'] not in based_on:
+                queue.append(citation['source_paper'])
+                based_on.add(citation['source_paper'])
+            if len(bois) + len(based_on) >= max_papers: break
+        if len(bois) + len(based_on) >= max_papers: break
+
+    queue = [i for i in bois]
+    for boi in queue:
+        for citation in citations:
+            if citation['source_paper'] == boi  and citation['cited_by'] not in future_work:
+                queue.append(citation['cited_by'])
+                future_work.add(citation['cited_by'])
+            if len(bois) + len(based_on) + len(future_work) >= max_papers: break
+        if len(bois) + len(based_on) + len(future_work) >= max_papers: break
+    return bois + list(based_on) + list(future_work)
+    
+async def get_related_bois(bois: list[str]) -> list[str]:
+    """
+    Retrieves related papers based on the provided list of DOIs (bois).
+
+    This asynchronous function uses a breadth-first search (BFS) approach to
+    find papers that cite the given DOIs and papers that are cited by them.
+
+    Args:
+        bois (list[str]): A list of DOIs representing the base papers for which
+                          related citations are to be fetched.
+
+    Returns:
+        list[str]: A list of DOIs that are related to the provided base papers.
+                    This includes the original DOIs as well as those that cite
+                    or are cited by them.
+
+    Note:
+        This function calls an internal BFS function (_bfs) and fetches all
+        citation data from the database using the _fetch_all_citations function.
+    """
+    return _bfs(bois, await _fetch_all_citations())
+
+async def main():
+    await test_connection()
+    # Fetch similarity for the embedding of the test query
+    similarity = await _fetch_similarity(await _get_embeding("test"))
+    print(similarity)
+
+if __name__ == "__main__":
+    # Run the main function
+    asyncio.run(main())
