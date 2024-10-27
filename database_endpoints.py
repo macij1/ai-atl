@@ -29,6 +29,17 @@ class Paper:
         self.date = date
         self.content: str = content
     
+    def from_dict(object: dict) -> None:
+        return Paper(doi=object.get('doi'),
+                       id=object.get('id', None),
+                       abstract=object.get('abstract', None),
+                       title=object.get('title', None),
+                       similarity=object.get('similarity', None),
+                       title_similarity=object.get('title_similarity', None),
+                       content=object.get('content', None),
+                       date=object.get('date', None)
+        )
+
     def __str__(self) -> str:
         return f"doi: {self.doi}"
     
@@ -151,7 +162,7 @@ async def _fetch_similarity(embeding: np.ndarray, nbr_articles=3, DESC=True) -> 
         matches = []
         for r in results1 + results2:
             # Collect the description for all the matched similar toy products.
-            matches.append(Paper(*r))
+            matches.append(Paper.from_dict(r))
 
         await conn.close()
         return matches
@@ -214,7 +225,7 @@ async def _fetch_similarity_from_list(embedding: np.ndarray, bois: list[str], DE
         matches = []
         for r in results:
             # Collect the description for all the matched similar toy products.
-            matches.append(Paper(*r))
+            matches.append(Paper.from_dict(r))
 
         await conn.close()
         return matches
@@ -347,7 +358,7 @@ async def _fetch_all_citations():
         await conn.close()
         return matches
 
-def _bfs(dois: list[str], citations: list[dict], max_papers=10000) -> Union[list[str], list[dict]]:
+def _bfs(dois: list[str], citations: list[dict], max_papers=17) -> Union[list[str], list[dict]]:
     """
     Performs a breadth-first search (BFS) to explore related papers based on citations.
 
@@ -423,14 +434,71 @@ async def get_related_papers(query, papers: list[Paper]) -> Union[list[Paper], l
     papers_bfs.sort(key=lambda p: p.similarity)
     return papers + papers_bfs , used_citations
 
+async def fetch_substring_match(query: str) -> list[Paper]:
+    """
+    Fetches all papers from the database that have a title containing a specific substring.
+
+    This method establishes an asynchronous connection to the Cloud SQL database, 
+    executes a query to find all entries in the `papers` table where the `title` 
+    column contains the specified substring (case-insensitive). The results are 
+    returned as a list of `Paper` objects.
+
+    Args:
+        query (str): The substring to search for in the title of the papers.
+
+    Returns:
+        list[Paper]: A list of `Paper` objects that match the query. 
+                     Returns an empty list if no matches are found.
+
+    Raises:
+        Exception: Any exceptions related to database connection or query execution 
+                   will propagate to the caller.
+    """
+    loop = asyncio.get_running_loop()
+    async with Connector(loop=loop) as connector:
+        # Create connection to Cloud SQL database.
+        conn: asyncpg.Connection = await connector.connect_async(
+            f"{project_id}:{region}:{instance_name}",  # Cloud SQL instance connection name
+            "asyncpg",
+            user=f"{database_user}",
+            password=f"{database_password}",
+            db=f"{database_name}",
+        )
+
+        await register_vector(conn)
+        # Find similar products to the query using cosine similarity search
+        # over all vector embeddings. This new feature is provided by `pgvector`.
+        results = await conn.fetch(
+            f"""
+            SELECT *
+            FROM papers
+            WHERE title ILIKE '%{query}%';
+            """
+        )
+
+        if len(results) == 0:
+            return []
+        matches = []
+        for r in results:
+            # Collect the description for all the matched similar toy products.
+            matches.append(
+                Paper.from_dict(r)
+            )
+
+        await conn.close()
+        return matches
+
 async def main():
     await test_connection()
     # Fetch similarity for the embedding of the test query
     query = "Conditional Teacher-Student Learning"
-    papers = await get_papers(query)
-    print(papers)
-    related, citations = await get_related_papers(query, papers)
-    print(related)
+    print(query)
+    # papers = await get_papers(query)
+    # print(papers)
+    # related, citations = await get_related_papers(query, papers)
+    # print(related)
+    res = await fetch_substring_match(query)
+    print(res)
 
 if __name__ == "__main__":
     # Run the main function
