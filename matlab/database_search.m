@@ -1,0 +1,39 @@
+
+data = readtable('citation_connections_1000_1999.csv');
+sources = data.source_paper;
+cited = data.cited_by;
+
+papers = unique([sources; cited]);
+numPapers = length(papers);
+
+paperMap = containers.Map(papers, 1:numPapers);
+
+A = sparse(numPapers, numPapers);
+
+for i = 1:height(data)
+    srcIdx = paperMap(sources{i});
+    tgtIdx = paperMap(cited{i});
+    A(tgtIdx, srcIdx) = A(tgtIdx, srcIdx) + 1;
+end
+
+colSum = sum(A, 1);
+danglingNodes = (colSum == 0); 
+A(:, danglingNodes) = 1 / numPapers;
+A(:, colSum > 0) = A(:, colSum > 0) ./ colSum(colSum > 0);
+
+d = 0.85;  
+tolerance = 1e-6;  
+pagerankVec = ones(numPapers, 1) / numPapers;
+delta = 1;
+
+while delta > tolerance
+    newPagerankVec = (1 - d) / numPapers + d * A * pagerankVec;
+    delta = norm(newPagerankVec - pagerankVec, 1);
+    pagerankVec = newPagerankVec;
+end
+
+[~, idx] = sort(pagerankVec, 'descend');
+rankedPapers = papers(idx);
+
+disp('Top papers by PageRank:');
+disp(rankedPapers());

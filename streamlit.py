@@ -1,5 +1,7 @@
 import streamlit as st
 import anthropic
+import arxiv
+
 
 # Initialize session state for chat history if it doesn't exist
 if 'messages' not in st.session_state:
@@ -57,13 +59,32 @@ question = st.chat_input("Ask something about the article:")
 
 # Process the input when a question is provided
 if question:
+
+    '''
+    GET DOCUMENTS FROM SELECTED DOIs
+    '''
+    # Get dois from papers
+    # Load JSON data
+    data = json.loads(json_data)
+    # Extract DOIs into a list
+    dois = [paper['doi'] for paper in data['papers']]
+
+
     # Prepare the prompt for the model
     prompt = f"{anthropic.HUMAN_PROMPT} Here's the article:\n\n{docs}\n\nQuestion: {question}{anthropic.AI_PROMPT}"
+
+    # ADD TITLES FOR EACH OF THE PAPERS
+    # PROVIDE THE DOI: ANY TIME A PAPER IS REFEFENCED, MENTION THE DOI (OPT, LINKS)
+    # PROVIDE EXAMPLES
+    # PROVIDE A TEMPLATE: (REFERCENCES AND LINKS FOR SURE)
+    # CHAIN OF THOUGHT: CoT. Think carefully about your response
+    # TRY TO KEEP IT WITHIN 300 words
+    # 
 
     # Send the prompt to the model
     response = client.messages.create(
         model="claude-3-haiku-20240307",
-        max_tokens=100,
+        max_tokens=1000, # REMEMEBER TO INCREASE IF NECESSARY
         messages=[{"role": "user", "content": prompt}]
     )
 
