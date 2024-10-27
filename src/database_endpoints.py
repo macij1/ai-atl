@@ -472,7 +472,8 @@ async def fetch_substring_match(query: str) -> list[Paper]:
             f"""
             SELECT *
             FROM papers
-            WHERE title ILIKE '%{query}%';
+            WHERE title ILIKE '%{query}%'
+            ORDER BY relevance DESC;
             """
         )
 

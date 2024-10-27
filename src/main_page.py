@@ -29,7 +29,7 @@ with st.sidebar:
 
 
 # Centered buttons with larger size and closer alignment
-col1, col2 = st.columns([1, 1], gap="small")
+col1, col2, col3 = st.columns([1, 1, 1], gap="small")
 button_style = """
     <style>
         .stButton>button {
@@ -48,6 +48,9 @@ with col1:
 with col2:
     if st.button('📄 Query', key='query_main'):
         switch_page('query')
+with col3:
+    if st.button('🔤 Text Matching', key='text_matching_main'):
+        switch_page('text_matching')
 
 # Navigate to the selected page
 if st.session_state.active_page == 'search':
@@ -56,3 +59,6 @@ if st.session_state.active_page == 'search':
 elif st.session_state.active_page == 'query':
     from query_page import render_query_page
     render_query_page()
+elif st.session_state.active_page == 'text_matching':
+    from text_matching_page import render_text_matching_page  # Import your new text matching page
+    render_text_matching_page()
