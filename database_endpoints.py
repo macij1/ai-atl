@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from transformers import AutoTokenizer, AutoModel
 import os
+from typing import Union
 
 tokenizer = AutoTokenizer.from_pretrained('jinaai/jina-embeddings-v3')
 model = AutoModel.from_pretrained('jinaai/jina-embeddings-v3', trust_remote_code=True)
@@ -18,21 +19,21 @@ database_name = "research-papers"
 database_user = os.getenv("DATABASE_USER")
 
 class Paper:
-    def __init__(self, doi, id=None, title=None, abstract=None, similarity=None, title_similarity=None, date=None, content=None) -> None:
-        self.id = id
-        self.doi = doi
-        self.title = title
-        self.abstract = abstract
-        self.similarity = similarity
-        self.title_similarity = title_similarity
+    def __init__(self, doi, id:str=None, title:str=None, abstract:str=None, similarity:float=None, title_similarity:float=None, date:str=None, content:str=None) -> None:
+        self.id: str = id
+        self.doi: str = doi
+        self.title: str = title
+        self.abstract: str = abstract
+        self.similarity: float = similarity
+        self.title_similarity: float = title_similarity
         self.date = date
-        self.content = content
+        self.content: str = content
     
     def __str__(self) -> str:
         return f"doi: {self.doi}"
     
     def __repr__(self):
-        return f"doi: {self.doi}"
+        return f"doi: {self.doi}, id: {self.id}, title: {self.title}\n"
 
 async def test_connection():
     """
@@ -68,7 +69,7 @@ async def test_connection():
         # close asyncpg connection
         await conn.close()
 
-async def _fetch_similarity(embeding, nbr_articles=3, DESC=True) -> list[Paper]:
+async def _fetch_similarity(embeding: np.ndarray, nbr_articles=3, DESC=True) -> list[Paper]:
     """
     Fetch similar articles from the database based on a given embedding vector.
 
@@ -116,7 +117,7 @@ async def _fetch_similarity(embeding, nbr_articles=3, DESC=True) -> list[Paper]:
         # over all vector embeddings. This new feature is provided by `pgvector`.
         results1 = await conn.fetch(
             f"""
-            SELECT id, doi, title, 1 - (embedding <=> $1) AS similarity, abstract, 1 - (title_embedding <=> $1) AS title_similarity, 
+            SELECT doi, id, title, 1 - (embedding <=> $1) AS similarity, abstract, 1 - (title_embedding <=> $1) AS title_similarity 
             FROM papers
             ORDER BY similarity {"DESC" if DESC else ""}
             LIMIT $2
@@ -128,13 +129,13 @@ async def _fetch_similarity(embeding, nbr_articles=3, DESC=True) -> list[Paper]:
         results2 = await conn.fetch(
             f"""
 
-            SELECT id, doi, title, 1 - (embedding <=> $1) AS similarity, abstract, 
+            SELECT doi, id, title, 1 - (embedding <=> $1) AS similarity, abstract, 
                 1 - (title_embedding <=> $1) AS title_similarity
             FROM papers
             WHERE doi NOT IN (
                 SELECT doi
                 FROM papers
-                ORDER BY title_similarity {"DESC" if DESC else ""}
+                ORDER BY 1 - (embedding <=> $1) {"DESC" if DESC else ""}
                 LIMIT $2
             )
             ORDER BY similarity {"DESC" if DESC else ""}
@@ -149,6 +150,69 @@ async def _fetch_similarity(embeding, nbr_articles=3, DESC=True) -> list[Paper]:
             raise Exception("Did not find any results. Adjust the query parameters.")
         matches = []
         for r in results1 + results2:
+            # Collect the description for all the matched similar toy products.
+            matches.append(Paper(*r))
+
+        await conn.close()
+        return matches
+    
+async def _fetch_similarity_from_list(embedding: np.ndarray, bois: list[str], DESC=True) -> list[Paper]:
+    """
+    Fetches similar papers from the database based on the provided embedding and a list of DOIs.
+
+    This method establishes a connection to a Cloud SQL database and retrieves a list of papers
+    whose DOIs match those in the provided list. The similarity is calculated using cosine similarity
+    based on the given embedding. The results are sorted by similarity in descending order (or ascending
+    if specified) and limited to the number of articles specified.
+
+    Args:
+        embedding (np.ndarray): The embedding vector used to compute similarity.
+        bois (list[str]): A list of DOIs to filter the papers by.
+        nbr_articles (int, optional): The maximum number of articles to return. Defaults to 3.
+        DESC (bool, optional): If True, sorts the results in descending order of similarity. Defaults to True.
+
+    Returns:
+        list[Paper]: A list of `Paper` objects representing the similar papers found in the database.
+
+    Raises:
+        Exception: Raises an exception if no results are found.
+    """
+    if not bois: return []
+    loop = asyncio.get_running_loop()
+    async with Connector(loop=loop) as connector:
+        # Create connection to Cloud SQL database.
+        conn: asyncpg.Connection = await connector.connect_async(
+            f"{project_id}:{region}:{instance_name}",  # Cloud SQL instance connection name
+            "asyncpg",
+            user=f"{database_user}",
+            password=f"{database_password}",
+            db=f"{database_name}",
+        )
+
+        await register_vector(conn)
+        # Find similar products to the query using cosine similarity search
+        # over all vector embeddings. This new feature is provided by `pgvector`.
+        # Assuming `doi_list` is your list of DOI values to filter on
+
+        # Convert the list of DOIs into a string format suitable for SQL
+        boi_placeholders = ', '.join(f"${i+2}" for i in range(len(bois)))
+
+        results = await conn.fetch(
+            f"""
+            SELECT doi, id, title, 1 - (embedding <=> $1) AS similarity, abstract, 
+                1 - (title_embedding <=> $1) AS title_similarity
+            FROM papers
+            WHERE doi IN ({boi_placeholders})
+            ORDER BY similarity {"DESC" if DESC else ""}
+            """,
+            embedding,
+            *bois,  # Unpack the list of DOIs as additional arguments
+        )
+
+        if len(results) == 0:
+            return []
+        matches = []
+        for r in results:
             # Collect the description for all the matched similar toy products.
             matches.append(Paper(*r))
 
@@ -181,9 +245,8 @@ async def get_papers(query: str, nbr_of_dois:int=3) -> list[Paper]:
           API credentials) to perform the query.
         - This function may involve asynchronous operations depending on the implementation.
     """
-    query_embedding = _get_embeding(query=query)
+    query_embedding = await _get_embeding(query=query)
     return await _fetch_similarity(query_embedding, nbr_articles=nbr_of_dois, DESC=True)
-
 
 async def _get_embeding(query: str) -> torch.Tensor:
     """
@@ -284,8 +347,7 @@ async def _fetch_all_citations():
         await conn.close()
         return matches
 
-
-def _bfs(bois: list[str], citations: list[dict], max_papers=10) -> list[str]:
+def _bfs(bois: list[str], citations: list[dict], max_papers=10000) -> Union[list[str], list[dict]]:
     """
     Performs a breadth-first search (BFS) to explore related papers based on citations.
 
@@ -308,14 +370,16 @@ def _bfs(bois: list[str], citations: list[dict], max_papers=10) -> list[str]:
     Note:
     The search stops once the total number of identified papers reaches the `max_papers` limit.
     """
-    based_on = set()
-    future_work = set()
+    based_on = set(bois)
+    future_work = set(bois)
     queue = [i for i in bois]
+    citations_utalized = []
     for boi in queue:
         for citation in citations:
             if citation['cited_by'] == boi and citation['source_paper'] not in based_on:
                 queue.append(citation['source_paper'])
                 based_on.add(citation['source_paper'])
+                citations_utalized.append(citation)
             if len(bois) + len(based_on) >= max_papers: break
         if len(bois) + len(based_on) >= max_papers: break
 
@@ -325,11 +389,13 @@ def _bfs(bois: list[str], citations: list[dict], max_papers=10) -> list[str]:
             if citation['source_paper'] == boi  and citation['cited_by'] not in future_work:
                 queue.append(citation['cited_by'])
                 future_work.add(citation['cited_by'])
+                citations_utalized.append(citation)
             if len(bois) + len(based_on) + len(future_work) >= max_papers: break
         if len(bois) + len(based_on) + len(future_work) >= max_papers: break
-    return bois + list(based_on) + list(future_work)
+        
+    return list(set(list(based_on) + list(future_work)).difference(set(bois))), citations_utalized
     
-async def get_related_bois(bois: list[str]) -> list[str]:
+async def get_related_papers(query, bois: list[str]) -> Union[list[Paper], list[dict]]:
     """
     Retrieves related papers based on the provided list of DOIs (bois).
 
@@ -349,13 +415,20 @@ async def get_related_bois(bois: list[str]) -> list[str]:
         This function calls an internal BFS function (_bfs) and fetches all
         citation data from the database using the _fetch_all_citations function.
     """
-    return _bfs(bois, await _fetch_all_citations())
+    embedding = await _get_embeding(query)
+    citations = await _fetch_all_citations()
+    bois, used_citations = _bfs(bois, citations)
+    print("in BFS bois:",bois, used_citations)
+    return await _fetch_similarity_from_list(embedding, bois), used_citations
 
 async def main():
     await test_connection()
     # Fetch similarity for the embedding of the test query
-    similarity = await _fetch_similarity(await _get_embeding("test"))
-    print(similarity)
+    query = "Conditional Teacher-Student Learning"
+    papers = await get_papers(query)
+    print(papers)
+    related, citations = await get_related_papers(query, [p.doi for p in papers])
+    print(related)
 
 if __name__ == "__main__":
     # Run the main function
