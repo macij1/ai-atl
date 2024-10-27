@@ -347,7 +347,7 @@ async def _fetch_all_citations():
         await conn.close()
         return matches
 
-def _bfs(bois: list[str], citations: list[dict], max_papers=10000) -> Union[list[str], list[dict]]:
+def _bfs(dois: list[str], citations: list[dict], max_papers=10000) -> Union[list[str], list[dict]]:
     """
     Performs a breadth-first search (BFS) to explore related papers based on citations.
 
@@ -370,9 +370,9 @@ def _bfs(bois: list[str], citations: list[dict], max_papers=10000) -> Union[list
     Note:
     The search stops once the total number of identified papers reaches the `max_papers` limit.
     """
-    based_on = set(bois)
-    future_work = set(bois)
-    queue = [i for i in bois]
+    based_on = set(dois)
+    future_work = set(dois)
+    queue = [i for i in dois]
     citations_utalized = []
     for boi in queue:
         for citation in citations:
@@ -380,22 +380,22 @@ def _bfs(bois: list[str], citations: list[dict], max_papers=10000) -> Union[list
                 queue.append(citation['source_paper'])
                 based_on.add(citation['source_paper'])
                 citations_utalized.append(citation)
-            if len(bois) + len(based_on) >= max_papers: break
-        if len(bois) + len(based_on) >= max_papers: break
+            if len(dois) + len(based_on) >= max_papers: break
+        if len(dois) + len(based_on) >= max_papers: break
 
-    queue = [i for i in bois]
+    queue = [i for i in dois]
     for boi in queue:
         for citation in citations:
             if citation['source_paper'] == boi  and citation['cited_by'] not in future_work:
                 queue.append(citation['cited_by'])
                 future_work.add(citation['cited_by'])
                 citations_utalized.append(citation)
-            if len(bois) + len(based_on) + len(future_work) >= max_papers: break
-        if len(bois) + len(based_on) + len(future_work) >= max_papers: break
+            if len(dois) + len(based_on) + len(future_work) >= max_papers: break
+        if len(dois) + len(based_on) + len(future_work) >= max_papers: break
         
-    return list(set(list(based_on) + list(future_work)).difference(set(bois))), citations_utalized
+    return list(set(list(based_on) + list(future_work)).difference(set(dois))), citations_utalized
     
-async def get_related_papers(query, bois: list[str]) -> Union[list[Paper], list[dict]]:
+async def get_related_papers(query, papers: list[Paper]) -> Union[list[Paper], list[dict]]:
     """
     Retrieves related papers based on the provided list of DOIs (bois).
 
@@ -415,12 +415,13 @@ async def get_related_papers(query, bois: list[str]) -> Union[list[Paper], list[
         This function calls an internal BFS function (_bfs) and fetches all
         citation data from the database using the _fetch_all_citations function.
     """
+    dois = [p.doi for p in papers]
     embedding = await _get_embeding(query)
     citations = await _fetch_all_citations()
-    bois, used_citations = _bfs(bois, citations)
-    papers = await _fetch_similarity_from_list(embedding, bois)
-    papers.sort(key=lambda p: p.similarity)
-    return papers , used_citations
+    dois, used_citations = _bfs(dois, citations)
+    papers_bfs = await _fetch_similarity_from_list(embedding, dois)
+    papers_bfs.sort(key=lambda p: p.similarity)
+    return papers + papers_bfs , used_citations
 
 async def main():
     await test_connection()
@@ -428,7 +429,7 @@ async def main():
     query = "Conditional Teacher-Student Learning"
     papers = await get_papers(query)
     print(papers)
-    related, citations = await get_related_papers(query, [p.doi for p in papers])
+    related, citations = await get_related_papers(query, papers)
     print(related)
 
 if __name__ == "__main__":
