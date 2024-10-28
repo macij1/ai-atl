@@ -106,3 +106,10 @@ We welcome contributions to improve the I-Cite project! To contribute:
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+---
+
+### Hackathon Participation
+
+This repository was developed as part of the **AI ATL 2024 Hackathon**. Our team aimed to create an innovative tool for citation analysis and research paper discovery. The project showcases our efforts to leverage advanced technologies and machine learning techniques for academic purposes.
+
+For more information about the hackathon, visit the [AI ATL Hackathon website](https://ai-atl-24.devpost.com/submissions/search?page=4&sort=alpha&terms=&utf8=%E2%9C%93).
