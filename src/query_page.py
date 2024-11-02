@@ -50,6 +50,7 @@ def render_query_page():
             async def handle_query():
                 with st.spinner("Fetching papers..."):
                     six_papers = await get_papers(query)
+                    st.session_state.papers, st.session_state.citations = await get_related_papers(query, six_papers)
                     ids = [paper.id for paper in six_papers]
                     dois = [paper.doi for paper in six_papers]
                     titles =  [paper.title for paper in six_papers]
@@ -66,11 +67,14 @@ def render_query_page():
                                 with open(llm_context_docs[i], "r") as f:
                                     doc=f.read()
                                 context+="\nTITLE: "+str(titles[i]) + "\nDOI: "+str(dois[i]) +  "\nDOCUMENT\n "+str(doc)
+                            break
                         except:
                             max_len -= 1
 
                 with st.spinner("Calling Claude..."):
                     api_key = os.getenv("CLAUDE_API_KEY")
+                    for name, value in os.environ.items():
+                        print("{0}: {1}".format(name, value))
                     response = await call_claude_async(api_key, context, query)
                     st.session_state.claude_response = response  # Store response
 
@@ -79,7 +83,6 @@ def render_query_page():
                 st.markdown("### Claude's Response")
                 st.write(st.session_state.claude_response)  # Display the response
 
-                
             # Run the async process
             asyncio.run(handle_query())
 

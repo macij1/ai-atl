@@ -32,7 +32,7 @@ with st.sidebar:
     )
 
 # Centered buttons with larger size and closer alignment
-col2, col3 = st.columns([1, 1], gap="small")
+col1, col2, col3 = st.columns([1,1, 1], gap="small")
 button_style = """
     <style>
         .stButton>button {
@@ -45,9 +45,9 @@ button_style = """
 st.markdown(button_style, unsafe_allow_html=True)
 
 # Removed the Search button section
-# with col1:
-#     if st.button('🔍 Search', key='search_main'):
-#         switch_page('search')
+with col1:
+    if st.button('Graph', key='search_main'):
+        switch_page('graph')
 
 with col2:
     if st.button('📄 Query', key='query_main'):
@@ -63,3 +63,6 @@ if st.session_state.active_page == 'query':
 elif st.session_state.active_page == 'text_matching':
     from text_matching_page import render_text_matching_page  # Import your new text matching page
     render_text_matching_page()
+elif st.session_state.active_page == "graph":
+    from python_sample_graph_app import render_graph
+    render_graph()
