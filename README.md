@@ -31,25 +31,34 @@ To run the application locally, follow these steps:
    cd i-cite
    ```
 
-2. **Create a virtual environment:**
+2. **Set up your database connection parameters in a `.env` file.**
 
+   Your .env should follow the template below. Make sure to replace all of the values with your actual database connection parameters. You can follow the steps [here](https://cloud.google.com/sql/docs/postgres/editions-intro)
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   DATABASE_PASSWORD=<your-db-password>
+   CREDENTIALS_PATH=<your-credentials-path>
+   PROJECT_ID=<your-google-project-id>
+   DATABASE_USER=<your-database-user-id>
+   CLAUDE_API_KEY=<your-claude-api-key>
    ```
 
-3. **Install the required dependencies:**
+4. **Install the required dependencies:**
 
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Set up your database connection parameters in a `.env` file.**
+5. **Set up your database connection parameters in a `.env` file.**
 
-5. **Run the application:**
+    ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
+    
+6. **Run the application:**
 
    ```bash
-   streamlit run main_page.py
+   streamlit run src/main_page.py
    ```
 
 ## Usage
@@ -108,8 +117,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-### Hackathon Participation
+### Acknowledgements
 
-This repository was developed as part of the **AI ATL 2024 Hackathon**. Our team aimed to create an innovative tool for citation analysis and research paper discovery. The project showcases our efforts to leverage advanced technologies and machine learning techniques for academic purposes.
+This repository was developed as part of the **AI ATL 2024 Hackathon**. Our team aimed to create an innovative tool for citation analysis and research paper discovery. The project showcases our efforts to leverage advanced technologies and machine learning techniques for academic purposes. Thank you to all our collaborators and sponsors. Thank you to arXiv for use of its open access interoperability.
 
 For more information about the hackathon, visit the [AI ATL Hackathon website](https://ai-atl-24.devpost.com/submissions/search?page=4&sort=alpha&terms=&utf8=%E2%9C%93).
