@@ -42,17 +42,17 @@ To run the application locally, follow these steps:
    CLAUDE_API_KEY=<your-claude-api-key>
    ```
 
-4. **Install the required dependencies:**
+4. **Set up your database connection parameters in a `.env` file.**
 
    ```bash
-   pip install -r requirements.txt
-   ```
-
-5. **Set up your database connection parameters in a `.env` file.**
-
-    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
+
+5. **Install the required dependencies:**
+
+    ```bash
+   pip install -r requirements.txt
    ```
     
 6. **Run the application:**
