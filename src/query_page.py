@@ -73,8 +73,6 @@ def render_query_page():
 
                 with st.spinner("Calling Claude..."):
                     api_key = os.getenv("CLAUDE_API_KEY")
-                    for name, value in os.environ.items():
-                        print("{0}: {1}".format(name, value))
                     response = await call_claude_async(api_key, context, query)
                     st.session_state.claude_response = response  # Store response
 
