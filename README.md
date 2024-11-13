@@ -2,7 +2,7 @@
 
 Welcome to **I-Cite**, an application designed for researchers and scholars to explore academic papers, retrieve relevant information, and perform text matching queries efficiently.
 
-## Table of Contents
+## Table of Contents 
 
 - [Features](#features)
 - [Installation](#installation)
